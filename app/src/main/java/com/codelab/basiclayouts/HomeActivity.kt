@@ -208,7 +208,7 @@ fun HomeScreen() {
                         modifier = Modifier.fillMaxSize()
                     ) {
                         Image(
-                            painter = painterResource(R.drawable.fc6_nightly_wind_down),
+                            painter = painterResource(R.drawable.ziheng_wang),
                             contentDescription = null,
                             modifier = Modifier
                                 .size(120.dp)
