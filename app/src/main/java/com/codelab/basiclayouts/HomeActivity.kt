@@ -1,18 +1,27 @@
 package com.codelab.basiclayouts
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
+
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -21,6 +30,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -86,9 +96,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -103,7 +116,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.random.Random
+import kotlin.math.*
 
 sealed class EasterEggState {
     object Hidden : EasterEggState()
@@ -113,6 +132,7 @@ sealed class EasterEggState {
 enum class EggType { DEVELOPER, HEART, SECRET }
 
 class HomeActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -123,6 +143,8 @@ class HomeActivity : ComponentActivity() {
     }
 }
 
+@SuppressLint("NewApi")
+@RequiresApi(Build.VERSION_CODES.N)
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
@@ -207,16 +229,25 @@ fun HomeScreen() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        Image(
-                            painter = painterResource(R.drawable.fc6_nightly_wind_down),
-                            contentDescription = null,
+                        Box(
                             modifier = Modifier
-                                .size(120.dp)
+                                .size(150.dp)
                                 .padding(8.dp)
                                 .offset(y = imageOffset.dp)
-                                .shadow(8.dp, shape = CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
+                                .graphicsLayer {
+                                    rotationZ = 0f
+                                    cameraDistance = 12f
+                                }
+                        ) {
+                            HeartParticleEffect(
+                                modifier = Modifier
+                                    .align(Alignment.Center) // 在Box容器内正确对齐
+                                    .graphicsLayer {
+                                        scaleX = 0.8f
+                                        scaleY = 0.8f
+                                    }
+                            )
+                        }
                         AnimatedVisibility(visible = imageOffset == 0f) {
                             Text(
                                 text = "欢迎使用RayVita",
@@ -274,6 +305,148 @@ fun HomeScreen() {
             }
         }
     }
+}
+
+@Composable
+fun HeartParticleEffect(modifier: Modifier = Modifier) {
+    val particles = remember { generateHeartParticles(1200) } // 增加粒子数量
+
+    // 动画状态管理
+    val (heartbeat, lightWave) = remember {
+        mutableStateOf(1f) to mutableStateOf(0f)
+    }
+
+// 主心跳动画修正
+    LaunchedEffect(Unit) {
+        while (isActive) {
+            animate(
+                initialValue = 1f,
+                targetValue = 1.15f,
+                animationSpec = tween(
+                    durationMillis = 300,
+                    easing = FastOutSlowInEasing
+                )
+            ) { value, _ ->
+                heartbeat.value = value
+            }
+            animate(
+                initialValue = 1.15f,
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = 900,
+                    easing = LinearEasing
+                )
+            ) { value, _ ->
+                heartbeat.value = value
+            }
+            delay(1200)
+        }
+    }
+
+    // 光晕波动动画（最终版）
+    LaunchedEffect(Unit) {
+        animate(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = 1200,
+                    easing = LinearEasing
+                ),
+                repeatMode = RepeatMode.Reverse
+            )
+        ) { value, _ ->
+            lightWave.value = value
+        }
+    }
+    Canvas(modifier = modifier) {
+        // 背景光晕
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(Color(0x66FF3D00), Color(0x10FF1744), Color.Transparent),
+                center = center,
+                radius = size.minDimension * 0.8f * (0.9f + lightWave.value * 0.2f)
+            ),
+            blendMode = BlendMode.Plus
+        )
+
+        // 绘制粒子
+        particles.forEach { p ->
+            val scale = heartbeat.value
+            val baseSize = 4f * scale
+            // 核心缩放控制参数（0.5表示原始大小的50%）
+            val heartScale = mutableStateOf(0.3f)
+
+            // 坐标映射（调整Y轴方向)
+            val x = (p.x * heartScale.value * 30).toFloat() + center.x // 30是基础缩放系数
+            val y = (p.y * heartScale.value * 30).toFloat() + center.y
+            // 粒子大小控制（0.8为基础大小系数）
+            val particleSize = 3f * heartScale.value * 0.15f
+
+            // 科技感颜色（蓝紫色系）
+            val hue = 240f + (p.z.coerceIn(-1.0, 1.0) * 40f).toFloat()
+            val color = Color.hsl(
+                hue = hue,
+                saturation = 0.85f,
+                lightness = 0.6f + (lightWave.value * 0.2f)
+            )
+
+            // 主粒子
+            drawCircle(
+                color = color,
+                radius = particleSize, // 增大粒子半径
+                center = Offset(x, y),
+                blendMode = BlendMode.Screen
+            )
+
+            // 光晕效果
+            drawCircle(
+                color = color.copy(alpha = 0.3f),
+                radius = baseSize * 1.5f, // 增大光晕范围
+                center = Offset(x, y),
+                blendMode = BlendMode.Overlay
+            )
+        }
+    }
+}
+
+
+private fun generateHeartParticles(count: Int): List<Point3D> {
+    return List(count) {
+        val theta = Random.nextDouble(0.0, 2 * PI)
+        val r = Random.nextDouble(0.8, 1.2) // 增加半径随机性
+
+        // 立体化改进的方程
+        val x = 16 * sin(theta).pow(3) * r
+        val baseY = 13 * cos(theta) - 5 * cos(2*theta) - 2 * cos(3*theta) - cos(4*theta)
+        val y = -baseY * r
+
+        // 增强Z轴计算（增加心形厚度）
+        val z = when {
+            baseY > 0 -> (sin(theta * 3) * 8 * r).coerceIn(-4.0, 4.0) // 顶部波动
+            else -> (cos(theta * 2) * 6 * r).coerceIn(-3.0, 3.0) // 底部波动
+        }
+
+        Point3D(
+            x * 1.05,  // 微调水平比例
+            y * 0.92,  // 垂直压缩
+            z * 1.8    // 增强深度系数
+        )
+    }
+}
+data class Point3D(
+    val x: Double,
+    val y: Double,
+    val z: Double
+) {
+    fun distanceTo(other: Point3D): Double {
+        return sqrt(
+            (x - other.x).pow(2) +
+                    (y - other.y).pow(2) +
+                    (z - other.z).pow(2)
+        )
+    }
+
 }
 
 @Composable
