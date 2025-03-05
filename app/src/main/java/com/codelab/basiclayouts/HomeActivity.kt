@@ -229,7 +229,12 @@ fun HomeScreen() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        Box(
+
+                        Image(
+                            painter = painterResource(R.drawable.ziheng_wang),
+                            contentDescription = null,
+                     Box(
+
                             modifier = Modifier
                                 .size(150.dp)
                                 .padding(8.dp)
