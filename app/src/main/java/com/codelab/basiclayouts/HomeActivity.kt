@@ -230,9 +230,7 @@ fun HomeScreen() {
                         modifier = Modifier.fillMaxSize()
                     ) {
 
-                        Image(
-                            painter = painterResource(R.drawable.ziheng_wang),
-                            contentDescription = null,
+                        
                      Box(
 
                             modifier = Modifier
