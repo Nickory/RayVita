@@ -576,7 +576,7 @@ private fun CrossTechGrid(items: List<String>) {
                         Text(
                             text = "• $item",
                             style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(vertical = 5.dp)
+                            modifier = Modifier.padding(vertical = 4.dp)
                         )
                     }
                 }
