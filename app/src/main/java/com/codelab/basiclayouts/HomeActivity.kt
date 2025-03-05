@@ -230,7 +230,11 @@ fun HomeScreen() {
                         modifier = Modifier.fillMaxSize()
                     ) {
 
+<<<<<<< Updated upstream
                         
+=======
+
+>>>>>>> Stashed changes
                      Box(
 
                             modifier = Modifier
