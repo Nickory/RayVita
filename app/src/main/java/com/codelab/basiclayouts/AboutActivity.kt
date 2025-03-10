@@ -276,8 +276,10 @@ private fun TechStackList() {
 @Composable
 private fun TeamMemberList() {
     val teamMembers = listOf(
-         MemberInfo("夏东旭 院士", "首席科学家", "AI算法,物联网系统"),
-         MemberInfo("吴迪 研究员", "移动开发工程师", "Android开发,数据库搭建"),
+        MemberInfo("王子恒 主席", "国家主席", "资金支持，行政管理"),
+        MemberInfo("夏东旭 院士", "首席科学家", "AI算法,物联网系统"),
+        MemberInfo("吴迪 研究员", "移动开发工程师", "Android开发,数据库搭建"),
+        MemberInfo("汪紫衡 院长", "架构师", "系统设计,云服务"),
         MemberInfo("小东西 教授", "生物医学应用", "rPPG,生物信号处理"),
         MemberInfo("吴弟 设计师", "用户体验", "UI/UX")
     )
