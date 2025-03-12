@@ -35,6 +35,9 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a'
+        }
     }
 
     buildTypes {
@@ -58,9 +61,15 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+
+
 }
 
+
+
 dependencies {
+    implementation 'com.google.android.gms:play-services-mlkit-face-detection:17.1.0'
+    implementation 'androidx.camera:camera-core:1.4.1'
     def composeBom = platform('androidx.compose:compose-bom:2025.02.00')
     implementation(composeBom)
     androidTestImplementation(composeBom)
@@ -82,5 +91,23 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.8.0'
     implementation 'androidx.compose.material3:material3:1.1.2'
     implementation 'androidx.compose.animation:animation:1.5.4'
+    implementation 'org.jetbrains.kotlinx:kotlin-deeplearning-api:[KOTLIN-DL-VERSION]'
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.4.0'
+    implementation "org.jetbrains.kotlinx:kotlin-dl:0.5.0"
+    implementation "org.tensorflow:tensorflow-lite-gpu:2.8.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4"
+
+    // 核心库
+    implementation 'org.tensorflow:tensorflow-lite:2.11.0'
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.11.0'
+    implementation 'com.google.mlkit:face-detection:16.1.5'
+
+    // UI组件
+    implementation 'androidx.compose.ui:ui:1.6.7'
+    implementation 'androidx.compose.material:material:1.6.7'
+
+    // 数据处理
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'com.github.bumptech.glide:glide:4.14.2'
 
 }

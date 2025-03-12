@@ -1,0 +1,40 @@
+{
+  "backend": "TF",
+  "model": {
+    "layers": [
+      {
+        "class_name": "Input",
+        "config": {
+          "batch_input_shape": [null, 30, 128, 128, 3],
+          "dtype": "float32",
+          "name": "input_1"
+        }
+      },
+      {
+        "class_name": "Conv3D",
+        "config": {
+          "filters": 32,
+          "kernel_size": [3, 3, 3],
+          "activation": "relu",
+          "name": "conv3d_1"
+        }
+      },
+      {
+        "class_name": "MaxPooling3D",
+        "config": {
+          "pool_size": [2, 2, 2],
+          "name": "max_pooling3d_1"
+        }
+      },
+
+      {
+        "class_name": "Dense",
+        "config": {
+          "units": 1,
+          "activation": "linear",
+          "name": "st_rppg_output"
+        }
+      }
+    ]
+  }
+}
