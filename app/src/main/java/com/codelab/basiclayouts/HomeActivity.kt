@@ -114,6 +114,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.android.volley.Network
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -523,6 +524,7 @@ private fun FeatureGroups(context: android.content.Context) {
     )
 
     val toolFeatures = listOf(
+        FeatureItem(Icons.Default.Share, "社交网络", "与朋友分享"),
         FeatureItem(Icons.Default.Settings, "个性化设置", "调整监测偏好"),
         FeatureItem(Icons.Default.Feedback, "用户反馈", "使用建议与问题"),
         FeatureItem(Icons.Default.Share, "分享数据", "与他人共享报告"),
@@ -570,8 +572,9 @@ private fun FeatureGroups(context: android.content.Context) {
                 onFeatureClick = { featureTitle ->
                     when (featureTitle) {
                         "用户反馈" -> sendEmail(context)
-                        "分享数据" -> shareHealthData(context)
+                        "分享数据" -> context.startActivity(Intent(context, SocialActivity::class.java))
                         "了解更多" -> context.startActivity(Intent(context, AboutActivity::class.java))
+                        "社交网络" -> context.startActivity(Intent(context, SocialActivity::class.java))
                     }
                 }
             )
