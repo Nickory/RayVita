@@ -41,6 +41,7 @@ import androidx.core.content.ContextCompat
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.camera.core.ImageProxy
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -63,6 +64,10 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.Face
+import com.google.mlkit.vision.face.FaceDetection
+import com.google.mlkit.vision.face.FaceDetectorOptions
 import kotlinx.coroutines.delay
 
 
@@ -642,14 +647,6 @@ private fun processImage(image: Image) {
     }
 }
 
-//private fun calculateHeartRate(): Int {
-//    if (signalBuffer.size < BUFFER_SIZE) return 0
-//    val peaks = (1 until signalBuffer.lastIndex).count {
-//        signalBuffer[it] > signalBuffer[it - 1] && signalBuffer[it] > signalBuffer[it + 1]
-//    }
-//    return (peaks * 12).coerceIn(50..640) // 简化计算并限制合理范围
-//}
-
 private fun calculateHeartRate(): Int {
     // 访问 signalBuffer 的值
     val signal = signalBuffer.value
@@ -740,10 +737,7 @@ private fun calculateBpm(peaks: List<Int>): Int {
 }
 
 
-// 主题定义（需要添加到你的主题文件中）
-// 在 ui/theme/Theme.kt 中添加：
-// private val DarkColorScheme = darkColorScheme(...)
-// private val LightColorScheme = lightColorScheme(...)
+
 
 @Preview(showBackground = true)
 @Composable
@@ -762,3 +756,5 @@ fun PreviewHeartRateApp() {
         }
     }
 }
+
+
