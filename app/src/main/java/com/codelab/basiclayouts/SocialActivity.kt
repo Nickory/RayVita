@@ -77,7 +77,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import com.android.volley.toolbox.ImageRequest
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
 import kotlin.math.cos
 import kotlin.math.max
@@ -507,7 +507,7 @@ fun UserNode(
         // 用户头像
         if (avatarUrl != null) {
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
+                model = coil.request.ImageRequest.Builder(LocalContext.current)
                     .data(avatarUrl)
                     .crossfade(true)
                     .build(),
@@ -594,6 +594,8 @@ fun UserNode(
         }
     }
 }
+
+
 
 @Composable
 fun UserActionDialog(

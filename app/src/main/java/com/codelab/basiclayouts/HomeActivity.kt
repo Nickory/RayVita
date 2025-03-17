@@ -84,6 +84,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.filled.TipsAndUpdates
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Badge
@@ -122,6 +123,7 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -150,6 +152,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.ViewModelProvider
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -163,6 +166,7 @@ import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.random.Random
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 sealed class EasterEggState {
     object Hidden : EasterEggState()
@@ -184,6 +188,14 @@ data class HealthTip(
     val content: String,
     val icon: ImageVector,
     val importance: Int = 1
+)
+
+data class WeatherData(
+    val weather : String,
+    val location: String,
+    val temperature: String,
+    val windSpeed: String,
+    val humidity: String
 )
 
 class HomeActivity : ComponentActivity() {
@@ -244,6 +256,24 @@ fun HomeScreen() {
             )
         )
     }
+
+    // 获取天气数据
+    val viewModel: WeatherViewModel = viewModel()
+    val weatherBean by viewModel.weatherBean.observeAsState()
+    LaunchedEffect(Unit) {
+        viewModel.fetchWeather("320100", "2657819ffa33812b895fb48dfd86da51") // 南京市的城市编码为 320100
+    }
+    // 将 WeatherBean 转换为 WeatherData
+    val weatherData = remember(weatherBean) {
+        weatherBean?.let { convertToWeatherData(it) } ?: WeatherData(
+            weather = "晴",
+            location = "南京市",
+            temperature = "14°C",
+            windSpeed = "27 km/h",
+            humidity = "60%"
+        )
+    }
+
 
     fun showEgg(eggType: EggType) {
         easterEgg = EasterEggState.Activated(eggType)
@@ -589,6 +619,11 @@ fun HomeScreen() {
 
                         // 健康提示卡片
                         HealthTipsSection(healthTips)
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // 天气信息显示
+                        WeatherInfoSection(weatherData)
 
                         Spacer(modifier = Modifier.height(24.dp))
 
@@ -991,6 +1026,148 @@ fun HealthTipCard(tip: HealthTip) {
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
+        }
+    }
+}
+
+@Composable
+fun WeatherInfoSection(weatherData: WeatherData) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        ),
+        shape = RoundedCornerShape(24.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.WbSunny,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        text = "今日天气",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                Text(
+                    text = weatherData.location,
+                    // 加粗
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable { }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            WeatherInfoCard(weatherData)
+        }
+    }
+}
+
+@Composable
+fun WeatherInfoCard(weatherData: WeatherData) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(160.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f)
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = weatherData.weather,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "天气",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    )
+                }
+
+                Column {
+                    Text(
+                        text = weatherData.temperature,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "温度",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = weatherData.windSpeed,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "风速",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    )
+                }
+
+                Column {
+                    Text(
+                        text = weatherData.humidity,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "湿度",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    )
+                }
+            }
         }
     }
 }
