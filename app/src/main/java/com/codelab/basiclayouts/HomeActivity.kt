@@ -1,3 +1,4 @@
+//以智能手机为入口，融合非接触式生物传感与多模态AI分析，构建覆盖生理-心理-社交的全维度健康管理网络，打造个人健康数字孪生体。
 package com.codelab.basiclayouts
 
 import android.annotation.SuppressLint
@@ -152,7 +153,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -166,7 +167,6 @@ import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.random.Random
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 sealed class EasterEggState {
     object Hidden : EasterEggState()
@@ -573,6 +573,9 @@ fun HomeScreen() {
                                 selectedBottomTab = index
                                 if (index == 1) {
                                     context.startActivity(Intent(context, HeartRateRecordActivity::class.java))
+                                }
+                                if (index == 3) {
+                                    context.startActivity(Intent(context, PersonalActivity::class.java))
                                 }
                             }
                         )
