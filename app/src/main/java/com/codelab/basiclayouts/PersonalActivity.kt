@@ -663,7 +663,7 @@ fun PersonalScreen() {
                     enter = fadeIn() + slideInVertically { it / 3 }
                 ) {
                     Text(
-                        text = "版本 3.2.0 · 江南创新站\n© 2025 RayVita 保留所有权利",
+                        text = "版本 wzhv 0.1.3t \n© 2025 RayVita 保留所有权利",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         textAlign = TextAlign.Center,
