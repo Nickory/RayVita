@@ -140,6 +140,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -297,7 +299,11 @@ fun HomeScreen() {
                         aiMessages.add(AIMessage("基于您的健康数据，我有以下几点建议：\n1. 增加每周运动频率，尤其是有氧运动\n2. 保持规律的睡眠时间\n3. 注意监测心率变化，特别是运动后的恢复情况"))
                         showHealthTips = true
                     }
-                    else -> aiMessages.add(AIMessage("感谢您的问题。我已记录并会为您提供相关的健康建议。请问您还有其他问题吗？"))
+
+//                    else -> aiMessages.add(AIMessage("感谢您的问题。我已记录并会为您提供相关的健康建议。请问您还有其他问题吗？"))
+                    else -> aiMessages.add(AIMessage("你好！根据我对你的最新数据分析，最近三天你的HRV（心率变异性）平均值从平时的65ms下降到了52ms，昨晚的睡眠记录显示深睡时间只有1小时42分钟，比你平时少了大半个小时，看来压力和睡眠质量可能都在给你悄悄“捣乱”。建议你今天找个时间，比如午休后，去公园散步20-30分钟，晒晒太阳，帮自己减减压。另外，你的心率今天早上醒来时是82次/分钟，比你近两周的平均值75次/分钟高了一些，可能跟昨晚的咖啡摄入有点关系，建议今天少喝点提神饮料，多补充点温水，比如带一片柠檬的温水，既舒缓又健康。\n" +
+                            "\n" +
+                            "                    还有，今天本地气温预计最高只有12℃，最低6℃，而且你日历上显示下午3点有个户外会议，风力还有点大，记得穿上那件灰色羽绒服，再加条围巾，别让冷风钻进来哦！我还查了你的运动习惯，最近跑步频率少了，如果压力允许，晚上可以试试轻量瑜伽，10-15分钟那种，帮助心率平稳下来。有什么我还能帮你的吗？"))
                 }
             }
 
@@ -749,14 +755,7 @@ fun HeroSection(tapCount: Int, onTap: () -> Unit) {
                         cameraDistance = 12f
                     }
             ) {
-                HeartParticleEffect(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .graphicsLayer {
-                            scaleX = 0.8f
-                            scaleY = 0.8f
-                        }
-                )
+//
             }
 
             AnimatedVisibility(visible = imageOffset == 0f) {
@@ -1960,101 +1959,213 @@ fun DetailedTipCard(tip: HealthTip) {
 fun HeartParticleEffect(modifier: Modifier = Modifier) {
     val particles = remember { generateHeartParticles(1200) }
 
-    // 动画状态管理
-    val (heartbeat, lightWave) = remember {
-        mutableStateOf(1f) to mutableStateOf(0f)
-    }
+    // Animation states - fixed triple state declaration to avoid component3() error
+    val heartbeat = remember { mutableStateOf(1f) }
+    val energyPulse = remember { mutableStateOf(0f) }
+    val rotation = remember { mutableStateOf(0f) }
 
-    // 主心跳动画
+    // Touch interaction state
+    var touchPosition by remember { mutableStateOf<Offset?>(null) }
+
+    // Heartbeat animation
     LaunchedEffect(Unit) {
         while (isActive) {
+            // Expansion
             animate(
                 initialValue = 1f,
                 targetValue = 1.15f,
                 animationSpec = tween(
-                    durationMillis = 300,
+                    durationMillis = 250,
                     easing = FastOutSlowInEasing
                 )
-            ) { value, _ ->
-                heartbeat.value = value
+            ) { newValue, _ ->
+                heartbeat.value = newValue
             }
+
+            // Contraction
             animate(
                 initialValue = 1.15f,
                 targetValue = 1f,
                 animationSpec = tween(
-                    durationMillis = 900,
-                    easing = LinearEasing
+                    durationMillis = 600,
+                    easing = FastOutSlowInEasing  // Changed from LinearOutSlowInEasing
                 )
-            ) { value, _ ->
-                heartbeat.value = value
+            ) { newValue, _ ->
+                heartbeat.value = newValue
             }
+
             delay(1200)
         }
     }
 
-    // 光晕波动动画
+    // Energy pulse animation
     LaunchedEffect(Unit) {
         animate(
             initialValue = 0f,
             targetValue = 1f,
             animationSpec = infiniteRepeatable(
-                animation = tween(
-                    durationMillis = 1200,
-                    easing = LinearEasing
-                ),
+                animation = tween(2000, easing = LinearEasing),
                 repeatMode = RepeatMode.Reverse
             )
-        ) { value, _ ->
-            lightWave.value = value
+        ) { newValue, _ ->
+            energyPulse.value = newValue
         }
     }
 
-    Canvas(modifier = modifier) {
-        // 背景光晕
+    // Rotation animation
+    LaunchedEffect(Unit) {
+        animate(
+            initialValue = 0f,
+            targetValue = 360f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(60000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            )
+        ) { newValue, _ ->
+            rotation.value = newValue
+        }
+    }
+
+    // Canvas with touch detection
+    Canvas(
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = { offset ->
+                        touchPosition = offset
+                        awaitRelease()
+                        touchPosition = null
+                    }
+                )
+            }
+    ) {
+        // Background glow effects
         drawCircle(
             brush = Brush.radialGradient(
-                colors = listOf(Color(0x66FF3D00), Color(0x10FF1744), Color.Transparent),
+                colors = listOf(
+                    Color(0x400077FF), // Tech blue
+                    Color(0x2000DDFF), // Cyan glow
+                    Color.Transparent
+                ),
                 center = center,
-                radius = size.minDimension * 0.8f * (0.9f + lightWave.value * 0.2f)
+                radius = size.minDimension * 0.8f * (0.9f + energyPulse.value * 0.15f)
             ),
             blendMode = BlendMode.Plus
         )
 
-        // 绘制粒子
+        // Secondary glow
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(
+                    Color(0x307A00FF), // Purple energy
+                    Color(0x102233FF), // Deep blue
+                    Color.Transparent
+                ),
+                center = center,
+                radius = size.minDimension * 0.7f * (0.85f + (1f - energyPulse.value) * 0.2f)
+            ),
+            blendMode = BlendMode.Plus
+        )
+
+        // Heart scale parameter
+        val heartScale = 0.3f
+
+        // Get interaction center
+        val interactionCenter = touchPosition ?: center
+
+        // Draw all particles
         particles.forEach { p ->
-            val scale = heartbeat.value
-            val baseSize = 4f * scale
-            // 核心缩放控制参数
-            val heartScale = mutableStateOf(0.3f)
+            // Dynamically calculate rotation for sci-fi effect
+            val rotAngle = rotation.value * (PI.toFloat() / 180f)
+            val rotSin = sin(rotAngle)
+            val rotCos = cos(rotAngle)
 
-            // 坐标映射
-            val x = (p.x * heartScale.value * 30).toFloat() + center.x
-            val y = (p.y * heartScale.value * 30).toFloat() + center.y
-            // 粒子大小控制
-            val particleSize = 3f * heartScale.value * 0.15f
+            // Apply rotation to particle coordinates
+            val rotX = p.x * rotCos - p.y * rotSin
+            val rotY = p.x * rotSin + p.y * rotCos
 
-            // 科技感颜色（蓝紫色系）
-            val hue = 240f + (p.z.coerceIn(-1.0, 1.0) * 40f).toFloat()
-            val color = Color.hsl(
+            // Calculate position with scale
+            val x = (rotX * heartScale * 30).toFloat() + center.x
+            val y = (rotY * heartScale * 30).toFloat() + center.y
+
+            // Energy level calculation - fixed atan2
+            val particleAngle = kotlin.math.atan2(rotY.toFloat(), rotX.toFloat())
+            val energyLevel = (sin(particleAngle * 3 + energyPulse.value * PI.toFloat() * 2) * 0.5f + 0.5f)
+
+            // Touch interaction
+            val touchDistance = if (touchPosition != null) {
+                val dx = x - interactionCenter.x
+                val dy = y - interactionCenter.y
+                sqrt(dx * dx + dy * dy)
+            } else {
+                Float.MAX_VALUE
+            }
+
+            val interactionFactor = if (touchPosition != null) {
+                (1f - (touchDistance / (size.minDimension * 0.3f)).coerceIn(0f, 1f)) * 0.5f
+            } else 0f
+
+            // Sci-fi color scheme
+            val hue = 220f + (p.z.toFloat().coerceIn(-1f, 1f) * 50f) + energyLevel * 30f
+            val saturation = 0.9f
+            val lightness = 0.5f + energyLevel * 0.3f + interactionFactor
+
+            val particleColor = Color.hsl(
                 hue = hue,
-                saturation = 0.85f,
-                lightness = 0.6f + (lightWave.value * 0.2f)
+                saturation = saturation,
+                lightness = lightness
             )
 
-            // 主粒子
+            // Z-axis visual effect - fixed Float/Double conversion
+            val zEffect = ((p.z.toFloat() + 1f) / 2f * 0.5f + 0.5f)
+            val particleSize = 3f * heartbeat.value * (0.7f + energyLevel * 0.6f) * zEffect
+
+            // Core particle
             drawCircle(
-                color = color,
+                color = particleColor,
                 radius = particleSize,
                 center = Offset(x, y),
                 blendMode = BlendMode.Screen
             )
 
-            // 光晕效果
+            // Glow effect
             drawCircle(
-                color = color.copy(alpha = 0.3f),
-                radius = baseSize * 1.5f,
+                color = particleColor.copy(alpha = 0.4f * energyLevel),
+                radius = particleSize * 2f,
                 center = Offset(x, y),
-                blendMode = BlendMode.Overlay
+                blendMode = BlendMode.Plus
+            )
+
+            // Tech connection lines for some particles
+            val particleDistance = sqrt(rotX.pow(2) + rotY.pow(2)).toFloat()
+            if (rotX % 0.3 < 0.1 && energyLevel > 0.7) {
+                val distanceRatio = particleDistance / 16f
+                if (distanceRatio > 0.7f && distanceRatio < 0.9f) {
+                    val lineOpacity = (energyLevel * 0.4f).coerceIn(0.05f, 0.2f)
+                    drawLine(
+                        color = particleColor.copy(alpha = lineOpacity),
+                        start = Offset(x, y),
+                        end = center,
+                        strokeWidth = 1f,
+                        blendMode = BlendMode.Screen,
+                        cap = StrokeCap.Round
+                    )
+                }
+            }
+        }
+
+        // Energy pulse rings
+        val pulsePhase = (energyPulse.value * 5f) % 1f
+        if (pulsePhase < 0.6f) {
+            val pulseOpacity = (0.3f - pulsePhase / 2f).coerceAtLeast(0f)
+            val pulseRadius = size.minDimension * 0.4f * (0.5f + pulsePhase)
+
+            drawCircle(
+                color = Color(0x6600AAFF).copy(alpha = pulseOpacity),
+                radius = pulseRadius,
+                center = center,
+                style = Stroke(width = 2f),
+                blendMode = BlendMode.Screen
             )
         }
     }
@@ -2063,17 +2174,39 @@ fun HeartParticleEffect(modifier: Modifier = Modifier) {
 private fun generateHeartParticles(count: Int): List<Point3D> {
     return List(count) {
         val theta = Random.nextDouble(0.0, 2 * PI)
-        val r = Random.nextDouble(0.8, 1.2)
+        val r = Random.nextDouble(0.85, 1.15)
 
-        // 立体化改进的方程
-        val x = 16 * sin(theta).pow(3) * r
+        // Enhanced heart equation
+        val heartShape = Random.nextDouble(0.0, 1.0) > 0.15
+
+        val x = if (heartShape) {
+            16 * sin(theta).pow(3) * r
+        } else {
+            // Some particles slightly off heart shape for tech effect
+            16 * sin(theta).pow(3) * r + Random.nextDouble(-2.0, 2.0)
+        }
+
         val baseY = 13 * cos(theta) - 5 * cos(2*theta) - 2 * cos(3*theta) - cos(4*theta)
         val y = -baseY * r
 
-        // 增强Z轴计算（增加心形厚度）
+        // Z-axis for 3D effect
         val z = when {
-            baseY > 0 -> (sin(theta * 3) * 8 * r).coerceIn(-4.0, 4.0)
-            else -> (cos(theta * 2) * 6 * r).coerceIn(-3.0, 3.0)
+            baseY > 0 -> {
+                val zBase = sin(theta * 4) * 9 * r
+                if (Random.nextDouble(0.0, 1.0) > 0.8) {
+                    zBase * 1.5
+                } else {
+                    zBase.coerceIn(-4.5, 4.5)
+                }
+            }
+            else -> {
+                val zBase = cos(theta * 3) * 7 * r
+                if (Random.nextDouble(0.0, 1.0) > 0.85) {
+                    zBase * 1.3
+                } else {
+                    zBase.coerceIn(-3.5, 3.5)
+                }
+            }
         }
 
         Point3D(
