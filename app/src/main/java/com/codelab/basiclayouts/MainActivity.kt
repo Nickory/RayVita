@@ -1,7 +1,6 @@
 package com.codelab.basiclayouts
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.ImageFormat
@@ -29,30 +28,42 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraFront
 import androidx.compose.material.icons.filled.CameraRear
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.GraphicEq
+import androidx.compose.material.icons.rounded.Opacity
+import androidx.compose.material.icons.rounded.SignalCellularAlt
+import androidx.compose.material.icons.rounded.Spa
+import androidx.compose.material.icons.rounded.Speed
+import androidx.compose.material.icons.rounded.Timeline
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,8 +74,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.Collections
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * Main Activity for the Heart Rate Monitoring application.
@@ -131,9 +144,9 @@ data class ParticleData(
     var size: Float = ((Math.random() * 3f + 1f).toFloat()),
     var alpha: Float = ((Math.random() * 0.2f + 0.1f).toFloat()),
     val color: Color = when ((Math.random() * 3).toInt()) {
-        0 -> Color(0, 150, 255)
-        1 -> Color(0, 200, 180)
-        else -> Color(70, 120, 255)
+        0 -> Color(100, 180, 255, 150)
+        1 -> Color(120, 200, 255, 150)
+        else -> Color(140, 160, 255, 150)
     }
 ) {
     fun update() {
@@ -147,7 +160,10 @@ data class ParticleData(
         if (y > 1f) y = 0f
     }
 }
-
+enum class CardTab {
+    HEART_RATE,
+    WAVEFORM
+}
 /**
  * Shared signal buffer for heart rate data
  * Using a thread-safe implementation to avoid concurrent modification
@@ -164,6 +180,7 @@ fun HeartRateApp() {
     val cameraState = remember { mutableStateOf(CameraState()) }
     val heartRateData = remember { mutableStateOf(HeartRateMeasurement()) }
     val isMeasuring = remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     // Create a safe state for the signal buffer
     val signalBuffer = remember { mutableStateOf<List<Float>>(emptyList()) }
@@ -179,85 +196,128 @@ fun HeartRateApp() {
         }
     }
 
+    // VisionPro-inspired color palette
+    val accentBlue = Color(70, 150, 255, 255)
+    val accentPurple = Color(180, 120, 255, 255)
+    val glassBackground = Color(240, 245, 250, 180)
+    val glassBackgroundDarker = Color(230, 235, 240, 200)
+    val textColor = Color(20, 30, 40, 220)
+    val subtextColor = Color(60, 70, 80, 180)
+
     MySootheTheme {
-        // Animated background with subtle pulsing effect
+        // Full screen background with a subtle gradient
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.background.copy(alpha = 0.95f),
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f)
+                            Color(240, 245, 255, 255),
+                            Color(230, 235, 250, 255)
                         )
                     )
                 )
         ) {
-            // Sci-fi background elements (subtle floating particles)
-            ParticleBackground(isMeasuring = isMeasuring.value)
+            // Subtle particle background
+            VisionProParticleBackground(isMeasuring = isMeasuring.value)
 
-            // Main content
+            // Main content column with proper spacing
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                // App Title with sci-fi style
+                // Back button row
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 0.dp),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // 左上角返回按钮
+                    IconButton(
+                        onClick = {
+                            // 处理返回逻辑，结束 Activity
+                            (context as? ComponentActivity)?.finish()
+                        },
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(
+                                Color(255, 255, 255, 120),
+                                shape = CircleShape
+                            )
+                            .border(1.dp, Color.White.copy(alpha = 0.5f), CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color(20, 30, 40, 180),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                // App Title
                 Text(
-                    text = "PULSE MONITOR",
+                    text = "rPPG Extraction",
                     style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 2.sp
+                        fontWeight = FontWeight.Medium,
+                        letterSpacing = 0.sp
                     ),
-                    modifier = Modifier.padding(vertical = 8.dp),
+                    modifier = Modifier.padding(vertical = 12.dp),
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.primary
+                    color = textColor
                 )
 
-                // Enhanced Camera Preview with face detection visualization
-                EnhancedCameraPreviewSection(
+                // Face detection section
+                FaceDetectionStatusCard(
+                    hasFaceDetected = cameraState.value.hasFaceDetected,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Camera preview with VisionPro style
+                VisionProCameraPreview(
                     cameraState = cameraState,
                     isMeasuring = isMeasuring,
-                    modifier = Modifier.weight(1f)
-                )
-
-                // Advanced Heart Rate Display with animations
-                EnhancedHeartRateDisplaySection(
-                    heartRateData = heartRateData,
-                    isMeasuring = isMeasuring,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp)
+                        .aspectRatio(1f)
+                        .weight(1f)
                 )
 
-                // Improved Heart Rate Waveform with sci-fi styling
-                EnhancedHeartRateWaveformSection(
+                // Combined Health Card (replaces separate HR and Waveform cards)
+                CombinedHealthCard(
+                    heartRate = heartRateData.value.value,
                     signalBuffer = signalBuffer,
                     isMeasuring = isMeasuring.value,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Signal quality indicator
+                SignalQualityCard(
+                    quality = "High",
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Action button
+                MeasurementButton(
+                    isMeasuring = isMeasuring.value,
+                    onClick = { isMeasuring.value = !isMeasuring.value },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(140.dp)
-                        .padding(vertical = 8.dp)
+                        .padding(vertical = 4.dp)
                 )
 
                 // Hidden permission requester
                 PermissionRequester()
             }
-
-            // Measurement status indicator
-            if (isMeasuring.value) {
-                MeasurementStatusIndicator(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(24.dp)
-                )
-            }
         }
     }
 
-    // Update heart rate and signal data
+    // Update heart rate and signal data (keeping original logic)
     LaunchedEffect(isMeasuring.value) {
         if (isMeasuring.value) {
             while (true) {
@@ -273,15 +333,14 @@ fun HeartRateApp() {
 }
 
 /**
- * Floating particle background animation for sci-fi effect
- * Creates a subtle moving particle effect in the background
- * @param isMeasuring Whether heart rate measurement is active
+ * VisionPro-style particle background animation
+ * Creates a subtle floating particle effect
  */
 @Composable
-fun ParticleBackground(isMeasuring: Boolean) {
-    val particles = remember { List(20) { ParticleData() } }
+fun VisionProParticleBackground(isMeasuring: Boolean) {
+    val particles = remember { List(30) { ParticleData() } }
     val animatedAlpha by animateFloatAsState(
-        targetValue = if (isMeasuring) 0.6f else 0.3f,
+        targetValue = if (isMeasuring) 0.4f else 0.2f,
         animationSpec = tween(1000),
         label = "backgroundAlpha"
     )
@@ -291,52 +350,107 @@ fun ParticleBackground(isMeasuring: Boolean) {
             // Update particle position
             particle.update()
 
-            // Draw particle with glow effect
+            // Draw particle with subtle glow
             drawCircle(
                 color = particle.color.copy(alpha = animatedAlpha * particle.alpha),
-                radius = particle.size,
+                radius = particle.size * 1.5f,
                 center = Offset(particle.x * size.width, particle.y * size.height),
-                blendMode = BlendMode.Plus
+                blendMode = BlendMode.SrcOver
             )
 
             // Draw particle glow
             drawCircle(
-                color = particle.color.copy(alpha = animatedAlpha * particle.alpha * 0.4f),
-                radius = particle.size * 3f,
+                color = particle.color.copy(alpha = animatedAlpha * particle.alpha * 0.3f),
+                radius = particle.size * 5f,
                 center = Offset(particle.x * size.width, particle.y * size.height),
-                blendMode = BlendMode.Plus
+                blendMode = BlendMode.SrcOver
             )
         }
     }
 }
 
 /**
- * Enhanced Camera Preview with face detection overlay and sci-fi UI
- * @param cameraState Current camera state
- * @param isMeasuring Whether heart rate measurement is active
- * @param modifier Modifier for customizing layout
+ * VisionPro-style face detection status card
  */
 @Composable
-fun EnhancedCameraPreviewSection(
+fun FaceDetectionStatusCard(
+    hasFaceDetected: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val animatedColor by animateColorAsState(
+        targetValue = if (hasFaceDetected) Color(50, 200, 100) else Color(100, 100, 100),
+        animationSpec = tween(500),
+        label = "statusColor"
+    )
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color(240, 245, 250, 180))
+            .border(
+                width = 1.dp,
+                color = Color(255, 255, 255, 180),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .blur(0.5.dp)
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            // Status icon
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .background(animatedColor, CircleShape)
+                    .border(1.dp, Color.White.copy(alpha = 0.8f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                if (hasFaceDetected) {
+                    Icon(
+                        imageVector = Icons.Default.Face,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Status text
+            Text(
+                text = if (hasFaceDetected) "Face detected" else "Position face in frame",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 0.sp
+                ),
+                color = Color(20, 30, 40, 220)
+            )
+        }
+    }
+}
+
+/**
+ * VisionPro-style camera preview section
+ */
+@Composable
+fun VisionProCameraPreview(
     cameraState: MutableState<CameraState>,
     isMeasuring: MutableState<Boolean>,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     var hasCameraPermission by remember { mutableStateOf(false) }
+
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         hasCameraPermission = isGranted
     }
 
     val cameraIds = rememberCameraIds(context)
     var currentCameraId by remember { mutableStateOf(cameraIds.front) }
-
-    // Face detection status animation
-    val faceDetectedAlpha by animateFloatAsState(
-        targetValue = if (cameraState.value.hasFaceDetected) 1f else 0.3f,
-        animationSpec = tween(500),
-        label = "faceDetectedAlpha"
-    )
 
     // Scanner animation
     val scannerPosition = remember { Animatable(0f) }
@@ -375,430 +489,496 @@ fun EnhancedCameraPreviewSection(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(3f / 4f)
-            .clip(RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(32.dp))
+            .background(Color(230, 235, 240, 150))
             .border(
-                width = 2.dp,
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.tertiary
-                    )
-                ),
-                shape = RoundedCornerShape(24.dp)
+                width = 1.dp,
+                color = Color(255, 255, 255, 180),
+                shape = RoundedCornerShape(32.dp)
             )
-            .shadow(8.dp, RoundedCornerShape(24.dp))
-            .background(Color.Black.copy(alpha = 0.7f))
+            .blur(radiusX = 0.5.dp, radiusY = 0.5.dp)
     ) {
         // Camera preview
         if (hasCameraPermission) {
-            AndroidView(
-                factory = { ctx ->
-                    TextureView(ctx).apply {
-                        surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-                            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-                            override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-                                surface.setDefaultBufferSize(320, 240)
-                                openCamera(
-                                    textureView = this@apply,
-                                    cameraId = currentCameraId ?: return,
-                                    onFaceDetected = { hasFace ->
-                                        cameraState.value = cameraState.value.copy(hasFaceDetected = hasFace)
-                                    }
-                                )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(4.dp)
+                    .clip(RoundedCornerShape(30.dp))
+            ) {
+                AndroidView(
+                    factory = { ctx ->
+                        TextureView(ctx).apply {
+                            surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+                                @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+                                override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
+                                    surface.setDefaultBufferSize(320, 240)
+                                    openCamera(
+                                        textureView = this@apply,
+                                        cameraId = currentCameraId ?: return,
+                                        onFaceDetected = { hasFace ->
+                                            cameraState.value = cameraState.value.copy(hasFaceDetected = hasFace)
+                                        }
+                                    )
+                                }
+                                override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, w: Int, h: Int) {}
+                                override fun onSurfaceTextureDestroyed(surface: SurfaceTexture) = true
+                                override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
                             }
-                            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, w: Int, h: Int) {}
-                            override fun onSurfaceTextureDestroyed(surface: SurfaceTexture) = true
-                            override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
                         }
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                // Analyzing overlay
+                if (scannerActive) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        // Scanner effect
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(2.dp)
+                                .offset(y = ((scannerPosition.value * 2 - 1) * 120).dp)
+                                .background(
+                                    Brush.horizontalGradient(
+                                        colors = listOf(
+                                            Color.Transparent,
+                                            Color(100, 180, 255, 200),
+                                            Color(100, 180, 255, 200),
+                                            Color.Transparent
+                                        )
+                                    )
+                                )
+                                .blur(3.dp)
+                        )
+
+                        // "Analyzing" text
+                        Text(
+                            text = "Analyzing...",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Light,
+                                letterSpacing = 1.sp
+                            ),
+                            color = Color.White.copy(alpha = 0.8f),
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 24.dp)
+                        )
                     }
-                },
-                modifier = Modifier.fillMaxSize()
-            )
+                }
+            }
         } else {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.9f)),
+                    .background(Color(20, 30, 40, 150), RoundedCornerShape(30.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "需要摄像头权限",
+                    "Camera permission required",
                     style = MaterialTheme.typography.bodyLarge.copy(color = Color.White)
                 )
             }
         }
 
-        // Corner brackets (sci-fi UI element)
-        CornerBrackets(
-            active = cameraState.value.hasFaceDetected,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp)
-        )
-
-        // Scanner line animation
-        if (scannerActive) {
-            Box(
+        // Face frame (subtle)
+        if (cameraState.value.hasFaceDetected) {
+            Canvas(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(2.dp)
-                    .offset(y = (scannerPosition.value * 200).dp)
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                MaterialTheme.colorScheme.primary,
-                                MaterialTheme.colorScheme.primary,
-                                Color.Transparent
-                            )
-                        )
-                    )
-                    .blur(4.dp)
-            )
-        }
-
-        // Face detection status
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .align(Alignment.TopCenter)
-        ) {
-            Card(
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
-                ),
-                modifier = Modifier.align(Alignment.TopCenter)
+                    .fillMaxSize()
+                    .padding(40.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 12.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Face,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary.copy(alpha = faceDetectedAlpha),
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Text(
-                        text = if (cameraState.value.hasFaceDetected) "面部已检测" else "请将面部对准摄像头",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.Medium,
-                            letterSpacing = 0.5.sp
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = faceDetectedAlpha)
-                    )
-                }
-            }
-        }
+                val ovalWidth = size.width
+                val ovalHeight = size.height * 1.3f
 
-        // Controls overlay
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Back button
-            IconButton(
-                onClick = { (context as Activity).finish() },
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(
-                        MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-                        shape = CircleShape
+                drawOval(
+                    color = Color(255, 255, 255, 60),
+                    style = Stroke(width = 2.dp.toPx()),
+                    topLeft = Offset(
+                        -ovalWidth * 0.15f,
+                        -ovalHeight * 0.15f
+                    ),
+                    size = Size(
+                        ovalWidth * 1.3f,
+                        ovalHeight
                     )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "返回",
-                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
+        }
 
-            // Camera switch button (only show if both cameras available)
-            if (cameraIds.back != null && cameraIds.front != null) {
-                IconButton(
-                    onClick = {
-                        currentCameraId = if (currentCameraId == cameraIds.front) {
-                            cameraIds.back
-                        } else {
-                            cameraIds.front
-                        }
-                    },
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-                            shape = CircleShape
-                        )
-                ) {
-                    Icon(
-                        imageVector = if (currentCameraId == cameraIds.front) {
-                            Icons.Default.CameraRear
-                        } else {
-                            Icons.Default.CameraFront
-                        },
-                        contentDescription = "切换摄像头",
-                        tint = MaterialTheme.colorScheme.onSurface
+        // Camera switch button (only show if both cameras available)
+        if (cameraIds.back != null && cameraIds.front != null) {
+            IconButton(
+                onClick = {
+                    currentCameraId = if (currentCameraId == cameraIds.front) {
+                        cameraIds.back
+                    } else {
+                        cameraIds.front
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+                    .size(48.dp)
+                    .background(
+                        Color(255, 255, 255, 120),
+                        shape = CircleShape
                     )
-                }
+                    .border(1.dp, Color.White.copy(alpha = 0.5f), CircleShape)
+            ) {
+                Icon(
+                    imageVector = if (currentCameraId == cameraIds.front) {
+                        Icons.Default.CameraRear
+                    } else {
+                        Icons.Default.CameraFront
+                    },
+                    contentDescription = "Switch camera",
+                    tint = Color(20, 30, 40, 180),
+                    modifier = Modifier.size(24.dp)
+                )
             }
         }
     }
 }
 
 /**
- * Visual corner brackets for sci-fi UI effect
- * @param active Whether the brackets should be highlighted
- * @param modifier Modifier for customizing layout
+ * VisionPro-style heart rate display card that expands to full width
  */
 @Composable
-fun CornerBrackets(active: Boolean, modifier: Modifier = Modifier) {
-    val activeColor = MaterialTheme.colorScheme.primary
-    val inactiveColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-
-    // Animate the color change
-    val animatedColor by animateColorAsState(
-        targetValue = if (active) activeColor else inactiveColor,
-        animationSpec = tween(durationMillis = 300),
-        label = "bracketColor"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val bracketSize = size.width * 0.15f
-        val strokeWidth = 3.dp.toPx()
-
-        // Top-left corner
-        drawLine(
-            color = animatedColor,
-            start = Offset(0f, 0f),
-            end = Offset(bracketSize, 0f),
-            strokeWidth = strokeWidth
-        )
-        drawLine(
-            color = animatedColor,
-            start = Offset(0f, 0f),
-            end = Offset(0f, bracketSize),
-            strokeWidth = strokeWidth
-        )
-
-        // Top-right corner
-        drawLine(
-            color = animatedColor,
-            start = Offset(size.width, 0f),
-            end = Offset(size.width - bracketSize, 0f),
-            strokeWidth = strokeWidth
-        )
-        drawLine(
-            color = animatedColor,
-            start = Offset(size.width, 0f),
-            end = Offset(size.width, bracketSize),
-            strokeWidth = strokeWidth
-        )
-
-        // Bottom-left corner
-        drawLine(
-            color = animatedColor,
-            start = Offset(0f, size.height),
-            end = Offset(bracketSize, size.height),
-            strokeWidth = strokeWidth
-        )
-        drawLine(
-            color = animatedColor,
-            start = Offset(0f, size.height),
-            end = Offset(0f, size.height - bracketSize),
-            strokeWidth = strokeWidth
-        )
-
-        // Bottom-right corner
-        drawLine(
-            color = animatedColor,
-            start = Offset(size.width, size.height),
-            end = Offset(size.width - bracketSize, size.height),
-            strokeWidth = strokeWidth
-        )
-        drawLine(
-            color = animatedColor,
-            start = Offset(size.width, size.height),
-            end = Offset(size.width, size.height - bracketSize),
-            strokeWidth = strokeWidth
-        )
-    }
-}
-
-/**
- * Enhanced heart rate display with animated transitions and sci-fi UI elements
- * @param heartRateData Current heart rate measurement data
- * @param isMeasuring Whether heart rate measurement is active
- * @param modifier Modifier for customizing layout
- */
-@Composable
-fun EnhancedHeartRateDisplaySection(
-    heartRateData: MutableState<HeartRateMeasurement>,
-    isMeasuring: MutableState<Boolean>,
-    modifier: Modifier = Modifier
+fun HeartRateCard(
+    heartRate: Int,
+    modifier: Modifier = Modifier,
+    expandedState: MutableState<ExpandedCardState>
 ) {
-    val animatedHeartRate by animateFloatAsState(
-        targetValue = heartRateData.value.value.toFloat(),
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "heartRateAnimation"
-    )
-
+    // Animation for the heart icon pulse
     val pulseAnimation = rememberInfiniteTransition(label = "pulseAnimation")
     val pulseScale by pulseAnimation.animateFloat(
         initialValue = 1f,
-        targetValue = 1.15f,
+        targetValue = 1.1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(800, easing = EaseInOutQuad),
+            animation = tween(1000, easing = EaseInOutQuad),
             repeatMode = RepeatMode.Reverse
         ),
         label = "pulseScale"
     )
 
-    val coroutineScope = rememberCoroutineScope()
+    // Check if this card is currently expanded
+    val isExpanded = expandedState.value == ExpandedCardState.HEART_RATE
 
-    Box(
+    // Animation for card expansion
+    val scale by animateFloatAsState(
+        targetValue = if (isExpanded) 1.05f else 1f,
+        animationSpec = tween(300, easing = FastOutSlowInEasing),
+        label = "scaleAnimation"
+    )
+
+    // Animation for card opacity
+    val cardAlpha by animateFloatAsState(
+        targetValue = if (isExpanded) 1f else 0.9f,
+        animationSpec = tween(300, easing = FastOutSlowInEasing),
+        label = "alphaAnimation"
+    )
+
+    // Card width animation
+    val cardWidthFraction by animateFloatAsState(
+        targetValue = if (isExpanded) 1f else 0.5f,
+        animationSpec = tween(300, easing = FastOutSlowInEasing),
+        label = "cardWidthAnimation"
+    )
+
+    // Main Card
+    Card(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(8.dp)
+            .fillMaxWidth(cardWidthFraction)
+            .graphicsLayer {
+                scaleY = scale
+                alpha = cardAlpha
+            }
+            .clickable {
+                expandedState.value = if (isExpanded) ExpandedCardState.NONE else ExpandedCardState.HEART_RATE
+            },
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isExpanded) 8.dp else 4.dp
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(240, 240, 250)
+        ),
+        shape = RoundedCornerShape(16.dp)
     ) {
-        // Heart rate display card with glow effect
-        Card(
-            shape = RoundedCornerShape(20.dp),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 6.dp,
-                pressedElevation = 8.dp
-            ),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f)
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .drawBehind {
-                    if (isMeasuring.value && heartRateData.value.value > 0) {
-                        drawRect(
-                            color = Color.Red.copy(alpha = 0.2f * pulseScale),
-                            size = size.copy(
-                                width = size.width * 1.05f,
-                                height = size.height * 1.05f
-                            ),
-                            topLeft = Offset(-size.width * 0.025f, -size.height * 0.025f),
-                            blendMode = BlendMode.Plus
-                        )
-                    }
-                }
-        ) {
+        if (isExpanded) {
+            // Expanded layout with full details
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Heart rate value display with animation
+                // Top section with heart rate
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Heart icon with pulse animation
-                    Icon(
-                        imageVector = Icons.Rounded.Favorite,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .size(36.dp)
-                            .graphicsLayer {
-                                if (isMeasuring.value && heartRateData.value.value > 0) {
-                                    scaleX = pulseScale
-                                    scaleY = pulseScale
+                    // Heart icon (pulsing subtly)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Favorite,
+                            contentDescription = null,
+                            tint = Color(255, 70, 90, 220),
+                            modifier = Modifier
+                                .size(36.dp)
+                                .graphicsLayer {
+                                    scaleX = if (heartRate > 0) pulseScale else 1f
+                                    scaleY = if (heartRate > 0) pulseScale else 1f
                                 }
-                            }
-                    )
+                        )
 
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    // Animated heart rate value
-                    AnimatedContent(
-                        targetState = animatedHeartRate.toInt(),
-                        transitionSpec = {
-                            (slideInVertically { height -> height } + fadeIn()) togetherWith
-                                    (slideOutVertically { height -> -height } + fadeOut())
-                        },
-                        label = "HeartRateAnimation"
-                    ) { targetRate ->
                         Text(
-                            text = "$targetRate",
-                            style = MaterialTheme.typography.displayMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = (-1).sp
+                            text = "Heart Rate Monitor",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.SemiBold
                             ),
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = Color(60, 70, 100, 230)
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    // Heart rate display
+                    Row(
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        AnimatedContent(
+                            targetState = heartRate,
+                            transitionSpec = {
+                                (slideInVertically { height -> height } + fadeIn()) togetherWith
+                                        (slideOutVertically { height -> -height } + fadeOut())
+                            },
+                            label = "HeartRateAnimation"
+                        ) { targetRate ->
+                            Text(
+                                text = "$targetRate",
+                                style = MaterialTheme.typography.displayMedium.copy(
+                                    fontWeight = FontWeight.Medium,
+                                    letterSpacing = (-1).sp
+                                ),
+                                color = Color(20, 30, 50, 240)
+                            )
+                        }
 
-                    Text(
-                        text = "BPM",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Medium
-                        ),
-                        modifier = Modifier.padding(bottom = 4.dp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    // Status indicator
-                    if (isMeasuring.value) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.tertiary
+                        Text(
+                            text = "bpm",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Normal
+                            ),
+                            color = Color(80, 90, 110, 200),
+                            modifier = Modifier.padding(bottom = 8.dp)
                         )
                     }
                 }
 
-                // Heart rate classification
-                Spacer(modifier = Modifier.height(8.dp))
-                HeartRateClassification(heartRateData.value.value)
+                Divider(
+                    color = Color(200, 210, 230, 120),
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
 
-                // Start/Stop button
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = {
-                        isMeasuring.value = !isMeasuring.value
-                        if (!isMeasuring.value) {
-                            coroutineScope.launch {
-                                // Reset heart rate when stopping
-                                heartRateData.value = HeartRateMeasurement()
-                            }
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isMeasuring.value)
-                            MaterialTheme.colorScheme.error
-                        else
-                            MaterialTheme.colorScheme.primary
-                    ),
-                    shape = RoundedCornerShape(16.dp),
+                // Health metrics in two rows
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth(0.8f)
-                        .height(48.dp)
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // First row of metrics
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        MetricItem(
+                            title = "HRV",
+                            value = "60",
+                            unit = "ms",
+                            icon = Icons.Rounded.Timeline
+                        )
+
+                        MetricItem(
+                            title = "SPO2",
+                            value = "98",
+                            unit = "%",
+                            icon = Icons.Rounded.Opacity
+                        )
+
+                        MetricItem(
+                            title = "Stress",
+                            value = "Low",
+                            unit = "",
+                            icon = Icons.Rounded.Spa
+                        )
+                    }
+
+                    // Second row of metrics
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        MetricItem(
+                            title = "Min",
+                            value = "58",
+                            unit = "bpm",
+                            icon = null
+                        )
+
+                        MetricItem(
+                            title = "Avg",
+                            value = "72",
+                            unit = "bpm",
+                            icon = null
+                        )
+
+                        MetricItem(
+                            title = "Max",
+                            value = "124",
+                            unit = "bpm",
+                            icon = null
+                        )
+                    }
+                }
+
+                // Daily trend chart
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
+                        .padding(top = 16.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(230, 235, 250, 180))
+                        .padding(8.dp)
+                ) {
+                    // Placeholder for chart
+                    Text(
+                        text = "Daily Trend",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(100, 110, 130),
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(4.dp)
+                    )
+
+                    // Simulate a heart rate chart line
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        val path = Path()
+                        val width = size.width
+                        val height = size.height
+
+                        // Generate a simulated heart rate line
+                        path.moveTo(0f, height * 0.6f)
+                        for (i in 1..10) {
+                            val x = width * i / 10
+                            // Simulate some variance in the heart rate
+                            var y = height * (0.6f + (sin(i * 0.8) * 0.15f))
+                            y = y.toFloat().toDouble()
+                            path.lineTo(x, y.toFloat())
+                        }
+
+                        drawPath(
+                            path = path,
+                            color = Color(255, 100, 120, 180),
+                            style = Stroke(
+                                width = 2.dp.toPx(),
+                                cap = StrokeCap.Round,
+                                join = StrokeJoin.Round
+                            )
+                        )
+                    }
+                }
+            }
+        } else {
+            // Compact layout
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(24.dp)
+            ) {
+                // Heart icon (pulsing subtly)
+                Icon(
+                    imageVector = Icons.Rounded.Favorite,
+                    contentDescription = null,
+                    tint = Color(255, 70, 90, 220),
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .size(32.dp)
+                        .graphicsLayer {
+                            scaleX = if (heartRate > 0) pulseScale else 1f
+                            scaleY = if (heartRate > 0) pulseScale else 1f
+                        }
+                )
+
+                // HR label
+                Text(
+                    text = "HR",
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = Color(60, 70, 100, 180)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Heart rate display
+                AnimatedContent(
+                    targetState = heartRate,
+                    transitionSpec = {
+                        (slideInVertically { height -> height } + fadeIn()) togetherWith
+                                (slideOutVertically { height -> -height } + fadeOut())
+                    },
+                    label = "HeartRateAnimation"
+                ) { targetRate ->
+                    Text(
+                        text = "$targetRate",
+                        style = MaterialTheme.typography.displayLarge.copy(
+                            fontWeight = FontWeight.Light,
+                            letterSpacing = (-1).sp,
+                            fontSize = 48.sp
+                        ),
+                        color = Color(20, 30, 50, 240)
+                    )
+                }
+
+                // BPM label
+                Text(
+                    text = "bpm",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Normal
+                    ),
+                    color = Color(80, 90, 110, 200)
+                )
+
+                // Additional metrics (in compact form)
+                Row(
+                    modifier = Modifier
+                        .padding(top = 12.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Text(
-                        text = if (isMeasuring.value) "停止测量" else "开始测量",
-                        style = MaterialTheme.typography.titleMedium
+                        text = "HRV: 60ms",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(60, 70, 100, 180)
+                    )
+                    Text(
+                        text = "SPO2: 98%",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(60, 70, 100, 180)
                     )
                 }
             }
@@ -807,130 +987,446 @@ fun EnhancedHeartRateDisplaySection(
 }
 
 /**
- * Display heart rate classification based on the measured value
- * @param heartRate Current heart rate value in BPM
+ * VisionPro-style waveform display card that expands to full width
  */
 @Composable
-fun HeartRateClassification(heartRate: Int) {
-    val (statusText, statusColor) = when {
-        heartRate == 0 -> Pair("等待测量...", MaterialTheme.colorScheme.onSurfaceVariant)
-        heartRate < 60 -> Pair("偏低", Color(0xFF4D88FF))
-        heartRate in 60..100 -> Pair("正常", Color(0xFF4CAF50))
-        heartRate in 101..120 -> Pair("偏快", Color(0xFFFFA726))
-        else -> Pair("过快", Color(0xFFE53935))
-    }
-
-    Text(
-        text = "心率状态: $statusText",
-        style = MaterialTheme.typography.bodyMedium,
-        color = statusColor,
-        modifier = Modifier.padding(vertical = 4.dp)
-    )
-
-    Text(
-        text = "理想心率范围: 60-100 BPM",
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-    )
-}
-
-/**
- * Enhanced heart rate waveform visualization with sci-fi styling
- * @param signalBuffer Buffer containing the signal data points
- * @param isMeasuring Whether heart rate measurement is active
- * @param modifier Modifier for customizing layout
- */
-@Composable
-fun EnhancedHeartRateWaveformSection(
+fun WaveformCard(
     signalBuffer: MutableState<List<Float>>,
     isMeasuring: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    expandedState: MutableState<ExpandedCardState>
 ) {
     val BUFFER_SIZE = 100
 
-    // Create a safe copy of the signal data to prevent concurrent modification
+    // Create a safe copy of the signal data
     val safeSignalData = remember { mutableStateOf(listOf<Float>()) }
 
     // Update safe copy when signal buffer changes
     LaunchedEffect(signalBuffer.value) {
-        // Create a defensive copy of the data to avoid concurrent modification
         val dataCopy = synchronized(signalBuffer.value) {
             signalBuffer.value.takeLast(BUFFER_SIZE).toList()
         }
         safeSignalData.value = dataCopy
     }
 
-    // Grid lines animation
-    val gridAnimation = rememberInfiniteTransition(label = "gridAnimation")
-    val gridOffset by gridAnimation.animateFloat(
-        initialValue = 0f,
-        targetValue = 20f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "gridOffset"
-    )
+    // Check if this card is currently expanded
+    val isExpanded = expandedState.value == ExpandedCardState.WAVEFORM
 
-    // Fade animation for the waveform
+    // Waveform animation
     val waveformAlpha by animateFloatAsState(
         targetValue = if (isMeasuring) 1f else 0.3f,
         animationSpec = tween(500),
         label = "waveformAlpha"
     )
 
+    // Animation for card expansion
+    val scale by animateFloatAsState(
+        targetValue = if (isExpanded) 1.05f else 1f,
+        animationSpec = tween(300, easing = FastOutSlowInEasing),
+        label = "scaleAnimation"
+    )
+
+    // Animation for card opacity
+    val cardAlpha by animateFloatAsState(
+        targetValue = if (isExpanded) 1f else 0.9f,
+        animationSpec = tween(300, easing = FastOutSlowInEasing),
+        label = "alphaAnimation"
+    )
+
+    // Card width animation
+    val cardWidthFraction by animateFloatAsState(
+        targetValue = if (isExpanded) 1f else 0.5f,
+        animationSpec = tween(300, easing = FastOutSlowInEasing),
+        label = "cardWidthAnimation"
+    )
+
     Card(
         modifier = modifier
-            .fillMaxWidth()
-            .height(150.dp),
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(6.dp),
+            .fillMaxWidth(cardWidthFraction)
+            .graphicsLayer {
+                scaleY = scale
+                alpha = cardAlpha
+            }
+            .clickable {
+                expandedState.value = if (isExpanded) ExpandedCardState.NONE else ExpandedCardState.WAVEFORM
+            },
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isExpanded) 8.dp else 4.dp
+        ),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
-        )
+            containerColor = Color(240, 240, 250)
+        ),
+        shape = RoundedCornerShape(16.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
+        if (isExpanded) {
+            // Expanded layout
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Top section with title
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Timeline,
+                            contentDescription = null,
+                            tint = Color(100, 130, 255, 220),
+                            modifier = Modifier.size(36.dp)
                         )
-                    )
-                )
-                .padding(8.dp)
-        ) {
-            // Grid background
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val gridColor = Color.Red.copy(alpha = 0.1f)
-                val gridSize = 20f
 
-                // Vertical grid lines
-                for (x in 0..size.width.toInt() step gridSize.toInt()) {
-                    drawLine(
-                        color = gridColor,
-                        start = Offset(x.toFloat(), 0f),
-                        end = Offset(x.toFloat(), size.height),
-                        strokeWidth = 1f
+                        Text(
+                            text = "PPG Waveform",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.SemiBold
+                            ),
+                            color = Color(60, 70, 100, 230)
+                        )
+                    }
+
+                    // Status indicator
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(12.dp)
+                                .background(
+                                    if (isMeasuring) Color(100, 230, 100) else Color(230, 100, 100),
+                                    shape = CircleShape
+                                )
+                        )
+
+                        Text(
+                            text = if (isMeasuring) "Active" else "Inactive",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (isMeasuring) Color(40, 150, 40) else Color(150, 40, 40)
+                        )
+                    }
+                }
+
+                Divider(
+                    color = Color(200, 210, 230, 120),
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+
+                // Main waveform display (larger in expanded mode)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .padding(vertical = 16.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(230, 235, 250, 180))
+                        .padding(16.dp)
+                ) {
+                    // Waveform visualization
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        val signalData = safeSignalData.value
+                        if (signalData.isEmpty()) return@Canvas
+
+                        // Find min/max values for scaling
+                        val minValue = signalData.minOrNull() ?: 0f
+                        val maxValue = signalData.maxOrNull() ?: 0f
+                        val range = (maxValue - minValue).coerceAtLeast(1f)
+
+                        val width = size.width
+                        val height = size.height
+                        val step = width / (signalData.size - 1).coerceAtLeast(1)
+
+                        // Create gradient for the line (blue to purple)
+                        val gradientBrush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color(70, 150, 255, (waveformAlpha * 255).toInt()),
+                                Color(120, 130, 255, (waveformAlpha * 255).toInt()),
+                                Color(170, 110, 255, (waveformAlpha * 255).toInt()),
+                                Color(200, 100, 255, (waveformAlpha * 255).toInt())
+                            )
+                        )
+
+                        // Create the waveform path
+                        val path = Path()
+                        signalData.forEachIndexed { index, value ->
+                            val x = step * index
+                            val normalizedValue = (value - minValue) / range
+                            val y = height - (normalizedValue * height * 0.8f + height * 0.1f)
+
+                            if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                        }
+
+                        // Draw the path with the gradient
+                        drawPath(
+                            path = path,
+                            brush = gradientBrush,
+                            style = Stroke(
+                                width = 3.dp.toPx(),
+                                cap = StrokeCap.Round,
+                                join = StrokeJoin.Round
+                            )
+                        )
+
+                        // Add glow effect
+                        drawPath(
+                            path = path,
+                            color = Color(100, 150, 255, (waveformAlpha * 60).toInt()),
+                            style = Stroke(
+                                width = 8.dp.toPx(),
+                                cap = StrokeCap.Round,
+                                join = StrokeJoin.Round
+                            )
+                        )
+
+                        // Draw grid lines (optional)
+                        val gridColor = Color(100, 120, 180, 20)
+                        val gridStep = height / 4
+
+                        // Horizontal grid lines
+                        for (i in 0..4) {
+                            val y = i * gridStep
+                            drawLine(
+                                color = gridColor,
+                                start = Offset(0f, y),
+                                end = Offset(width, y),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                        }
+
+                        // Vertical grid lines
+                        val vGridStep = width / 5
+                        for (i in 0..5) {
+                            val x = i * vGridStep
+                            drawLine(
+                                color = gridColor,
+                                start = Offset(x, 0f),
+                                end = Offset(x, height),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                        }
+                    }
+                }
+
+                // Additional metrics in a row
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    MetricItem(
+                        title = "Quality",
+                        value = "High",
+                        unit = "",
+                        icon = Icons.Rounded.SignalCellularAlt
+                    )
+
+                    MetricItem(
+                        title = "SNR",
+                        value = "18",
+                        unit = "dB",
+                        icon = Icons.Rounded.GraphicEq
+                    )
+
+                    MetricItem(
+                        title = "Frequency",
+                        value = "1.2",
+                        unit = "Hz",
+                        icon = Icons.Rounded.Speed
                     )
                 }
 
-                // Horizontal grid lines with animation
-                for (y in -gridSize.toInt() * 2..size.height.toInt() step gridSize.toInt()) {
-                    drawLine(
-                        color = gridColor,
-                        start = Offset(0f, y + gridOffset),
-                        end = Offset(size.width, y + gridOffset),
-                        strokeWidth = 1f
+                // History section
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .padding(top = 16.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(230, 235, 250, 180))
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = "Signal History",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(100, 110, 130),
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(4.dp)
+                    )
+
+                    // Simple signal history visualization
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        // Draw a simplified version of the waveform history
+                        val width = size.width
+                        val height = size.height
+                        val path = Path()
+
+                        path.moveTo(0f, height * 0.5f)
+                        for (i in 1..20) {
+                            val x = width * i / 20
+                            val y = height * (0.5f + sin(i * 0.4) * 0.2f *
+                                    cos(i * 0.1) * 0.3f)
+                            path.lineTo(x, y.toFloat())
+                        }
+
+                        drawPath(
+                            path = path,
+                            color = Color(100, 130, 250, 150),
+                            style = Stroke(
+                                width = 2.dp.toPx(),
+                                cap = StrokeCap.Round,
+                                join = StrokeJoin.Round
+                            )
+                        )
+                    }
+                }
+            }
+        } else {
+            // Compact waveform display
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                // Waveform title
+                Text(
+                    text = "PPG",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Medium
+                    ),
+                    color = Color(100, 110, 150, 220),
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 8.dp)
+                )
+
+                // Waveform visualization
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 36.dp, bottom = 8.dp)
+                ) {
+                    val signalData = safeSignalData.value
+                    if (signalData.isEmpty()) return@Canvas
+
+                    // Find min/max values for scaling
+                    val minValue = signalData.minOrNull() ?: 0f
+                    val maxValue = signalData.maxOrNull() ?: 0f
+                    val range = (maxValue - minValue).coerceAtLeast(1f)
+
+                    val width = size.width
+                    val height = size.height
+                    val step = width / (signalData.size - 1).coerceAtLeast(1)
+
+                    // Create gradient for the line (blue to purple)
+                    val gradientBrush = Brush.horizontalGradient(
+                        colors = listOf(
+                            Color(70, 150, 255, (waveformAlpha * 255).toInt()),
+                            Color(120, 130, 255, (waveformAlpha * 255).toInt()),
+                            Color(170, 110, 255, (waveformAlpha * 255).toInt()),
+                            Color(200, 100, 255, (waveformAlpha * 255).toInt())
+                        )
+                    )
+
+                    // Create the waveform path
+                    val path = Path()
+                    signalData.forEachIndexed { index, value ->
+                        val x = step * index
+                        val normalizedValue = (value - minValue) / range
+                        val y = height - (normalizedValue * height * 0.8f + height * 0.1f)
+
+                        if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                    }
+
+                    // Draw the path with the gradient
+                    drawPath(
+                        path = path,
+                        brush = gradientBrush,
+                        style = Stroke(
+                            width = 3.dp.toPx(),
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round
+                        )
+                    )
+
+                    // Add glow effect
+                    drawPath(
+                        path = path,
+                        color = Color(100, 150, 255, (waveformAlpha * 60).toInt()),
+                        style = Stroke(
+                            width = 8.dp.toPx(),
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round
+                        )
+                    )
+                }
+
+                // Status indicator
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 12.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(
+                                if (isMeasuring) Color(100, 230, 100) else Color(230, 100, 100),
+                                shape = CircleShape
+                            )
+                    )
+
+                    Text(
+                        text = if (isMeasuring) "Active" else "Inactive",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (isMeasuring) Color(40, 150, 40) else Color(150, 40, 40)
                     )
                 }
             }
-
-            // Waveform
+        }
+    }
+}
+/**
+ * Content for the Waveform tab
+ */
+@Composable
+fun WaveformContent(
+    signalData: List<Float>,
+    isMeasuring: Boolean,
+    isExpanded: Boolean,
+    waveformAlpha: Float
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Main waveform display
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(if (isExpanded) 150.dp else 100.dp)
+                .padding(vertical = 8.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(230, 235, 250, 180))
+                .padding(12.dp)
+        ) {
+            // Waveform visualization
             Canvas(modifier = Modifier.fillMaxSize()) {
-                val signalData = safeSignalData.value
                 if (signalData.isEmpty()) return@Canvas
 
                 // Find min/max values for scaling
@@ -942,6 +1438,16 @@ fun EnhancedHeartRateWaveformSection(
                 val height = size.height
                 val step = width / (signalData.size - 1).coerceAtLeast(1)
 
+                // Create gradient for the line (blue to purple)
+                val gradientBrush = Brush.horizontalGradient(
+                    colors = listOf(
+                        Color(70, 150, 255, (waveformAlpha * 255).toInt()),
+                        Color(120, 130, 255, (waveformAlpha * 255).toInt()),
+                        Color(170, 110, 255, (waveformAlpha * 255).toInt()),
+                        Color(200, 100, 255, (waveformAlpha * 255).toInt())
+                    )
+                )
+
                 // Create the waveform path
                 val path = Path()
                 signalData.forEachIndexed { index, value ->
@@ -952,10 +1458,10 @@ fun EnhancedHeartRateWaveformSection(
                     if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
                 }
 
-                // Draw the path with glow effect
+                // Draw the path with the gradient
                 drawPath(
                     path = path,
-                    color = Color.Green.copy(alpha = waveformAlpha),
+                    brush = gradientBrush,
                     style = Stroke(
                         width = 3.dp.toPx(),
                         cap = StrokeCap.Round,
@@ -966,38 +1472,595 @@ fun EnhancedHeartRateWaveformSection(
                 // Add glow effect
                 drawPath(
                     path = path,
-                    color = Color.Green.copy(alpha = waveformAlpha * 0.4f),
+                    color = Color(100, 150, 255, (waveformAlpha * 60).toInt()),
                     style = Stroke(
                         width = 8.dp.toPx(),
                         cap = StrokeCap.Round,
                         join = StrokeJoin.Round
                     )
                 )
-            }
 
-            // Waveform title
+                // Draw grid lines (optional)
+                val gridColor = Color(100, 120, 180, 20)
+                val gridStep = height / 4
+
+                // Horizontal grid lines
+                for (i in 0..4) {
+                    val y = i * gridStep
+                    drawLine(
+                        color = gridColor,
+                        start = Offset(0f, y),
+                        end = Offset(width, y),
+                        strokeWidth = 1.dp.toPx()
+                    )
+                }
+
+                // Vertical grid lines
+                val vGridStep = width / 5
+                for (i in 0..5) {
+                    val x = i * vGridStep
+                    drawLine(
+                        color = gridColor,
+                        start = Offset(x, 0f),
+                        end = Offset(x, height),
+                        strokeWidth = 1.dp.toPx()
+                    )
+                }
+            }
+        }
+
+        // Signal metrics (shown when expanded)
+        if (isExpanded) {
+            Divider(
+                color = Color(200, 210, 230, 120),
+                thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+
+            // Signal metrics row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 12.dp, top = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Text(
-                    text = "心率波形",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface
+                MetricItem(
+                    title = "Quality",
+                    value = "High",
+                    unit = "",
+                    icon = Icons.Rounded.SignalCellularAlt
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                MetricItem(
+                    title = "SNR",
+                    value = "18",
+                    unit = "dB",
+                    icon = Icons.Rounded.GraphicEq
+                )
 
-                // Status indicator dot
-                Box(
+                MetricItem(
+                    title = "Frequency",
+                    value = "1.2",
+                    unit = "Hz",
+                    icon = Icons.Rounded.Speed
+                )
+            }
+
+            // Signal history visualization
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .padding(top = 16.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(230, 235, 250, 180))
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = "Signal History",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(100, 110, 130),
                     modifier = Modifier
-                        .size(8.dp)
-                        .background(
-                            color = if (isMeasuring) MaterialTheme.colorScheme.primary else Color.Gray,
-                            shape = CircleShape
+                        .align(Alignment.TopStart)
+                        .padding(4.dp)
+                )
+
+                // Simple signal history visualization
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    // Draw a simplified version of the waveform history
+                    val width = size.width
+                    val height = size.height
+                    val path = Path()
+
+                    path.moveTo(0f, height * 0.5f)
+                    for (i in 1..20) {
+                        val x = width * i / 20
+                        val y = height * (0.5f + sin(i * 0.4) * 0.2f *
+                                cos(i * 0.1) * 0.3f)
+                        path.lineTo(x, y.toFloat())
+                    }
+
+                    drawPath(
+                        path = path,
+                        color = Color(100, 130, 250, 150),
+                        style = Stroke(
+                            width = 2.dp.toPx(),
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round
                         )
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun HeartRateContent(
+    heartRate: Int,
+    isExpanded: Boolean,
+    pulseScale: Float
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // Heart rate display
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(vertical = 12.dp)
+        ) {
+            // Heart icon (pulsing subtly)
+            Icon(
+                imageVector = Icons.Rounded.Favorite,
+                contentDescription = null,
+                tint = Color(255, 70, 90, 220),
+                modifier = Modifier
+                    .size(38.dp)
+                    .graphicsLayer {
+                        scaleX = if (heartRate > 0) pulseScale else 1f
+                        scaleY = if (heartRate > 0) pulseScale else 1f
+                    }
+            )
+
+            // Heart rate value
+            AnimatedContent(
+                targetState = heartRate,
+                transitionSpec = {
+                    (slideInVertically { height -> height } + fadeIn()) togetherWith
+                            (slideOutVertically { height -> -height } + fadeOut())
+                },
+                label = "heartRateAnimation"
+            ) { targetRate ->
+                Text(
+                    text = "$targetRate",
+                    style = MaterialTheme.typography.displayMedium.copy(
+                        fontWeight = FontWeight.Medium,
+                        letterSpacing = (-1).sp
+                    ),
+                    color = Color(20, 30, 50, 240)
+                )
+            }
+
+            // BPM label
+            Text(
+                text = "bpm",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Normal
+                ),
+                color = Color(80, 90, 110, 200),
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
+
+        // Additional heart metrics (shown when expanded)
+        if (isExpanded) {
+            Divider(
+                color = Color(200, 210, 230, 120),
+                thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+
+            // Metrics in two rows
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // First row of metrics
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    MetricItem(
+                        title = "HRV",
+                        value = "60",
+                        unit = "ms",
+                        icon = Icons.Rounded.Timeline
+                    )
+
+                    MetricItem(
+                        title = "SPO2",
+                        value = "98",
+                        unit = "%",
+                        icon = Icons.Rounded.Opacity
+                    )
+
+                    MetricItem(
+                        title = "Stress",
+                        value = "Low",
+                        unit = "",
+                        icon = Icons.Rounded.Spa
+                    )
+                }
+
+                // Second row of metrics
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    MetricItem(
+                        title = "Min",
+                        value = "58",
+                        unit = "bpm",
+                        icon = null
+                    )
+
+                    MetricItem(
+                        title = "Avg",
+                        value = "72",
+                        unit = "bpm",
+                        icon = null
+                    )
+
+                    MetricItem(
+                        title = "Max",
+                        value = "124",
+                        unit = "bpm",
+                        icon = null
+                    )
+                }
+            }
+
+            // Heart rate trend chart
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(110.dp)
+                    .padding(top = 16.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(230, 235, 250, 180))
+                    .padding(8.dp)
+            ) {
+                // Chart title
+                Text(
+                    text = "Heart Rate Trend",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(100, 110, 130),
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(4.dp)
+                )
+
+                // Simulate a heart rate chart line
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val path = Path()
+                    val width = size.width
+                    val height = size.height
+
+                    // Generate a simulated heart rate line
+                    path.moveTo(0f, height * 0.6f)
+                    for (i in 1..20) {
+                        val x = width * i / 20
+                        // Simulate some variance in the heart rate
+                        var y = height * (0.6f + (sin(i * 0.8) * 0.15f))
+                        y = y.toFloat().toDouble()
+                        path.lineTo(x, y.toFloat())
+                    }
+
+                    drawPath(
+                        path = path,
+                        color = Color(255, 100, 120, 180),
+                        style = Stroke(
+                            width = 2.dp.toPx(),
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CombinedHealthCard(
+    heartRate: Int,
+    signalBuffer: MutableState<List<Float>>,
+    isMeasuring: Boolean,
+    modifier: Modifier = Modifier
+) {
+    // State for expanded sections and selected tab
+    val isExpanded = remember { mutableStateOf(false) }
+    val selectedTab = remember { mutableStateOf(CardTab.HEART_RATE) }
+
+    // Safe copy of signal data
+    val safeSignalData = remember { mutableStateOf(listOf<Float>()) }
+
+    // Update safe copy when signal buffer changes
+    LaunchedEffect(signalBuffer.value) {
+        val dataCopy = synchronized(signalBuffer.value) {
+            signalBuffer.value.takeLast(100).toList()
+        }
+        safeSignalData.value = dataCopy
+    }
+
+    // Animation values
+    val waveformAlpha by animateFloatAsState(
+        targetValue = if (isMeasuring) 1f else 0.3f,
+        animationSpec = tween(500),
+        label = "waveformAlpha"
+    )
+
+    // Heart rate pulse animation
+    val pulseAnimation = rememberInfiniteTransition(label = "pulseAnimation")
+    val pulseScale by pulseAnimation.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = EaseInOutQuad),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulseScale"
+    )
+
+    // Card expansion animation
+    val cardHeight by animateDpAsState(
+        targetValue = if (isExpanded.value) 380.dp else 200.dp,
+        animationSpec = tween(300, easing = FastOutSlowInEasing),
+        label = "cardHeightAnimation"
+    )
+
+    // Card elevation animation
+    val cardElevation by animateDpAsState(
+        targetValue = if (isExpanded.value) 8.dp else 4.dp,
+        animationSpec = tween(300, easing = FastOutSlowInEasing),
+        label = "cardElevationAnimation"
+    )
+
+    // Card background animation
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isExpanded.value) Color(245, 245, 252) else Color(240, 240, 250),
+        animationSpec = tween(300),
+        label = "backgroundAnimation"
+    )
+
+    // Main Card
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(cardHeight)
+            .clickable {
+                isExpanded.value = !isExpanded.value
+            },
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = cardElevation
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = backgroundColor
+        ),
+        shape = RoundedCornerShape(24.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            // Top section - Always visible with tabs
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Title
+                Text(
+                    text = "Health Metrics",
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = Color(60, 70, 100, 230)
+                )
+
+                // Status indicator
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(12.dp)
+                            .background(
+                                if (isMeasuring) Color(100, 230, 100) else Color(230, 100, 100),
+                                shape = CircleShape
+                            )
+                    )
+
+                    Text(
+                        text = if (isMeasuring) "Active" else "Inactive",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (isMeasuring) Color(40, 150, 40) else Color(150, 40, 40)
+                    )
+                }
+            }
+
+            // Tab selector
+            TabRow(
+                selectedTabIndex = selectedTab.value.ordinal,
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .clip(RoundedCornerShape(16.dp)),
+                containerColor = Color(230, 235, 245, 180),
+                contentColor = Color(70, 100, 180),
+                indicator = { tabPositions ->
+                    Box(
+                        Modifier
+                            .tabIndicatorOffset(tabPositions[selectedTab.value.ordinal])
+                            .fillMaxWidth(0.5f)
+                            .height(4.dp)
+                            .padding(horizontal = 24.dp)
+                            .background(
+                                color = Color(70, 150, 255),
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                    )
+                },
+                divider = { }
+            ) {
+                Tab(
+                    selected = selectedTab.value == CardTab.HEART_RATE,
+                    onClick = { selectedTab.value = CardTab.HEART_RATE },
+                    text = {
+                        Text(
+                            text = "Heart Rate",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = if (selectedTab.value == CardTab.HEART_RATE)
+                                    FontWeight.SemiBold else FontWeight.Normal
+                            )
+                        )
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Rounded.Favorite,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = if (selectedTab.value == CardTab.HEART_RATE)
+                                Color(255, 70, 90) else Color(100, 110, 140)
+                        )
+                    }
+                )
+
+                Tab(
+                    selected = selectedTab.value == CardTab.WAVEFORM,
+                    onClick = { selectedTab.value = CardTab.WAVEFORM },
+                    text = {
+                        Text(
+                            text = "Waveform",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = if (selectedTab.value == CardTab.WAVEFORM)
+                                    FontWeight.SemiBold else FontWeight.Normal
+                            )
+                        )
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Rounded.Timeline,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = if (selectedTab.value == CardTab.WAVEFORM)
+                                Color(70, 150, 255) else Color(100, 110, 140)
+                        )
+                    }
+                )
+            }
+
+            // Content area - Changes based on selected tab
+            AnimatedContent(
+                targetState = selectedTab.value,
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(300)) togetherWith
+                            fadeOut(animationSpec = tween(300))
+                },
+                label = "tabContentAnimation"
+            ) { targetTab ->
+                when (targetTab) {
+                    CardTab.HEART_RATE -> HeartRateContent(
+                        heartRate = heartRate,
+                        isExpanded = isExpanded.value,
+                        pulseScale = pulseScale
+                    )
+
+                    CardTab.WAVEFORM -> WaveformContent(
+                        signalData = safeSignalData.value,
+                        isMeasuring = isMeasuring,
+                        isExpanded = isExpanded.value,
+                        waveformAlpha = waveformAlpha
+                    )
+                }
+            }
+
+            // Expand/collapse indicator
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = if (isExpanded.value)
+                        Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (isExpanded.value) "Collapse" else "Expand",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color(100, 110, 140)
+                )
+            }
+        }
+    }
+}
+/**
+ * Helper component for metric items
+ */
+@Composable
+fun MetricItem(
+    title: String,
+    value: String,
+    unit: String,
+    icon: ImageVector?
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        // Optional icon
+        if (icon != null) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = Color(100, 120, 180, 200),
+                modifier = Modifier
+                    .size(20.dp)
+                    .padding(bottom = 4.dp)
+            )
+        }
+
+        // Title
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodySmall,
+            color = Color(100, 110, 140, 180)
+        )
+
+        // Value and unit
+        Row(
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = Color(60, 70, 100, 220)
+            )
+
+            if (unit.isNotEmpty()) {
+                Text(
+                    text = unit,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(80, 90, 120, 180),
+                    modifier = Modifier.padding(start = 2.dp, bottom = 2.dp)
                 )
             }
         }
@@ -1005,33 +2068,147 @@ fun EnhancedHeartRateWaveformSection(
 }
 
 /**
- * Animated measurement status indicator
- * @param modifier Modifier for customizing layout
+ * Enum to track which card is currently expanded
+ */
+enum class ExpandedCardState {
+    NONE,
+    HEART_RATE,
+    WAVEFORM
+}
+
+/**
+ * Updated usage in the parent component:
  */
 @Composable
-fun MeasurementStatusIndicator(modifier: Modifier = Modifier) {
-    val pulseAnimation = rememberInfiniteTransition(label = "pulseAnimation")
-    val pulseAlpha by pulseAnimation.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = EaseInOutQuad),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulseAlpha"
-    )
+fun ResultsSection(
+    heartRateData: MutableState<HeartRateData>, // Assuming this exists
+    signalBuffer: MutableState<List<Float>>,
+    isMeasuring: MutableState<Boolean>
+) {
+    // Track which card is expanded
+    val expandedCardState = remember { mutableStateOf(ExpandedCardState.NONE) }
 
-    Box(
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // HeartRateCard and WaveformCard will be positioned based on their fillMaxWidth(cardWidthFraction)
+        HeartRateCard(
+            heartRate = heartRateData.value.value,
+            expandedState = expandedCardState
+        )
+
+        WaveformCard(
+            signalBuffer = signalBuffer,
+            isMeasuring = isMeasuring.value,
+            expandedState = expandedCardState
+        )
+    }
+}
+
+/**
+ * VisionPro-style signal quality indicator
+ */
+@Composable
+fun SignalQualityCard(
+    quality: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
         modifier = modifier
-            .size(12.dp)
-            .background(MaterialTheme.colorScheme.primary, CircleShape)
-            .drawBehind {
-                drawCircle(
-                    color = Color.Green.copy(alpha = pulseAlpha * 0.5f),
-                    radius = size.width * 0.8f
-                )
-            }
-    )
+            .clip(RoundedCornerShape(24.dp))
+            .background(Color(240, 245, 250, 180))
+            .border(
+                width = 1.dp,
+                color = Color(255, 255, 255, 180),
+                shape = RoundedCornerShape(24.dp)
+            )
+            .blur(0.5.dp)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        // Signal quality label
+        Text(
+            text = "Signal Quality: $quality",
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Medium
+            ),
+            color = Color(20, 30, 40, 220)
+        )
+
+        // Mode selector
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Mode",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Medium
+                ),
+                color = Color(60, 70, 80, 180)
+            )
+
+            Icon(
+                imageVector = Icons.Default.CameraFront,
+                contentDescription = "Select mode",
+                tint = Color(60, 70, 80, 180),
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+    }
+}
+
+/**
+ * VisionPro-style measurement button
+ */
+@Composable
+fun MeasurementButton(
+    isMeasuring: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val buttonColor = if (isMeasuring) {
+        Color(230, 235, 240, 180)
+    } else {
+        Color(100, 180, 255, 200)
+    }
+
+    val textColor = if (isMeasuring) {
+        Color(20, 30, 40, 220)
+    } else {
+        Color.White
+    }
+
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = buttonColor
+        ),
+        shape = RoundedCornerShape(24.dp),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 2.dp
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = if (isMeasuring) Color(20, 30, 40, 40) else Color(255, 255, 255, 180)
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp)
+    ) {
+        Text(
+            text = "rPPG",
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 1.sp
+            ),
+            color = textColor
+        )
+    }
 }
 
 /**
@@ -1064,11 +2241,11 @@ private fun PermissionRequester() {
     if (showRationale) {
         AlertDialog(
             onDismissRequest = { showRationale = false },
-            title = { Text("需要相机权限") },
-            text = { Text("此功能需要访问相机以测量心率，请在设置中启用相机权限") },
+            title = { Text("Camera Permission Required") },
+            text = { Text("This feature needs camera access to measure heart rate. Please enable camera permission in settings.") },
             confirmButton = {
                 TextButton(onClick = { showRationale = false }) {
-                    Text("确定")
+                    Text("OK")
                 }
             }
         )
@@ -1138,7 +2315,7 @@ private fun openCamera(
                 val previewSurface = Surface(surfaceTexture)
 
                 // Configure ImageReader for image processing
-                val                 imageReader = ImageReader.newInstance(320, 240, ImageFormat.YUV_420_888, 2).apply {
+                val imageReader = ImageReader.newInstance(320, 240, ImageFormat.YUV_420_888, 2).apply {
                     setOnImageAvailableListener({ reader ->
                         try {
                             reader.acquireLatestImage()?.use { image ->
@@ -1338,7 +2515,7 @@ private fun detectValidPeaks(signal: FloatArray): List<Int> {
         if (i > 90) {  // About 3 seconds at 30fps
             val window = signal.copyOfRange(i - 90, i)
             val mean = window.average()
-            val stdDev = window.map { (it - mean) * (it - mean) }.average().let { kotlin.math.sqrt(it) }
+            val stdDev = window.map { (it - mean) * (it - mean) }.average().let { sqrt(it) }
             // Threshold = mean + factor * standard deviation
             dynamicThreshold = (mean + 1.2 * stdDev).toFloat()
         }
@@ -1389,76 +2566,21 @@ private fun calculateBpm(peaks: List<Int>): Int {
 
 /**
  * Preview composable for the Heart Rate App
- * Displays a simulated version of the app for design purposes
+ * Improved preview with better device sizing simulation
  */
-@Preview(showBackground = true)
+@Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
 fun PreviewHeartRateApp() {
-    MySootheTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            Column(
+    // Simulate data for preview
+    CompositionLocalProvider(
+        LocalDensity provides LocalDensity.current
+    ) {
+        MySootheTheme {
+            Surface(
                 modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top
+                color = Color(245, 248, 252)
             ) {
-                Text(
-                    text = "PULSE MONITOR",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                // Camera preview placeholder
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(3f / 4f)
-                        .padding(16.dp)
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(24.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("相机预览", style = MaterialTheme.typography.bodyLarge)
-                }
-
-                // Heart rate display
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Card(
-                        shape = RoundedCornerShape(20.dp),
-                        elevation = CardDefaults.cardElevation(4.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Favorite,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(32.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Text(
-                                text = "75",
-                                style = MaterialTheme.typography.headlineLarge
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "BPM",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        }
-                    }
-                }
+                HeartRateApp()
             }
         }
     }

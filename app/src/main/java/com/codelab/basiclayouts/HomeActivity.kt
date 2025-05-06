@@ -1,5 +1,6 @@
 package com.codelab.basiclayouts
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -69,6 +70,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -109,7 +111,8 @@ fun RayVitaApp() {
         bottomBar = {
             BottomNavigation(
                 selectedTab = selectedTab,
-                onTabSelect = { selectedTab = it }
+                onTabSelect = { selectedTab = it },
+                context = LocalContext.current  // 添加context参数
             )
         },
         containerColor = Color(0xFFF4F4F4)
@@ -125,7 +128,7 @@ fun RayVitaApp() {
                 text = "Dashboard",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Medium,
-                fontSize = 34.sp,
+                fontSize = 24.sp,
                 modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
             )
 
@@ -633,6 +636,7 @@ fun BodyVisualization() {
 
 @Composable
 fun ScanButton() {
+    val localContext = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -646,7 +650,9 @@ fun ScanButton() {
         )
     ) {
         Button(
-            onClick = { /* Start scan functionality */ },
+
+// 假设 context 未定义，我们从 LocalContext.current 获取上下文
+onClick = { localContext.startActivity(android.content.Intent(localContext, com.codelab.basiclayouts.MainActivity::class.java)) },
             shape = RoundedCornerShape(14.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFF0F0F0),
@@ -717,8 +723,13 @@ fun HealthTipsCard() {
     }
 }
 
+
 @Composable
-fun BottomNavigation(selectedTab: Int, onTabSelect: (Int) -> Unit) {
+fun BottomNavigation(
+    selectedTab: Int,
+    onTabSelect: (Int) -> Unit,
+    context: Context  // 添加context参数
+) {
     NavigationBar(
         modifier = Modifier
             .fillMaxWidth()
@@ -733,12 +744,21 @@ fun BottomNavigation(selectedTab: Int, onTabSelect: (Int) -> Unit) {
         )
 
         items.forEach { (title, icon, index) ->
+            // 定义图标缩放动画
+            val scale by animateFloatAsState(
+                targetValue = if (selectedTab == index) 1.2f else 1.0f,
+                animationSpec = tween(durationMillis = 200),
+                label = "iconScale"
+            )
+
             NavigationBarItem(
                 icon = {
                     Icon(
                         imageVector = icon,
                         contentDescription = title,
-                        modifier = Modifier.size(22.dp)
+                        modifier = Modifier
+                            .size(22.dp)
+                            .scale(scale) // 应用缩放动画
                     )
                 },
                 label = {
@@ -748,7 +768,16 @@ fun BottomNavigation(selectedTab: Int, onTabSelect: (Int) -> Unit) {
                     )
                 },
                 selected = selectedTab == index,
-                onClick = { onTabSelect(index) }
+                onClick = {
+                    if (index == 3) {
+                        // 点击 "Mine" 时跳转到 PersonalActivity.kt
+                        val intent = android.content.Intent(context, com.codelab.basiclayouts.PersonalActivity::class.java)
+                        context.startActivity(intent)
+                    } else {
+                        // 其他选项调用传入的选择回调
+                        onTabSelect(index)
+                    }
+                }
             )
         }
     }
