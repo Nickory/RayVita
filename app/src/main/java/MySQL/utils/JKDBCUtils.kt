@@ -6,7 +6,7 @@ import java.sql.DriverManager
 /**
  * function： 数据库工具类，连接数据库用
  */
-object JDBCUtils {
+object JKDBCUtils {
     private const val TAG = "mysql-RayVita-JDBCUtils"
 
     private const val driver = "com.mysql.jdbc.Driver" // MySql驱动
