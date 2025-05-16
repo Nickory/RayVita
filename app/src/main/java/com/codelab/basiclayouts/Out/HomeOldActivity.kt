@@ -1,4 +1,4 @@
-////以智能手机为入口，融合非接触式生物传感与多模态AI分析，构建覆盖生理-心理-社交的全维度健康管理网络，打造个人健康数字孪生体。
+package com.codelab.basiclayouts.Out////以智能手机为入口，融合非接触式生物传感与多模态AI分析，构建覆盖生理-心理-社交的全维度健康管理网络，打造个人健康数字孪生体。
 //package com.codelab.basiclayouts
 //
 //import android.annotation.SuppressLint

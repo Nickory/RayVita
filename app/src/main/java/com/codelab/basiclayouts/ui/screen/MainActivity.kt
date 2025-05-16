@@ -1,4 +1,4 @@
-package com.codelab.basiclayouts
+package com.codelab.basiclayouts.ui.screen
 
 import android.Manifest
 import android.content.Context
