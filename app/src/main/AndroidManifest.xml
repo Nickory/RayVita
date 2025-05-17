@@ -38,7 +38,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.screen.MainActivity" />
+<!--        <activity android:name=".ui.screen.MainActivity" />-->
+        <activity android:name=".ui.scan.ScanActivity" />
         <activity android:name=".HeartRateRecordActivity" />
         <activity android:name=".AboutActivity"/>
         <activity android:name=".SocialActivity"/>

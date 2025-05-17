@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,23 +27,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.codelab.basiclayouts.ui.viewmodel.home.TrendData
 
 @Composable
 fun HealthTrendsCard(trendData: List<TrendData>) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
+            modifier = Modifier.padding(20.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -50,16 +50,16 @@ fun HealthTrendsCard(trendData: List<TrendData>) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "健康趋势",
+                    text = "Health Trends",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
-                    text = "详细分析",
-                    color = Color(0xFF007AFF),
-                    fontSize = 14.sp,
+                    text = "View All",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -68,15 +68,13 @@ fun HealthTrendsCard(trendData: List<TrendData>) {
 
             if (trendData.isEmpty()) {
                 Text(
-                    text = "暂无趋势数据",
-                    color = Color.Gray,
-                    fontSize = 14.sp,
+                    text = "No trend data available",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(vertical = 20.dp)
                 )
             } else {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     items(trendData) { trend ->
                         TrendDataItem(trend = trend)
                     }
@@ -89,63 +87,51 @@ fun HealthTrendsCard(trendData: List<TrendData>) {
 @Composable
 fun TrendDataItem(trend: TrendData) {
     Card(
-        modifier = Modifier.width(120.dp),
-        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .width(140.dp)
+            .height(130.dp),
+        shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF8F9FA)
-        )
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Label
             Text(
                 text = trend.label,
-                fontSize = 12.sp,
-                color = Color.Gray,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Medium
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Value
             Text(
                 text = trend.value,
-                fontSize = 18.sp,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onSurface
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Change indicator
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = if (trend.isPositive) {
-                        Icons.Default.TrendingUp
-                    } else {
-                        Icons.Default.TrendingDown
-                    },
+                    imageVector = if (trend.isPositive) Icons.Default.TrendingUp else Icons.Default.TrendingDown,
                     contentDescription = null,
-                    tint = if (trend.isPositive) {
-                        Color(0xFF34C759)
-                    } else {
-                        Color(0xFFFF3B30)
-                    },
-                    modifier = Modifier.size(14.dp)
+                    tint = if (trend.isPositive) Color(0xFF34C759) else Color(0xFFFF3B30),
+                    modifier = Modifier.size(16.dp)
                 )
-                Spacer(modifier = Modifier.width(2.dp))
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = trend.change,
-                    fontSize = 12.sp,
-                    color = if (trend.isPositive) {
-                        Color(0xFF34C759)
-                    } else {
-                        Color(0xFFFF3B30)
-                    },
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (trend.isPositive) Color(0xFF34C759) else Color(0xFFFF3B30),
                     fontWeight = FontWeight.Medium
                 )
             }

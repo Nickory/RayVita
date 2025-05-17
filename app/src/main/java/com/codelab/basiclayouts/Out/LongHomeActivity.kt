@@ -78,7 +78,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.codelab.basiclayouts.ui.screen.MainActivity
+//import com.codelab.basiclayouts.ui.screen.MainActivity
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
 import kotlin.math.PI
 import kotlin.math.cos
@@ -651,9 +651,9 @@ fun ScanButton() {
         )
     ) {
         Button(
-
+//            localContext.startActivity(android.content.Intent(localContext, MainActivity::class.java))
 // 假设 context 未定义，我们从 LocalContext.current 获取上下文
-onClick = { localContext.startActivity(android.content.Intent(localContext, MainActivity::class.java)) },
+onClick = {  },
             shape = RoundedCornerShape(14.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFF0F0F0),

@@ -42,8 +42,9 @@ fun ScanButton() {
         )
     ) {
         Button(
-            // 假设 context 未定义，我们从 LocalContext.current 获取上下文
-            onClick = { localContext.startActivity(android.content.Intent(localContext, com.codelab.basiclayouts.ui.screen.MainActivity::class.java)) },
+//            localContext.startActivity(android.content.Intent(localContext, com.codelab.basiclayouts.ui.screen.MainActivity::class.java))
+                    // 假设 context 未定义，我们从 LocalContext.current 获取上下文
+            onClick = { },
             shape = RoundedCornerShape(14.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFF0F0F0),
