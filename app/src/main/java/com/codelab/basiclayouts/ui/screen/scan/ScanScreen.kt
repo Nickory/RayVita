@@ -78,8 +78,8 @@ fun ScanScreen(viewModel: ScanViewModel<Any> = viewModel()) {
                 onFaceDetected = { viewModel.onFaceDetected(it) },
                 onFrameProcessed = { viewModel.processFrame(it) },
                 modifier = Modifier
-                    .fillMaxWidth(0.5F)
-                    .height(300.dp)
+                    .fillMaxWidth(0.8F)
+                    .height(200.dp)
             )
 
             // 健康指标显示

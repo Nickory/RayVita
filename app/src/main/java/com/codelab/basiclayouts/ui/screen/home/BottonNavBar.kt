@@ -197,6 +197,14 @@ fun BottomNavBar(
                                     rippleStates[index].value = false
                                 }
 
+                                if (tabIndex == 0) {
+                                    context.startActivity(Intent(context, HomeActivity::class.java))
+                                }
+
+                                if (tabIndex == 1) {
+                                    context.startActivity(Intent(context, com.codelab.basiclayouts.ui.insight.InsightActivity::class.java))
+                                }
+
                                 if (tabIndex == 3) {
                                     context.startActivity(Intent(context, com.codelab.basiclayouts.PersonalActivity::class.java))
                                 } else {
