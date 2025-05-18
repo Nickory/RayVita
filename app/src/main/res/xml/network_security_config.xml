@@ -1,10 +1,8 @@
-<!-- 正确示例 -->
 <network-security-config>
-    <!-- 允许HTTP明文通信（仅调试用） -->
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />
-            <certificates src="user" /> <!-- 可选：信任用户证书 -->
+            <certificates src="user" />
         </trust-anchors>
     </base-config>
 </network-security-config>
