@@ -206,7 +206,7 @@ fun BottomNavBar(
                                 }
 
                                 if (tabIndex == 3) {
-                                    context.startActivity(Intent(context, com.codelab.basiclayouts.PersonalActivity::class.java))
+                                    context.startActivity(Intent(context, com.codelab.basiclayouts.ui.profile.ProfileActivity::class.java))
                                 } else {
                                     onTabSelect(tabIndex)
                                 }

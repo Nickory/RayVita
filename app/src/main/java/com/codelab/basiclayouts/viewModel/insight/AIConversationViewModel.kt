@@ -57,7 +57,7 @@ class AIConversationViewModel(private val context: Context) : ViewModel() {
         val messages = listOf(Message("user", content))
         val request = ChatRequest(model = "deepseek-chat", messages = messages)
 
-        RetrofitClient.api.chatCompletion(request).enqueue(object : Callback<ChatResponse> {
+        RetrofitClient.deepseekApi.chatCompletion(request).enqueue(object : Callback<ChatResponse> {
             override fun onResponse(call: Call<ChatResponse>, response: Response<ChatResponse>) {
                 viewModelScope.launch {
                     delay(800)

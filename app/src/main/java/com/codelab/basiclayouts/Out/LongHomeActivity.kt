@@ -771,8 +771,8 @@ fun BottomNavigation(
                 selected = selectedTab == index,
                 onClick = {
                     if (index == 3) {
-                        // 点击 "Mine" 时跳转到 PersonalActivity.kt
-                        val intent = android.content.Intent(context, com.codelab.basiclayouts.PersonalActivity::class.java)
+                        // 点击 "Mine" 时跳转到 ProfileActivity.kt
+                        val intent = android.content.Intent(context, com.codelab.basiclayouts.ui.profile.ProfileActivity::class.java)
                         context.startActivity(intent)
                     } else {
                         // 其他选项调用传入的选择回调

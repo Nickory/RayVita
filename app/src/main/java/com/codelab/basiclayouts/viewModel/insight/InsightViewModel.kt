@@ -119,7 +119,7 @@ class InsightViewModel : ViewModel() {
         _isLoading.value = true
         _errorMessage.value = null
 
-        RetrofitClient.api.chatCompletion(request).enqueue(object : Callback<ChatResponse> {
+        RetrofitClient.deepseekApi.chatCompletion(request).enqueue(object : Callback<ChatResponse> {
             override fun onResponse(call: Call<ChatResponse>, response: Response<ChatResponse>) {
                 viewModelScope.launch {
                     delay(800)
