@@ -498,7 +498,7 @@ fun EnhancedChatBubble(message: ChatMessage, viewModel: AIConversationViewModel)
         ) {
             Text(
                 text = message.content,
-                color = if (message.isFromUser) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer,
+                color = if (message.isFromUser) MaterialTheme.colorScheme.onTertiaryContainer  else MaterialTheme.colorScheme.onSecondaryContainer,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -551,3 +551,6 @@ fun EnhancedChatBubble(message: ChatMessage, viewModel: AIConversationViewModel)
         }
     }
 }
+
+
+

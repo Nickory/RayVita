@@ -2,6 +2,7 @@ package com.codelab.basiclayouts.viewmodel.insight
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -54,15 +55,26 @@ class AIConversationViewModel(private val context: Context) : ViewModel() {
         _isTyping.value = true
         saveChatHistory()
 
-        val messages = listOf(Message("user", content))
-        val request = ChatRequest(model = "deepseek-chat", messages = messages)
+        // 定义前置提示词
+        val systemPrompt = "You are a concise health AI assistant in RayVita App (rPPG health app) called litte R. Provide accurate, helpful health advice in a friendly tone, keeping responses under 200 words 或200字，根据用户语言切换,用户英文提问则回答全英文，中文则中文回答"
+        val messages = listOf(
+            Message("system", systemPrompt), // 添加 system 提示词
+            Message("user", content) // 用户消息
+        )
+        val request = ChatRequest(
+            model = "deepseek-chat",
+            messages = messages,
+            system = systemPrompt // 兼容 API 可能需要的单独 system 字段
+        )
 
         RetrofitClient.deepseekApi.chatCompletion(request).enqueue(object : Callback<ChatResponse> {
             override fun onResponse(call: Call<ChatResponse>, response: Response<ChatResponse>) {
                 viewModelScope.launch {
                     delay(800)
                     val aiResponse = response.body()?.choices?.firstOrNull()?.message?.content
-                        ?: "I'm sorry, I couldn't process your request. Please try again."
+                        ?.take(200) // 额外截断确保不超过 200 字
+                        ?: "Sorry, I couldn't process your request. Try again."
+                    Log.d("AIConversation", "AI Response: $aiResponse, length: ${aiResponse.length}")
                     val aiMessage = ChatMessage(aiResponse, false, getCurrentTimestamp())
                     _chatMessages.value = _chatMessages.value + aiMessage
                     _isTyping.value = false
@@ -72,9 +84,9 @@ class AIConversationViewModel(private val context: Context) : ViewModel() {
 
             override fun onFailure(call: Call<ChatResponse>, t: Throwable) {
                 viewModelScope.launch {
-                    delay(5000)
+                    delay(500)
                     val errorMessage = ChatMessage(
-                        "I'm having trouble connecting to the server. Please check your connection and try again.",
+                        "Connection error. Please check your network and try again.",
                         false,
                         getCurrentTimestamp()
                     )

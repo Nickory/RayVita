@@ -1,6 +1,8 @@
 package com.codelab.basiclayouts.ui.profile
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -14,6 +16,7 @@ import com.codelab.basiclayouts.viewmodel.profile.AuthViewModel
  * 个人中心屏幕控制器 - 负责处理所有的导航逻辑
  * 通过简化的方式管理各个屏幕之间的切换
  */
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileScreenController(authViewModel: AuthViewModel) {
     val navController = rememberNavController()

@@ -47,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -55,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.codelab.basiclayouts.R
 import com.codelab.basiclayouts.viewmodel.profile.AuthViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -66,10 +68,8 @@ fun RegisterScreen(
     navController: NavController,
     authViewModel: AuthViewModel = viewModel()
 ) {
-    // 获取UI状态
     val authUiState by authViewModel.uiState.collectAsState()
 
-    // 本地UI状态
     var email by remember { mutableStateOf("") }
     var verificationCode by remember { mutableStateOf("") }
     var nickname by remember { mutableStateOf("") }
@@ -77,31 +77,35 @@ fun RegisterScreen(
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
+    var registrationAttempted by remember { mutableStateOf(false) }
 
-    // 验证码倒计时
     var codeSendingEnabled by remember { mutableStateOf(true) }
     var countdownSeconds by remember { mutableStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
 
-    // 本地表单验证
     val isPasswordMatch = password == confirmPassword
     val isFormValid = email.isNotBlank() && verificationCode.isNotBlank() &&
             nickname.isNotBlank() && password.isNotBlank() &&
             confirmPassword.isNotBlank() && isPasswordMatch
 
-    // 焦点管理
     val focusManager = LocalFocusManager.current
-
-    // 注册成功后返回登录页
     val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(authUiState, registrationAttempted) {
+        if (registrationAttempted && !authUiState.isLoading && authUiState.errorMessage == null && !authUiState.verificationSent) {
+            snackbarHostState.showSnackbar("Please enter email first")
+            delay(3000)
+            navController.navigate("login") {
+                popUpTo("register") { inclusive = true }
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         if (authUiState.verificationSent) {
-            // 如果已经发送过验证码，恢复倒计时状态
             if (!authViewModel.isVerificationCodeExpired()) {
                 codeSendingEnabled = false
-                // 这里可以根据过期时间计算剩余秒数
-                countdownSeconds = 60 // 简化处理，假设60秒倒计时
+                countdownSeconds = 60
                 coroutineScope.launch {
                     while (countdownSeconds > 0) {
                         delay(1000)
@@ -113,7 +117,6 @@ fun RegisterScreen(
         }
     }
 
-    // 清除错误消息
     LaunchedEffect(email, verificationCode, nickname, password, confirmPassword) {
         authViewModel.clearErrorMessage()
     }
@@ -121,10 +124,13 @@ fun RegisterScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("注册") },
+                title = { Text(stringResource(R.string.register_title)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = stringResource(R.string.back_button_description)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -140,7 +146,6 @@ fun RegisterScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // 主要内容
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -150,9 +155,8 @@ fun RegisterScreen(
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 标题
                 Text(
-                    text = "创建账号",
+                    text = stringResource(R.string.create_account),
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -160,7 +164,7 @@ fun RegisterScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "请填写以下信息完成注册",
+                    text = stringResource(R.string.registration_prompt),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                     textAlign = TextAlign.Center
@@ -168,7 +172,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // 邮箱输入框与验证码
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -176,7 +179,7 @@ fun RegisterScreen(
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        label = { Text("邮箱") },
+                        label = { Text(stringResource(R.string.email_hint)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
@@ -206,7 +209,7 @@ fun RegisterScreen(
                                 }
                             } else {
                                 coroutineScope.launch {
-                                    snackbarHostState.showSnackbar("请先填写邮箱")
+                                    snackbarHostState.showSnackbar("Please enter email first")
                                 }
                             }
                         },
@@ -214,7 +217,10 @@ fun RegisterScreen(
                         enabled = codeSendingEnabled && email.isNotBlank() && !authUiState.isLoading
                     ) {
                         Text(
-                            text = if (countdownSeconds > 0) "${countdownSeconds}s" else "获取验证码",
+                            text = if (countdownSeconds > 0)
+                                stringResource(R.string.verification_code_countdown, countdownSeconds)
+                            else
+                                stringResource(R.string.get_verification_code),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -222,11 +228,10 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 验证码输入框
                 OutlinedTextField(
                     value = verificationCode,
                     onValueChange = { verificationCode = it },
-                    label = { Text("验证码") },
+                    label = { Text(stringResource(R.string.verification_code_hint)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
@@ -241,11 +246,10 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 昵称输入框
                 OutlinedTextField(
                     value = nickname,
                     onValueChange = { nickname = it },
-                    label = { Text("昵称") },
+                    label = { Text(stringResource(R.string.nickname_hint)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
@@ -260,11 +264,10 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 密码输入框
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("密码") },
+                    label = { Text(stringResource(R.string.password_hint)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -279,7 +282,10 @@ fun RegisterScreen(
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
                                 imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = if (passwordVisible) "隐藏密码" else "显示密码"
+                                contentDescription = if (passwordVisible)
+                                    stringResource(R.string.hide_password)
+                                else
+                                    stringResource(R.string.show_password)
                             )
                         }
                     },
@@ -288,11 +294,10 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 确认密码输入框
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
-                    label = { Text("确认密码") },
+                    label = { Text(stringResource(R.string.confirm_password_hint)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -304,6 +309,7 @@ fun RegisterScreen(
                         onDone = {
                             focusManager.clearFocus()
                             if (isFormValid) {
+                                registrationAttempted = true
                                 authViewModel.register(email, verificationCode, nickname, password)
                             }
                         }
@@ -312,7 +318,10 @@ fun RegisterScreen(
                         IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
                             Icon(
                                 imageVector = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = if (confirmPasswordVisible) "隐藏密码" else "显示密码"
+                                contentDescription = if (confirmPasswordVisible)
+                                    stringResource(R.string.hide_password)
+                                else
+                                    stringResource(R.string.show_password)
                             )
                         }
                     },
@@ -320,18 +329,16 @@ fun RegisterScreen(
                     enabled = !authUiState.isLoading
                 )
 
-                // 密码不匹配错误提示
                 if (confirmPassword.isNotBlank() && !isPasswordMatch) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "两次输入的密码不一致",
+                        text = stringResource(R.string.password_mismatch),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
 
-                // 错误消息
                 authUiState.errorMessage?.let { errorMsg ->
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -344,9 +351,9 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // 注册按钮
                 Button(
                     onClick = {
+                        registrationAttempted = true
                         authViewModel.register(email, verificationCode, nickname, password)
                     },
                     modifier = Modifier
@@ -361,20 +368,19 @@ fun RegisterScreen(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text("注册")
+                        Text(stringResource(R.string.register_button))
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 已有账号登录提示
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "已有账号?",
+                        text = stringResource(R.string.existing_account_prompt),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                     )
@@ -382,7 +388,7 @@ fun RegisterScreen(
                     Spacer(modifier = Modifier.width(4.dp))
 
                     Text(
-                        text = "去登录",
+                        text = stringResource(R.string.go_to_login),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.clickable {
@@ -392,8 +398,6 @@ fun RegisterScreen(
                         }
                     )
                 }
-//
-//                Spacer(modifier = Modifier.height(40.dp))
             }
         }
     }

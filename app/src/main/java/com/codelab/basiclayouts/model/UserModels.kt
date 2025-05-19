@@ -32,10 +32,11 @@ data class RegisterRequest(
  * 注册响应数据类
  */
 data class RegisterResponse(
-    val status: String,
-    val message: String
+    val status: String? = null,
+    val message: String? = null,
+    val msg: String? = null, // Added to match server response
+    val user_id: Int? = null
 )
-
 /**
  * 验证码请求数据类
  */
@@ -65,6 +66,6 @@ data class ResetPasswordRequest(
 data class UserInfo(
     val user_id: Int,
     val email: String,
-    val nickname: String,
-    val theme: String
+    val nickname: String?,
+    val theme: String?
 )

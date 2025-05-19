@@ -1,5 +1,7 @@
 package com.codelab.basiclayouts.ui.profile
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -252,8 +254,8 @@ fun UserInfoCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             UserDetailRow("📧 Email", user.email)
-            UserDetailRow("👤 Nickname", user.nickname.ifEmpty { "Not set" })
-            UserDetailRow("🎨 Theme", user.theme.capitalize())
+            user.nickname?.let { UserDetailRow("👤 Nickname", it.ifEmpty { "Not set" }) }
+            UserDetailRow("🎨 Theme", user.theme?.replaceFirstChar { it.titlecase() } ?: "Not set")
 
             // Additional info if available
             if (user.toString().contains("registration_dt")) {
@@ -319,6 +321,7 @@ fun StatisticRow(
         )
     }
 }
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
@@ -498,12 +501,14 @@ fun LoggedInProfileHeader(
     Spacer(modifier = Modifier.height(16.dp))
 
     // User info
-    Text(
-        text = userInfo.nickname.ifEmpty { "User" },
+    userInfo.nickname?.let {
+        Text(
+        text = it.ifEmpty { "User" },
         style = MaterialTheme.typography.headlineMedium,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onSurface
     )
+    }
 
     Text(
         text = userInfo.email,
@@ -825,6 +830,7 @@ fun AvatarOption(
 }
 
 // Data classes
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DeveloperDebugCard(
     authViewModel: AuthViewModel,
@@ -1022,6 +1028,7 @@ fun DeveloperPasswordDialog(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DeveloperInfoContent(
     authViewModel: AuthViewModel,
@@ -1197,6 +1204,7 @@ data class QuickAction(
 )
 
 data class SettingsItem(
+
     val icon: ImageVector,
     val title: String,
     val subtitle: String = ""
