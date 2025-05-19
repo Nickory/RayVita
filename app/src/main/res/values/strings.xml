@@ -12,7 +12,7 @@
   the License.
   -->
 <resources>
-    <string name="app_name">RayVita</string>
+    <string name="app_name" translatable="false">RayVita</string>
     <string name="favorite_collections">Favorite Collections</string>
     <string name="align_your_body">Align your Body</string>
     <string name="ab1_inversions">Inversions</string>
@@ -33,4 +33,24 @@
     <string name="placeholder_search">Search</string>
     <string name="heartbeat_waveform">心跳波形</string>
     <string name="company_name">Heartiva</string>
+
+    <string name="register_title">Register</string>
+    <string name="create_account">Create Account</string>
+    <string name="registration_prompt">Please complete the registration by filling in the following information</string>
+    <string name="email_hint">Email</string>
+    <string name="verification_code_hint">Verification Code</string>
+    <string name="get_verification_code">Get Code</string>
+    <string name="nickname_hint">Nickname</string>
+    <string name="password_hint">Password</string>
+    <string name="confirm_password_hint">Confirm Password</string>
+    <string name="password_mismatch">Passwords do not match</string>
+    <string name="register_button">Sign Up</string>
+    <string name="existing_account_prompt">Already have an account?</string>
+    <string name="go_to_login">Login</string>
+    <string name="registration_success">Registration successful</string>
+    <string name="enter_email_first">Please enter email first</string>
+    <string name="back_button_description">Back</string>
+    <string name="hide_password">Hide password</string>
+    <string name="show_password">Show password</string>
+    <string name="verification_code_countdown">%1$ds</string>
 </resources>

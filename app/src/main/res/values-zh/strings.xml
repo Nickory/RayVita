@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="email_hint">邮箱</string>
+    <string name="verification_code_hint">验证码</string>
+    <string name="get_verification_code">获取验证码</string>
+    <string name="nickname_hint">昵称</string>
+    <string name="password_hint">密码</string>
+    <string name="confirm_password_hint">确认密码</string>
+    <string name="password_mismatch">两次输入的密码不一致</string>
+    <string name="register_button">注册</string>
+    <string name="existing_account_prompt">已有账号?</string>
+    <string name="go_to_login">去登录</string>
+    <string name="registration_success">注册成功</string>
+    <string name="enter_email_first">请先填写邮箱</string>
+    <string name="back_button_description">返回</string>
+    <string name="hide_password">隐藏密码</string>
+    <string name="show_password">显示密码</string>
+    <string name="verification_code_countdown">%1$ds</string>
+
+</resources>

@@ -1,4 +1,4 @@
-package com.codelab.basiclayouts
+package com
 
 import android.Manifest
 import android.app.Activity
