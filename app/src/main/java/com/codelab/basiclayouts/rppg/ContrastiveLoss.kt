@@ -26,3 +26,5 @@ class ContrastiveLoss(private val temperature: Float = 0.07f) {
         return dot / (normA * normB)
     }
 }
+
+
