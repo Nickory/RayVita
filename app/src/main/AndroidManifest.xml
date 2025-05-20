@@ -22,6 +22,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <!-- For older devices -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+
 
     <application
         android:allowBackup="true"
@@ -51,6 +55,17 @@
             android:name=".ui.profile.ProfileActivity"
             android:exported="false"
             android:label="profile"
+            android:theme="@style/Theme.MySoothe" />
+
+        <activity
+            android:name=".ui.social.SocialActivity"
+            android:exported="true"
+            android:label="Health Network"
+            android:theme="@style/Theme.MySoothe" />
+        <!-- Add to your AndroidManifest.xml -->
+        <activity
+            android:name=".ui.social.FriendSearchActivity"
+            android:exported="false"
             android:theme="@style/Theme.MySoothe" />
     </application>
     <uses-permission android:name="android.permission.INTERNET" />

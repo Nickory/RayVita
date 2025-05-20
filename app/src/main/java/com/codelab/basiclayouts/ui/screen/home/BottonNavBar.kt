@@ -205,6 +205,10 @@ fun BottomNavBar(
                                     context.startActivity(Intent(context, com.codelab.basiclayouts.ui.insight.InsightActivity::class.java))
                                 }
 
+                                if (tabIndex == 2) {
+                                    context.startActivity(Intent(context, com.codelab.basiclayouts.ui.social.SocialActivity::class.java))
+                                }
+
                                 if (tabIndex == 3) {
                                     context.startActivity(Intent(context, com.codelab.basiclayouts.ui.profile.ProfileActivity::class.java))
                                 } else {

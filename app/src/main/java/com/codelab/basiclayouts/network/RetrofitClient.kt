@@ -69,4 +69,8 @@ object RetrofitClient {
     val authApi: AuthApi by lazy {
         rayvitaRetrofit.create(AuthApi::class.java)
     }
+
+    val socialApi: SocialApi by lazy {
+        rayvitaRetrofit.create(SocialApi::class.java)
+    }
 }

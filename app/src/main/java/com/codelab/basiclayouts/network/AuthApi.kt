@@ -39,6 +39,7 @@ interface AuthApi {
      */
     @POST("user/send_verification")
     suspend fun sendVerificationCode(@Body request: VerificationCodeRequest): Response<VerificationCodeResponse>
+    //预留 目前发送验证码不用api实现
 
     /**
      * Reset password
