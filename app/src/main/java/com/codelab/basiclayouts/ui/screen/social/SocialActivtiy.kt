@@ -160,8 +160,15 @@ class SocialActivity : ComponentActivity() {
                                 },
                                 onDeletePost = { viewModel.deletePost(it) },
                                 onBlockFriend = { friendId, block -> viewModel.blockFriend(friendId, block) },
-                                onProcessFriendRequest = { requestId, accept -> viewModel.processFriendRequest(requestId, accept) },
-                                onHideCreatePostDialog = { viewModel.hideCreatePostDialog() },
+                                onProcessFriendRequest = { request, accept ->
+                                    viewModel.processFriendRequest(
+                                        requestId = request.request_id,
+                                        accept = accept,
+                                        fromUserId = request.from_user_id,
+                                        toUserId = request.to_user_id
+                                    )
+                                },
+                                        onHideCreatePostDialog = { viewModel.hideCreatePostDialog() },
                                 onShowCreatePostDialog = { viewModel.showCreatePostDialog() },
                                 onHideCommentsDialog = { viewModel.hideCommentsDialog() },
                                 onClearErrorMessage = { viewModel.clearErrorMessage() }

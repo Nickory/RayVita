@@ -1101,64 +1101,47 @@ class SocialViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun processFriendRequest(requestId: Int, accept: Boolean) {
+    fun processFriendRequest(requestId: Int, accept: Boolean, fromUserId: Int, toUserId: Int) {
         viewModelScope.launch {
             try {
                 _uiState.update { it.copy(isLoading = true) }
 
-                // Actualizar UI inmediatamente
-                _uiState.update { currentState ->
-                    val updatedRequests = currentState.friendRequests.filter { it.request_id != requestId }
-                    currentState.copy(friendRequests = updatedRequests)
-                }
+                val action = FriendRequestActionRequest(
+                    action = if (accept) "accept" else "reject",
+                    user_id = fromUserId,
+                    friend_id = toUserId
+                )
 
-                try {
-                    val action = FriendRequestAction(if (accept) "accept" else "reject")
-                    val response = socialApi.processFriendRequest(requestId, action)
+                val response = socialApi.processFriendRequest(requestId, action)
 
-                    if (response.isSuccessful) {
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                errorMessage = if (accept) "Solicitud aceptada" else "Solicitud rechazada"
-                            )
-                        }
-
-                        // Si se aceptó, actualizar lista de amigos
-                        if (accept) {
-                            refreshFriends()
-                        }
-                    } else {
-                        Log.e(TAG, "Error al procesar solicitud de amistad: ${response.body()?.message}")
-                        // Restaurar la solicitud en UI si es necesario
-                        refreshFriendRequests()
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                errorMessage = "Error al procesar solicitud."
-                            )
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error de red al procesar solicitud de amistad", e)
-                    _uiState.update {
-                        it.copy(
+                if (response.isSuccessful) {
+                    _uiState.update { currentState ->
+                        val updatedRequests = currentState.friendRequests.filter { it.request_id != requestId }
+                        currentState.copy(
+                            friendRequests = updatedRequests,
                             isLoading = false,
-                            errorMessage = "Solicitud procesada localmente. Se sincronizará más tarde."
+                            errorMessage = if (accept) "好友请求已接受" else "好友请求已拒绝"
                         )
+                    }
+
+                    if (accept) {
+                        refreshFriends()
+                    }
+                } else {
+                    Log.e(TAG, "处理好友请求失败: ${response.body()?.message}")
+                    _uiState.update {
+                        it.copy(isLoading = false, errorMessage = "请求处理失败")
                     }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error al procesar solicitud de amistad", e)
+                Log.e(TAG, "处理好友请求出错", e)
                 _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = "Error: ${e.message}"
-                    )
+                    it.copy(isLoading = false, errorMessage = "网络错误: ${e.message}")
                 }
             }
         }
     }
+
 
     fun blockFriend(friendId: Int, block: Boolean) {
         viewModelScope.launch {

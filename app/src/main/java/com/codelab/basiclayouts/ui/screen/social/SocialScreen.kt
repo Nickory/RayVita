@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.codelab.basiclayouts.model.Friend
+import com.codelab.basiclayouts.model.FriendRequest
 import com.codelab.basiclayouts.model.Post
 import com.codelab.basiclayouts.viewmodel.social.SocialUiState
 import kotlinx.coroutines.launch
@@ -65,7 +66,7 @@ fun SocialScreen(
     onAddFriend: () -> Unit,
     onDeletePost: (Int) -> Unit,
     onBlockFriend: (Int, Boolean) -> Unit,
-    onProcessFriendRequest: (Int, Boolean) -> Unit,
+    onProcessFriendRequest: (FriendRequest, Boolean) -> Unit,
     onHideCreatePostDialog: () -> Unit,
     onShowCreatePostDialog: () -> Unit,
     onHideCommentsDialog: () -> Unit,
@@ -232,7 +233,7 @@ fun FriendListContent(
     friends: List<Friend>,
     friendRequests: List<com.codelab.basiclayouts.model.FriendRequest>,
     onBlockFriend: (Int, Boolean) -> Unit,
-    onProcessRequest: (Int, Boolean) -> Unit,
+    onProcessRequest: (FriendRequest, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -265,8 +266,8 @@ fun FriendListContent(
                         val request = friendRequests[index]
                         FriendRequestItem(
                             request = request,
-                            onAccept = { onProcessRequest(request.request_id, true) },
-                            onReject = { onProcessRequest(request.request_id, false) }
+                            onAccept = { onProcessRequest(request, true) },
+                            onReject = { onProcessRequest(request, false) }
                         )
                     }
 

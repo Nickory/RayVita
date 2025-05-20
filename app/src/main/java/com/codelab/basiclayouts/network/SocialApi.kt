@@ -6,7 +6,7 @@ import com.codelab.basiclayouts.model.Comment
 import com.codelab.basiclayouts.model.CommentRequest
 import com.codelab.basiclayouts.model.CreatePostRequest
 import com.codelab.basiclayouts.model.Friend
-import com.codelab.basiclayouts.model.FriendRequestAction
+import com.codelab.basiclayouts.model.FriendRequestActionRequest
 import com.codelab.basiclayouts.model.LikePostRequest
 import com.codelab.basiclayouts.model.Post
 import retrofit2.Response
@@ -26,8 +26,9 @@ interface SocialApi {
     @PUT("/api/friend/request/{req_id}")
     suspend fun processFriendRequest(
         @Path("req_id") requestId: Int,
-        @Body action: FriendRequestAction
+        @Body action: FriendRequestActionRequest
     ): Response<ApiResponse<Nothing>>
+
 
     @GET("/api/friend/list")
     suspend fun getFriendList(@Query("user_id") userId: Int): Response<ApiResponse<List<Friend>>>

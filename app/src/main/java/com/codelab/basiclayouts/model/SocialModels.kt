@@ -68,9 +68,12 @@ data class CommentRequest(
     val comment_text: String
 )
 
-data class FriendRequestAction(
-    val action: String // "accept" or "reject"
+data class FriendRequestActionRequest(
+    val action: String,       // "accept" or "reject"
+    val user_id: Int,
+    val friend_id: Int
 )
+
 
 data class BlockFriendRequest(
     val user_id: Int,
