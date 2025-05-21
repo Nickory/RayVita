@@ -231,7 +231,7 @@ fun FeedContent(
 @Composable
 fun FriendListContent(
     friends: List<Friend>,
-    friendRequests: List<com.codelab.basiclayouts.model.FriendRequest>,
+    friendRequests: List<FriendRequest>,
     onBlockFriend: (Int, Boolean) -> Unit,
     onProcessRequest: (FriendRequest, Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -252,11 +252,11 @@ fun FriendListContent(
                 contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Friend requests section
+                // 好友请求部分
                 if (friendRequests.isNotEmpty()) {
                     item {
                         Text(
-                            text = "Friend Requests",
+                            text = "Friend Requests (${friendRequests.size})",
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(8.dp)
                         )
@@ -276,11 +276,11 @@ fun FriendListContent(
                     }
                 }
 
-                // Friends section
+                // 好友列表部分
                 if (friends.isNotEmpty()) {
                     item {
                         Text(
-                            text = "My Friends",
+                            text = "My Friends (${friends.size})",
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(8.dp)
                         )

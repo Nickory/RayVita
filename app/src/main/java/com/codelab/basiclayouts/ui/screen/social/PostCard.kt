@@ -41,18 +41,24 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostCard(
+
     post: Post,
-    onLikeClick: () -> Unit,
-    onCommentClick: () -> Unit,
-    onDeleteClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
-) {
+onLikeClick: (Int) -> Unit,  // 改为接收postId参数
+onCommentClick: (Int) -> Unit,  // 改为接收postId参数
+onDeleteClick: ((Int) -> Unit)? = null,  // 改为接收postId参数
+modifier: Modifier = Modifier
+){
     val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()) }
     val formattedDate = remember(post.created_at) {
         try {
-            dateFormat.format(dateFormat.parse(post.created_at) ?: Date())
+            // 添加空值检查
+            if (post.created_at.isNullOrEmpty()) {
+                "Unknown date"
+            } else {
+                dateFormat.format(dateFormat.parse(post.created_at) ?: Date())
+            }
         } catch (e: Exception) {
-            post.created_at
+            post.created_at ?: "Unknown date"
         }
     }
 
@@ -72,7 +78,7 @@ fun PostCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Avatar based on the avatar_index
+                    // Avatar based on the avatar_index with null safety
                     Text(
                         text = when (post.user_avatar_index) {
                             1 -> "😊"
@@ -87,8 +93,9 @@ fun PostCard(
                     )
 
                     Column {
+                        // 添加空值检查
                         Text(
-                            text = post.user_nickname,
+                            text = post.user_nickname ?: "Unknown User",
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
@@ -101,7 +108,7 @@ fun PostCard(
 
                 // More options (delete)
                 if (onDeleteClick != null) {
-                    IconButton(onClick = onDeleteClick) {
+                    IconButton(onClick = { onDeleteClick(post.post_id) }) {
                         Icon(
                             imageVector = Icons.Default.Delete,
                             contentDescription = "Delete Post",
@@ -113,9 +120,9 @@ fun PostCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Post content
+            // 添加空值检查
             Text(
-                text = post.text_content,
+                text = post.text_content ?: "",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
@@ -181,13 +188,13 @@ fun PostCard(
             Spacer(modifier = Modifier.height(8.dp))
             Divider()
 
-            // Action buttons
+            // Action buttons - 修改调用回调函数的方式，传入post.post_id
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 TextButton(
-                    onClick = onLikeClick,
+                    onClick = { onLikeClick(post.post_id) },  // 传入post.post_id
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = if (post.is_liked_by_me)
                             MaterialTheme.colorScheme.primary
@@ -206,7 +213,7 @@ fun PostCard(
                     Text(text = "Like")
                 }
 
-                TextButton(onClick = onCommentClick) {
+                TextButton(onClick = { onCommentClick(post.post_id) }) {  // 传入post.post_id
                     Icon(imageVector = Icons.Default.Comment, contentDescription = "Comment")
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(text = "Comment")

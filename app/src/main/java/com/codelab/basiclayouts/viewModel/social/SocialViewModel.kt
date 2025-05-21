@@ -626,7 +626,6 @@ class SocialViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update { it.copy(selectedImageUri = uri) }
     }
 
-    // Función mejorada para actualizar feed con manejo de errores
     fun refreshFeed() {
         viewModelScope.launch {
             try {
@@ -636,19 +635,20 @@ class SocialViewModel(application: Application) : AndroidViewModel(application) 
 
                 try {
                     val response = socialApi.getUserFeed(userId)
-                    if (response.isSuccessful && response.body()?.status == "success") {
-                        val posts = response.body()?.data ?: emptyList()
+                    if (response.isSuccessful) {
+                        // 直接使用响应中的数据，因为它现在是一个 List<Post>
+                        val posts = response.body() ?: emptyList()
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
                                 feedPosts = posts
                             )
                         }
-                        // Guardar en caché
+                        // 缓存数据
                         cachePosts(posts)
                     } else {
-                        Log.w(TAG, "Error al cargar feed: ${response.body()?.message} - usando datos en caché")
-                        // Si la lista actual está vacía, usar datos en caché o ejemplo
+                        Log.w(TAG, "Error al cargar feed: ${response.errorBody()?.string()} - usando datos en caché")
+                        // 使用缓存数据
                         if (_uiState.value.feedPosts.isEmpty()) {
                             _uiState.update { it.copy(feedPosts = getMockPosts()) }
                         }
@@ -703,12 +703,13 @@ class SocialViewModel(application: Application) : AndroidViewModel(application) 
 
                 try {
                     val response = socialApi.getFriendList(userId)
-                    if (response.isSuccessful && response.body()?.status == "success") {
-                        val friends = response.body()?.data ?: emptyList()
+                    if (response.isSuccessful) {
+                        // 直接使用响应中的数据
+                        val friends = response.body() ?: emptyList()
                         _uiState.update {
                             it.copy(friends = friends)
                         }
-                        // Guardar en caché
+                        // 缓存数据
                         cacheFriends(friends)
                     } else {
                         Log.w(TAG, "Error al cargar amigos - usando datos en caché")
@@ -728,32 +729,50 @@ class SocialViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+
     fun refreshFriendRequests() {
         viewModelScope.launch {
             try {
                 val userId = currentUserId ?: return@launch
 
-                // Este endpoint de API no está en la documentación proporcionada,
-                // así que usaremos datos de ejemplo por ahora
                 try {
-                    // Solicitudes de amistad de ejemplo
-                    val requests = getMockFriendRequests()
-                    _uiState.update { it.copy(friendRequests = requests) }
+                    val response = socialApi.getIncomingFriendRequests(userId)
+                    if (response.isSuccessful) {
+                        // 从response.body()的requests字段获取好友请求列表
+                        val friendRequestsData = response.body()
+                        val requests = friendRequestsData?.requests ?: emptyList()
+                        _uiState.update { it.copy(friendRequests = requests) }
+                        Log.d(TAG, "收到好友请求：${requests.size} 条")
+                    } else {
+                        Log.e(TAG, "获取好友请求失败：${response.errorBody()?.string()}")
+                    }
                 } catch (e: Exception) {
-                    Log.e(TAG, "Error al actualizar solicitudes de amistad", e)
+                    Log.e(TAG, "刷新好友请求异常", e)
+                    // 在捕获异常时也要确保应用不会崩溃
+                    // 如果没有好友请求数据，则加载模拟数据
+                    if (_uiState.value.friendRequests.isEmpty()) {
+                        _uiState.update { it.copy(friendRequests = getMockFriendRequests()) }
+                    }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error en refreshFriendRequests", e)
+                Log.e(TAG, "刷新好友请求出错", e)
             }
         }
     }
+
 
     fun likePost(postId: Int) {
         viewModelScope.launch {
             try {
                 val userId = currentUserId ?: return@launch
 
-                // Actualizar UI inmediatamente para una experiencia más fluida
+                // 验证 postId 是否有效
+                if (postId <= 0) {
+                    Log.e(TAG, "Invalid post ID for like: $postId")
+                    return@launch
+                }
+
+                // 查找帖子
                 val currentPost = _uiState.value.feedPosts.find { it.post_id == postId }
                 if (currentPost == null) {
                     Log.e(TAG, "Post no encontrado para dar like: $postId")
@@ -763,6 +782,7 @@ class SocialViewModel(application: Application) : AndroidViewModel(application) 
                 val newLikeCount = if (currentPost.is_liked_by_me) currentPost.like_count - 1 else currentPost.like_count + 1
                 val isLiked = !currentPost.is_liked_by_me
 
+                // 更新 UI
                 _uiState.update { currentState ->
                     val updatedPosts = currentState.feedPosts.map { post ->
                         if (post.post_id == postId) {
@@ -777,24 +797,24 @@ class SocialViewModel(application: Application) : AndroidViewModel(application) 
                     currentState.copy(feedPosts = updatedPosts)
                 }
 
-                // Guardar el cambio en caché
+                // 缓存更新
                 cachePosts(_uiState.value.feedPosts)
 
-                // Guardar la acción pendiente
+                // 保存待处理操作
                 savePendingLike(PendingLike(postId, userId, isLiked))
 
-                // Luego enviar la solicitud API
+                // 发送 API 请求
                 try {
                     val request = LikePostRequest(userId)
                     val response = socialApi.likeOrUnlikePost(postId, request)
 
                     if (!response.isSuccessful) {
-                        Log.e(TAG, "Error al dar like: ${response.body()?.message}")
-                        // La acción ya está en pendientes, se sincronizará más tarde
+                        Log.e(TAG, "Error al dar like: ${response.errorBody()?.string()}")
+                        // 操作已保存为待处理
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error de red al dar like", e)
-                    // Ya se guardó como pendiente
+                    // 已保存为待处理
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error al dar like", e)
@@ -1057,10 +1077,22 @@ class SocialViewModel(application: Application) : AndroidViewModel(application) 
 
                 _uiState.update { it.copy(isLoading = true) }
 
-                // Guardar como pendiente primero
+                // 确保不要发送给自己的请求
+                if (userId == friendId) {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = "不能向自己发送好友请求"
+                        )
+                    }
+                    return@launch
+                }
+
+                // 保存为待处理请求
                 savePendingFriendRequest(PendingFriendRequest(friendId))
 
                 try {
+                    // 使用正确的请求格式
                     val request = mapOf("user_id" to userId, "friend_id" to friendId)
                     val response = socialApi.sendFriendRequest(request)
 
@@ -1068,15 +1100,22 @@ class SocialViewModel(application: Application) : AndroidViewModel(application) 
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                errorMessage = "¡Solicitud de amistad enviada con éxito!"
+                                errorMessage = "好友请求发送成功！"
                             )
                         }
                     } else {
-                        Log.e(TAG, "Error al enviar solicitud de amistad: ${response.body()?.message}")
+                        val errorBody = response.errorBody()?.string() ?: "未知错误"
+                        // 如果是已经发送过的请求，显示特定的消息
+                        val errorMessage = if (errorBody.contains("Already requested")) {
+                            "已经发送过好友请求给该用户"
+                        } else {
+                            "发送请求失败: $errorBody"
+                        }
+                        Log.e(TAG, "Error al enviar solicitud de amistad: $errorBody")
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                errorMessage = "Solicitud guardada. Se enviará cuando estés en línea."
+                                errorMessage = errorMessage
                             )
                         }
                     }
@@ -1085,7 +1124,7 @@ class SocialViewModel(application: Application) : AndroidViewModel(application) 
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = "Solicitud guardada. Se enviará cuando estés en línea."
+                            errorMessage = "网络错误，请求已保存。将在网络连接时发送。"
                         )
                     }
                 }
@@ -1094,49 +1133,52 @@ class SocialViewModel(application: Application) : AndroidViewModel(application) 
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "Error: ${e.message}"
+                        errorMessage = "错误: ${e.message}"
                     )
                 }
             }
         }
     }
 
-    fun processFriendRequest(requestId: Int, accept: Boolean, fromUserId: Int, toUserId: Int) {
+    fun processFriendRequest(requestId: Int, accept: Boolean) {
         viewModelScope.launch {
             try {
                 _uiState.update { it.copy(isLoading = true) }
 
-                val action = FriendRequestActionRequest(
-                    action = if (accept) "accept" else "reject",
-                    user_id = fromUserId,
-                    friend_id = toUserId
-                )
+                val action = mapOf("action" to if (accept) "accept" else "reject")
 
-                val response = socialApi.processFriendRequest(requestId, action)
+                try {
+                    val response = socialApi.processFriendRequest(requestId, action)
 
-                if (response.isSuccessful) {
-                    _uiState.update { currentState ->
-                        val updatedRequests = currentState.friendRequests.filter { it.request_id != requestId }
-                        currentState.copy(
-                            friendRequests = updatedRequests,
-                            isLoading = false,
-                            errorMessage = if (accept) "好友请求已接受" else "好友请求已拒绝"
-                        )
+                    if (response.isSuccessful) {
+                        _uiState.update { currentState ->
+                            val updatedRequests = currentState.friendRequests.filter { it.request_id != requestId }
+                            currentState.copy(
+                                friendRequests = updatedRequests,
+                                isLoading = false,
+                                errorMessage = if (accept) "好友请求已接受" else "好友请求已拒绝"
+                            )
+                        }
+
+                        if (accept) {
+                            refreshFriends()
+                        }
+                    } else {
+                        Log.e(TAG, "处理好友请求失败: ${response.errorBody()?.string()}")
+                        _uiState.update {
+                            it.copy(isLoading = false, errorMessage = "请求处理失败，请求ID可能不存在")
+                        }
                     }
-
-                    if (accept) {
-                        refreshFriends()
-                    }
-                } else {
-                    Log.e(TAG, "处理好友请求失败: ${response.body()?.message}")
+                } catch (e: Exception) {
+                    Log.e(TAG, "处理好友请求网络错误", e)
                     _uiState.update {
-                        it.copy(isLoading = false, errorMessage = "请求处理失败")
+                        it.copy(isLoading = false, errorMessage = "网络错误: ${e.message}")
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "处理好友请求出错", e)
                 _uiState.update {
-                    it.copy(isLoading = false, errorMessage = "网络错误: ${e.message}")
+                    it.copy(isLoading = false, errorMessage = "错误: ${e.message}")
                 }
             }
         }

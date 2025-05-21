@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.codelab.basiclayouts.data.UserSessionManager
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
 import com.codelab.basiclayouts.viewmodel.social.SocialViewModel
 import com.codelab.basiclayouts.viewmodel.social.SocialViewModelFactory
@@ -45,8 +44,6 @@ class SocialActivity : ComponentActivity() {
         private const val TAG = "SocialActivity"
     }
 
-    private lateinit var sessionManager: UserSessionManager
-
     private val viewModel: SocialViewModel by viewModels {
         SocialViewModelFactory(application)
     }
@@ -54,58 +51,49 @@ class SocialActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inicializar el gestor de sesión
-        sessionManager = UserSessionManager(application)
-
-        // Comprobar si el usuario ha iniciado sesión
-        if (sessionManager.getUserSession() == null) {
-            Log.e(TAG, "Usuario no ha iniciado sesión, debería redirigir al login")
-            // Descomentar cuando esté listo para implementar
-            // startActivity(Intent(this, LoginActivity::class.java))
-            // finish()
-            // return
-        }
-
         setContent {
             MySootheTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Obtener el estado actual de la UI
                     val uiState by viewModel.uiState.collectAsState()
 
-                    // Selector de fotos
+                    // ✅ 如果用户未登录（无 user_id），可以跳转到登录
+                    if (uiState.currentUserId == null) {
+                        Log.e(TAG, "用户未登录，应跳转登录页")
+                        // startActivity(Intent(this, LoginActivity::class.java))
+                        // finish()
+                        // return@Surface
+                    }
+
+                    // 📷 图像选择器
                     val pickMedia = rememberLauncherForActivityResult(
                         ActivityResultContracts.PickVisualMedia()
                     ) { uri ->
-                        if (uri != null) {
-                            // Convertir URI a ruta local para caché
-                            val cachedImageUri = cacheImageLocally(uri)
+                        uri?.let {
+                            val cachedImageUri = cacheImageLocally(it)
                             viewModel.setSelectedImageUri(cachedImageUri)
-                            Log.d(TAG, "Imagen seleccionada guardada en: $cachedImageUri")
-                        } else {
-                            Log.d(TAG, "No se seleccionó ningún medio")
+                            Log.d(TAG, "图片缓存到: $cachedImageUri")
                         }
                     }
 
-                    // Lanzador de actividad para búsqueda de amigos
+                    // 🔍 查找好友页
                     val friendSearchLauncher = rememberLauncherForActivityResult(
                         ActivityResultContracts.StartActivityForResult()
                     ) { result ->
                         if (result.resultCode == RESULT_OK) {
-                            result.data?.getIntExtra("selected_user_id", -1)?.let { userId ->
-                                if (userId != -1) {
-                                    viewModel.sendFriendRequest(userId)
-                                }
+                            val selectedId = result.data?.getIntExtra("selected_user_id", -1)
+                            if (selectedId != null && selectedId != -1) {
+                                viewModel.sendFriendRequest(selectedId)
                             }
                         }
                     }
 
-                    // Banner de modo sin conexión
+                    // 🎯 UI 主体
                     Box(modifier = Modifier.fillMaxSize()) {
                         Column(modifier = Modifier.fillMaxSize()) {
-                            // Banner de sin conexión
+                            // 🔴 离线提示
                             AnimatedVisibility(visible = uiState.isOfflineMode) {
                                 Column(
                                     modifier = Modifier
@@ -116,11 +104,11 @@ class SocialActivity : ComponentActivity() {
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.CloudOff,
-                                        contentDescription = "Sin conexión",
+                                        contentDescription = "离线",
                                         tint = MaterialTheme.colorScheme.onErrorContainer
                                     )
                                     Text(
-                                        text = "Modo sin conexión - Mostrando datos guardados",
+                                        text = "当前为离线模式，显示缓存数据",
                                         color = MaterialTheme.colorScheme.onErrorContainer,
                                         style = MaterialTheme.typography.bodyMedium
                                     )
@@ -132,18 +120,17 @@ class SocialActivity : ComponentActivity() {
                                         },
                                         modifier = Modifier.padding(top = 4.dp)
                                     ) {
-                                        Icon(Icons.Default.Refresh, contentDescription = "Actualizar")
-                                        Text(text = "Reintentar conexión", Modifier.padding(start = 4.dp))
+                                        Icon(Icons.Default.Refresh, contentDescription = "刷新")
+                                        Text("重新连接", Modifier.padding(start = 4.dp))
                                     }
                                 }
                             }
 
-                            // Pantalla social principal
+                            // 🧩 社交页面主内容
                             SocialScreen(
                                 uiState = uiState,
                                 onNavigateToProfile = {
-                                    // Manejar navegación al perfil
-                                    // startActivity(Intent(this@SocialActivity, ProfileActivity::class.java))
+                                    // TODO: 打开 Profile 页面
                                 },
                                 onRefreshFeed = { viewModel.refreshFeed() },
                                 onLikePost = { viewModel.likePost(it) },
@@ -154,21 +141,19 @@ class SocialActivity : ComponentActivity() {
                                     pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                                 },
                                 onAddFriend = {
-                                    // Lanzar actividad de búsqueda de amigos
                                     val intent = Intent(this@SocialActivity, FriendSearchActivity::class.java)
                                     friendSearchLauncher.launch(intent)
                                 },
                                 onDeletePost = { viewModel.deletePost(it) },
                                 onBlockFriend = { friendId, block -> viewModel.blockFriend(friendId, block) },
                                 onProcessFriendRequest = { request, accept ->
+                                    // 这里只传递必要的参数
                                     viewModel.processFriendRequest(
                                         requestId = request.request_id,
-                                        accept = accept,
-                                        fromUserId = request.from_user_id,
-                                        toUserId = request.to_user_id
+                                        accept = accept
                                     )
                                 },
-                                        onHideCreatePostDialog = { viewModel.hideCreatePostDialog() },
+                                onHideCreatePostDialog = { viewModel.hideCreatePostDialog() },
                                 onShowCreatePostDialog = { viewModel.showCreatePostDialog() },
                                 onHideCommentsDialog = { viewModel.hideCommentsDialog() },
                                 onClearErrorMessage = { viewModel.clearErrorMessage() }
@@ -183,14 +168,10 @@ class SocialActivity : ComponentActivity() {
     private fun cacheImageLocally(uri: Uri): Uri {
         contentResolver.openInputStream(uri)?.use { input ->
             val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-            val imageFileName = "JPEG_${timeStamp}_"
-            val storageDir = cacheDir
-            val imageFile = File.createTempFile(imageFileName, ".jpg", storageDir)
+            val fileName = "JPEG_${timeStamp}_"
+            val imageFile = File.createTempFile(fileName, ".jpg", cacheDir)
 
-            FileOutputStream(imageFile).use { output ->
-                input.copyTo(output)
-            }
-
+            FileOutputStream(imageFile).use { output -> input.copyTo(output) }
             return Uri.fromFile(imageFile)
         }
         return uri

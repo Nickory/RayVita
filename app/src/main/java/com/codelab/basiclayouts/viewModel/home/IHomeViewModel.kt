@@ -13,8 +13,6 @@ interface IHomeViewModel {
     // 扫描操作
     fun startScan()
 
-
-
     // 错误处理
     fun dismissError()
 
