@@ -50,7 +50,17 @@
         <activity android:name=".ui.insight.InsightActivity" />
         <activity android:name=".AboutActivity"/>
         <activity android:name=".SocialActivity"/>
-<!--        <activity android:name=".PersonalActivity"/>-->
+        <activity
+            android:name=".physnet.TestActivity"
+            android:exported="true"
+            android:label="Test RPPG"
+            android:theme="@style/Theme.MySoothe">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <!--        <activity android:name=".PersonalActivity"/>-->
         <activity
             android:name=".ui.profile.ProfileActivity"
             android:exported="false"

@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.codelab.basiclayouts.ui.screen.home.BottomNavBar
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
 import com.codelab.basiclayouts.viewmodel.social.SocialViewModel
 import com.codelab.basiclayouts.viewmodel.social.SocialViewModelFactory
@@ -59,15 +60,12 @@ class SocialActivity : ComponentActivity() {
                 ) {
                     val uiState by viewModel.uiState.collectAsState()
 
-                    // ✅ 如果用户未登录（无 user_id），可以跳转到登录
                     if (uiState.currentUserId == null) {
                         Log.e(TAG, "用户未登录，应跳转登录页")
                         // startActivity(Intent(this, LoginActivity::class.java))
                         // finish()
-                        // return@Surface
                     }
 
-                    // 📷 图像选择器
                     val pickMedia = rememberLauncherForActivityResult(
                         ActivityResultContracts.PickVisualMedia()
                     ) { uri ->
@@ -78,7 +76,6 @@ class SocialActivity : ComponentActivity() {
                         }
                     }
 
-                    // 🔍 查找好友页
                     val friendSearchLauncher = rememberLauncherForActivityResult(
                         ActivityResultContracts.StartActivityForResult()
                     ) { result ->
@@ -90,10 +87,13 @@ class SocialActivity : ComponentActivity() {
                         }
                     }
 
-                    // 🎯 UI 主体
+                    // 🌟 正确布局，Box 包裹 Column + 底部导航栏
                     Box(modifier = Modifier.fillMaxSize()) {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            // 🔴 离线提示
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(bottom = 68.dp) // 给底部导航栏预留空间
+                        ) {
                             AnimatedVisibility(visible = uiState.isOfflineMode) {
                                 Column(
                                     modifier = Modifier
@@ -126,12 +126,9 @@ class SocialActivity : ComponentActivity() {
                                 }
                             }
 
-                            // 🧩 社交页面主内容
                             SocialScreen(
                                 uiState = uiState,
-                                onNavigateToProfile = {
-                                    // TODO: 打开 Profile 页面
-                                },
+                                onNavigateToProfile = { },
                                 onRefreshFeed = { viewModel.refreshFeed() },
                                 onLikePost = { viewModel.likePost(it) },
                                 onCommentClick = { viewModel.getPostWithComments(it) },
@@ -147,7 +144,6 @@ class SocialActivity : ComponentActivity() {
                                 onDeletePost = { viewModel.deletePost(it) },
                                 onBlockFriend = { friendId, block -> viewModel.blockFriend(friendId, block) },
                                 onProcessFriendRequest = { request, accept ->
-                                    // 这里只传递必要的参数
                                     viewModel.processFriendRequest(
                                         requestId = request.request_id,
                                         accept = accept
@@ -157,6 +153,19 @@ class SocialActivity : ComponentActivity() {
                                 onShowCreatePostDialog = { viewModel.showCreatePostDialog() },
                                 onHideCommentsDialog = { viewModel.hideCommentsDialog() },
                                 onClearErrorMessage = { viewModel.clearErrorMessage() }
+                            )
+                        }
+
+                        // ✅ 固定到底部，不改 BottomNavBar 定义
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.BottomCenter)
+                        ) {
+                            BottomNavBar(
+                                selectedTab = 2,
+                                onTabSelect = { },
+                                context = this@SocialActivity
                             )
                         }
                     }
