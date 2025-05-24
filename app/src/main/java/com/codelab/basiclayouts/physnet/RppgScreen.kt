@@ -11,6 +11,7 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -39,8 +40,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -78,6 +82,7 @@ fun RppgScreen() {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // 标题
         Text(
             text = "rPPG Heart Rate Monitor",
             fontSize = 24.sp,
@@ -86,12 +91,16 @@ fun RppgScreen() {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
+        // 相机预览
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(16.dp)),
-            elevation = CardDefaults.cardElevation(8.dp)
+            elevation = CardDefaults.cardElevation(8.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = androidx.compose.ui.graphics.Color.DarkGray
+            )
         ) {
             AndroidView(
                 factory = { ctx ->
@@ -103,8 +112,9 @@ fun RppgScreen() {
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
+        // 录制进度
         if (isRecording) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 CircularProgressIndicator(
@@ -122,8 +132,9 @@ fun RppgScreen() {
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
+        // 录制按钮
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -148,6 +159,13 @@ fun RppgScreen() {
                                         val result = processRppgInference(context, frames)
                                         heartRate = result.first
                                         rppgData = result.second
+                                        Log.d(
+                                            "RppgScreen",
+                                            "波形数据统计: size=${result.second.size}, " +
+                                                    "min=${result.second.minOrNull()}, " +
+                                                    "max=${result.second.maxOrNull()}, " +
+                                                    "mean=${result.second.average()}"
+                                        )
                                     } catch (e: Exception) {
                                         Log.e("RppgScreen", "推理失败", e)
                                         errorMessage = "录制失败：${e.message}"
@@ -163,7 +181,7 @@ fun RppgScreen() {
                 },
                 enabled = !isRecording && !isProcessing,
                 modifier = Modifier
-                    .size(120.dp)
+                    .size(80.dp)
                     .clip(CircleShape),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isRecording)
@@ -172,10 +190,10 @@ fun RppgScreen() {
                 )
             ) {
                 Text(
-                    text = if (isRecording) "录制中..."
-                    else if (isProcessing) "处理中..."
-                    else "开始录制",
-                    fontSize = 16.sp,
+                    text = if (isRecording) "录制中"
+                    else if (isProcessing) "处理中"
+                    else "开始",
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -183,6 +201,7 @@ fun RppgScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // 错误提示
         errorMessage?.let {
             Text(
                 text = it,
@@ -194,12 +213,16 @@ fun RppgScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // 心率显示
         if (heartRate > 0) {
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                ),
+                elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -207,14 +230,14 @@ fun RppgScreen() {
                 ) {
                     Text(
                         text = "心率检测结果",
-                        fontSize = 18.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "${heartRate.toInt()} BPM",
-                        fontSize = 36.sp,
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -222,29 +245,142 @@ fun RppgScreen() {
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
+        // 波形显示
         rppgData?.let { data ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .height(250.dp)
+                    .padding(horizontal = 8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = androidx.compose.ui.graphics.Color(0xFF1E1E1E)
+                ),
+                elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(12.dp)
                 ) {
                     Text(
-                        text = "rPPG波形",
+                        text = "rPPG 波形",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
+                        color = androidx.compose.ui.graphics.Color.White,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
-                    Canvas(modifier = Modifier.fillMaxSize()) {
-                        drawRppgWaveform(data, size.width, size.height)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                            .background(androidx.compose.ui.graphics.Color.Black)
+                            .clip(RoundedCornerShape(8.dp))
+                    ) {
+                        Canvas(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(4.dp)
+                        ) {
+                            Log.d("WaveformDebug", "Canvas 尺寸: width=${size.width}, height=${size.height}")
+                            // Inline waveform drawing to avoid composable error
+                            if (data.isEmpty()) {
+                                Log.w("WaveformDebug", "波形数据为空")
+                                return@Canvas
+                            }
+
+                            if (size.height <= 0f) {
+                                Log.e("WaveformDebug", "Canvas 高度为 0，无法绘制波形")
+                                return@Canvas
+                            }
+
+                            // 绘制网格背景
+                            val gridColor = androidx.compose.ui.graphics.Color(0xFF2A2A2A)
+                            val gridStrokeWidth = with(LocalDensity) { 1.dp.toPx() }
+                            val gridSpacingX = size.width / 10 // 10 条垂直线
+                            val gridSpacingY = size.height / 5  // 5 条水平线
+
+                            // 垂直网格线
+                            for (i in 0..10) {
+                                val x = i * gridSpacingX
+                                drawLine(
+                                    color = gridColor,
+                                    start = Offset(x, 0f),
+                                    end = Offset(x, size.height),
+                                    strokeWidth = gridStrokeWidth
+                                )
+                            }
+
+                            // 水平网格线
+                            for (i in 0..5) {
+                                val y = i * gridSpacingY
+                                drawLine(
+                                    color = gridColor,
+                                    start = Offset(0f, y),
+                                    end = Offset(size.width, y),
+                                    strokeWidth = gridStrokeWidth
+                                )
+                            }
+
+                            // 绘制基线（零线）
+                            val minValue = data.minOrNull() ?: 0f
+                            val maxValue = data.maxOrNull() ?: 1f
+                            val range = maxValue - minValue
+                            if (range == 0f) {
+                                Log.w("WaveformDebug", "波形数据范围为 0，无法绘制")
+                                return@Canvas
+                            }
+                            val zeroNormalized = (-minValue) / range
+                            val zeroY = size.height * (0.85f - zeroNormalized * 0.7f)
+                            drawLine(
+                                color = androidx.compose.ui.graphics.Color(0xFF555555),
+                                start = Offset(0f, zeroY),
+                                end = Offset(size.width, zeroY),
+                                strokeWidth = with(LocalDensity) { 1.dp.toPx() }
+                            )
+
+                            // 绘制波形
+                            val path = Path()
+                            val stepX = if (data.size > 1) size.width / (data.size - 1) else size.width
+
+                            data.forEachIndexed { index, value ->
+                                val normalized = (value - minValue) / range // 归一化到 [0, 1]
+                                // 映射到 [0.15h, 0.85h]，留出边距
+                                val y = size.height * (0.85f - normalized * 0.7f)
+                                val x = index * stepX
+
+                                Log.d("WaveformDebug", "第 $index 项 value=$value, normalized=$normalized, y=$y, x=$x")
+
+                                if (index == 0) {
+                                    path.moveTo(x, y)
+                                } else {
+                                    path.lineTo(x, y)
+                                }
+                            }
+
+                            // 渐变颜色
+                            val gradientBrush = Brush.linearGradient(
+                                colors = listOf(
+                                    androidx.compose.ui.graphics.Color.Green,
+                                    androidx.compose.ui.graphics.Color.Cyan
+                                ),
+                                start = Offset(0f, 0f),
+                                end = Offset(size.width, size.height)
+                            )
+
+                            drawPath(
+                                path = path,
+                                brush = gradientBrush,
+                                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3.dp.toPx())
+                            )
+                        }
                     }
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -397,38 +533,4 @@ private fun findPeaks(signal: FloatArray): List<Int> {
     }
 
     return peaks
-}
-
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRppgWaveform(
-    data: FloatArray,
-    width: Float,
-    height: Float
-) {
-    if (data.isEmpty()) return
-
-    val path = Path()
-    val minValue = data.minOrNull() ?: 0f
-    val maxValue = data.maxOrNull() ?: 1f
-    val range = maxValue - minValue
-
-    if (range == 0f) return
-
-    val stepX = width / data.size
-
-    data.forEachIndexed { index, value ->
-        val x = index * stepX
-        val y = height - ((value - minValue) / range * height * 0.8f + height * 0.1f)
-
-        if (index == 0) {
-            path.moveTo(x, y)
-        } else {
-            path.lineTo(x, y)
-        }
-    }
-
-    drawPath(
-        path = path,
-        color = androidx.compose.ui.graphics.Color.Blue,
-        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx())
-    )
 }

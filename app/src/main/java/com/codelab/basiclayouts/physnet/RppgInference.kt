@@ -66,6 +66,27 @@ class RppgInference(context: Context) {
 
             // 创建输入张量
             val bufferStartTime = System.currentTimeMillis()
+
+            // ============ 保存 flatInput 到 /sdcard/rppg_input_dump.txt =============
+            // ========= 直接日志打印输入张量部分内容 =========
+            val min = flatInput.minOrNull()
+            val max = flatInput.maxOrNull()
+            val mean = flatInput.average()
+
+            Log.d(TAG, "🔍 输入张量统计: min=$min, max=$max, mean=$mean")
+
+            // 打印前几个值做 sanity check
+            val previewStart = flatInput.take(20).joinToString(", ") { String.format("%.4f", it) }
+            val previewMiddle = flatInput.slice(flatInput.size / 2 until flatInput.size / 2 + 20).joinToString(", ") { String.format("%.4f", it) }
+            val previewEnd = flatInput.takeLast(20).joinToString(", ") { String.format("%.4f", it) }
+
+            Log.d(TAG, "📌 输入张量前 20 项: $previewStart")
+            Log.d(TAG, "📌 输入张量中间 20 项: $previewMiddle")
+            Log.d(TAG, "📌 输入张量末尾 20 项: $previewEnd")
+
+
+
+
             val buffer = FloatBuffer.wrap(flatInput)
             val inputTensor = OnnxTensor.createTensor(env, buffer, shape)
             Log.d(TAG, "输入张量创建耗时: ${System.currentTimeMillis() - bufferStartTime}ms")
@@ -80,37 +101,35 @@ class RppgInference(context: Context) {
             val output = results[0].value
             Log.d(TAG, "原始输出类型: ${output?.javaClass}")
 
-            val rawOutput = when (output) {
-                is Array<*> -> {
-                    when (val inner = output[0]) {
-                        is FloatArray -> {
-                            Log.d(TAG, "处理单层数组输出")
-                            inner
-                        }
-                        is Array<*> -> {
-                            if (inner[0] is FloatArray) {
-                                Log.d(TAG, "处理嵌套数组输出")
-                                (inner[0] as FloatArray)
-                            } else {
-                                throw IllegalStateException("不支持的嵌套输出格式")
-                            }
-                        }
-                        else -> throw IllegalStateException("未知的内部输出类型: ${inner?.javaClass}")
-                    }
+            val rawOutput: FloatArray
+
+// 解包形如 [1, 5, 500] 的模型输出
+            if (output is Array<*> && output[0] is Array<*> && (output[0] as Array<*>)[0] is FloatArray) {
+                val outputArray = output as Array<Array<FloatArray>>  // shape [1][5][500]
+                val channels = outputArray[0]
+
+                // 打印所有通道统计
+                for (i in channels.indices) {
+                    val ch = channels[i]
+                    Log.d(TAG, "📈 通道 $i: min=${ch.minOrNull()}, max=${ch.maxOrNull()}, mean=${ch.average()}")
+                    Log.d(TAG, "📈 通道 $i 前20项: ${ch.take(20).joinToString(", ") { "%.4f".format(it) }}")
                 }
-                is FloatArray -> {
-                    Log.d(TAG, "处理直接 FloatArray 输出")
-                    output
-                }
-                else -> throw IllegalStateException("不支持的输出类型: ${output?.javaClass}")
+
+                // 默认使用第 0 通道作为主通道（也可自定义挑最活跃通道）
+                rawOutput = channels[0]
+            } else {
+                throw IllegalStateException("输出结构不匹配，无法解析 [1, 5, 500] 结构")
             }
+
 
             Log.d(TAG, "原始输出统计: size=${rawOutput.size}, min=${rawOutput.minOrNull()}, max=${rawOutput.maxOrNull()}, mean=${rawOutput.average()}")
 
             // 应用滤波
             Log.d(TAG, "开始应用带通滤波")
             val filterStartTime = System.currentTimeMillis()
-            val processedOutput = applyBandpassFilter(rawOutput, 25f)
+//            val processedOutput = applyBandpassFilter(rawOutput, 25f)
+            val processedOutput = rawOutput // 不滤波，直接用原始输出
+
             Log.d(TAG, "滤波完成，耗时: ${System.currentTimeMillis() - filterStartTime}ms")
             Log.d(TAG, "处理后输出统计: size=${processedOutput.size}, min=${processedOutput.minOrNull()}, max=${processedOutput.maxOrNull()}, mean=${processedOutput.average()}")
 
