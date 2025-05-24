@@ -41,7 +41,7 @@
         <activity android:name=".SocialActivity" />
 
         <activity
-            android:name=".physnet.TestActivity"
+            android:name=".ui.screen.physnet.PhysnetActivity"
             android:exported="true"
             android:label="Test RPPG"
             android:theme="@style/Theme.MySoothe">
