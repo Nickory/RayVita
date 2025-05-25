@@ -392,7 +392,7 @@ fun UserNode(
     onDragEnd: @Composable (() -> Unit)? = null,
     scale: Float = 1f
 ) {
-    // 提取用户信息
+    // 提取用户相关信息
     val userId = when(user) {
         is User -> user.id
         is Connection -> user.userId
@@ -504,7 +504,7 @@ fun UserNode(
     }
 
     Box(modifier = modifier) {
-        // 用户头像
+        // 用户的头像
         if (avatarUrl != null) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)

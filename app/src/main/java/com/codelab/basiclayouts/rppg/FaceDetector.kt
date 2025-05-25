@@ -19,7 +19,7 @@ class FaceDetector(private val context: Context) {
     )
 
     //加油
-
+//部署模型
     @androidx.camera.core.ExperimentalGetImage
     suspend fun detectFaces(image: ImageProxy): List<Rect> = withContext(Dispatchers.IO) {
         val mediaImage = image.image ?: return@withContext emptyList() // 避免空指针异常
