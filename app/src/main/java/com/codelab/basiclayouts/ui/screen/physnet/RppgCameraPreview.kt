@@ -5,6 +5,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -12,17 +13,39 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -36,28 +59,47 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.codelab.basiclayouts.data.physnet.VideoRecorder
+import com.codelab.basiclayouts.viewModel.physnet.AccelerometerViewModel
+import com.codelab.basiclayouts.viewModel.physnet.AccelerometerViewModelFactory
 
 /**
- * 相机预览组件，包含人脸对齐辅助框
+ * Enhanced camera preview with accelerometer motion detection
  */
 @Composable
 fun RppgCameraPreview(
     videoRecorder: VideoRecorder,
     lifecycleOwner: LifecycleOwner,
     onFaceAlignmentChanged: (Boolean) -> Unit,
+    accelerometerViewModel: AccelerometerViewModel? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     var previewView by remember { mutableStateOf<PreviewView?>(null) }
 
+    // 使用传入的ViewModel或创建新的
+    val actualAccelerometerViewModel: AccelerometerViewModel = accelerometerViewModel ?: viewModel(
+        factory = AccelerometerViewModelFactory(context)
+    )
+    val motionState by actualAccelerometerViewModel.motionState.collectAsState()
+
+    // 管理传感器生命周期
+    DisposableEffect(lifecycleOwner) {
+        actualAccelerometerViewModel.startDetection()
+        onDispose {
+            actualAccelerometerViewModel.stopDetection()
+        }
+    }
+
     Box(modifier = modifier) {
-        // 相机预览
+        // Camera preview
         AndroidView(
             factory = { ctx ->
                 PreviewView(ctx).also { preview ->
@@ -68,16 +110,165 @@ fun RppgCameraPreview(
             modifier = Modifier.fillMaxSize()
         )
 
-        // 对齐辅助框覆盖层
+        // Face alignment overlay
         FaceAlignmentOverlay(
             onAlignmentChanged = onFaceAlignmentChanged,
             modifier = Modifier.fillMaxSize()
+        )
+
+        // Motion status indicator (top-left)
+        MotionStatusIndicator(
+            isStationary = motionState.isStationary,
+            motionStatus = motionState.motionStatus,
+            motionLevel = motionState.motionLevel,
+            isActive = motionState.isDetectionActive,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+        )
+
+        // Motion warning overlay (bottom-center)
+        MotionWarningOverlay(
+            isStationary = motionState.isStationary,
+            motionStatus = motionState.motionStatus,
+            isActive = motionState.isDetectionActive,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp)
         )
     }
 }
 
 /**
- * 人脸对齐辅助框
+ * Motion Status Indicator
+ */
+@Composable
+private fun MotionStatusIndicator(
+    isStationary: Boolean,
+    motionStatus: String,
+    motionLevel: Float,
+    isActive: Boolean,
+    modifier: Modifier = Modifier
+) {
+    AnimatedVisibility(
+        visible = isActive,
+        enter = fadeIn() + slideInVertically(),
+        exit = fadeOut() + slideOutVertically(),
+        modifier = modifier
+    ) {
+        Surface(
+            color = if (isStationary) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.errorContainer
+            },
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Status icon
+                Icon(
+                    imageVector = if (isStationary) {
+                        Icons.Default.Check
+                    } else {
+                        Icons.Default.Warning
+                    },
+                    contentDescription = null,
+                    tint = if (isStationary) {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.onErrorContainer
+                    },
+                    modifier = Modifier.size(16.dp)
+                )
+
+                // Status text
+                Text(
+                    text = motionStatus,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (isStationary) {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.onErrorContainer
+                    }
+                )
+
+                // Motion level dot
+                if (!isStationary) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(
+                                when {
+                                    motionLevel > 2.0f -> MaterialTheme.colorScheme.error
+                                    motionLevel > 1.0f -> MaterialTheme.colorScheme.tertiary
+                                    else -> MaterialTheme.colorScheme.secondary
+                                }
+                            )
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Motion Warning Overlay
+ */
+@Composable
+private fun MotionWarningOverlay(
+    isStationary: Boolean,
+    motionStatus: String,
+    isActive: Boolean,
+    modifier: Modifier = Modifier
+) {
+    AnimatedVisibility(
+        visible = isActive && !isStationary,
+        enter = fadeIn() + slideInVertically(),
+        exit = fadeOut() + slideOutVertically(),
+        modifier = modifier
+    ) {
+        Surface(
+            color = MaterialTheme.colorScheme.errorContainer,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(18.dp)
+                )
+
+                Column {
+                    Text(
+                        text = "Please keep as still as possible",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    Text(
+                        text = "Current status: $motionStatus",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Face alignment assistance frame
  */
 @Composable
 private fun FaceAlignmentOverlay(
@@ -87,7 +278,7 @@ private fun FaceAlignmentOverlay(
     val primaryColor = MaterialTheme.colorScheme.primary
     val surfaceColor = MaterialTheme.colorScheme.surface
 
-    // 动画效果
+    // Animation effects
     val infiniteTransition = rememberInfiniteTransition()
     val animatedAlpha by infiniteTransition.animateFloat(
         initialValue = 0.3f,
@@ -107,7 +298,7 @@ private fun FaceAlignmentOverlay(
         )
     )
 
-    // 扫描线动画
+    // Scanning line animation
     val animatedY by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
@@ -123,20 +314,20 @@ private fun FaceAlignmentOverlay(
         val centerX = canvasWidth / 2
         val centerY = canvasHeight / 2
 
-        // 目标框大小 (128x128 映射到屏幕)
+        // Target frame size (128x128 mapped to screen)
         val targetSize = minOf(canvasWidth, canvasHeight) * 0.5f
         val targetRect = Rect(
             offset = Offset(centerX - targetSize / 2, centerY - targetSize / 2),
             size = Size(targetSize, targetSize)
         )
 
-        // 绘制半透明背景遮罩
+        // Draw semi-transparent background mask
         drawRect(
             color = Color.Black.copy(alpha = 0.5f),
             size = size
         )
 
-        // 创建圆形路径用于裁剪
+        // Create circular path for clipping
         val circlePath = Path().apply {
             addOval(
                 oval = Rect(
@@ -146,7 +337,7 @@ private fun FaceAlignmentOverlay(
             )
         }
 
-        // 裁剪出中心圆形区域
+        // Clip out center circular area
         clipPath(circlePath, clipOp = ClipOp.Difference) {
             drawRect(
                 color = Color.Black.copy(alpha = 0.5f),
@@ -154,7 +345,7 @@ private fun FaceAlignmentOverlay(
             )
         }
 
-        // 绘制对齐框
+        // Draw alignment frame
         drawAlignmentFrame(
             center = Offset(centerX, centerY),
             radius = targetSize / 2,
@@ -163,14 +354,14 @@ private fun FaceAlignmentOverlay(
             alpha = animatedAlpha
         )
 
-        // 绘制角标
+        // Draw corner markers
         drawCornerMarkers(
             rect = targetRect,
             color = primaryColor,
             strokeWidth = 4.dp.toPx()
         )
 
-        // 绘制扫描线
+        // Draw scanning line
         drawScanningLine(
             rect = targetRect,
             color = primaryColor.copy(alpha = 0.5f),
@@ -178,7 +369,7 @@ private fun FaceAlignmentOverlay(
         )
     }
 
-    // 模拟人脸检测（实际应用中应使用真实的人脸检测）
+    // Simulate face detection (should use real face detection in actual app)
     LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(1000)
         onAlignmentChanged(true)
@@ -186,7 +377,7 @@ private fun FaceAlignmentOverlay(
 }
 
 /**
- * 绘制对齐框
+ * Draw alignment frame
  */
 private fun DrawScope.drawAlignmentFrame(
     center: Offset,
@@ -195,7 +386,7 @@ private fun DrawScope.drawAlignmentFrame(
     strokeWidth: Float,
     alpha: Float
 ) {
-    // 主圆框
+    // Main circular frame
     drawCircle(
         color = color.copy(alpha = alpha),
         radius = radius,
@@ -209,7 +400,7 @@ private fun DrawScope.drawAlignmentFrame(
         )
     )
 
-    // 内圆
+    // Inner circle
     drawCircle(
         color = color.copy(alpha = alpha * 0.5f),
         radius = radius * 0.9f,
@@ -219,7 +410,7 @@ private fun DrawScope.drawAlignmentFrame(
 }
 
 /**
- * 绘制角标
+ * Draw corner markers
  */
 private fun DrawScope.drawCornerMarkers(
     rect: Rect,
@@ -235,14 +426,14 @@ private fun DrawScope.drawCornerMarkers(
     )
 
     corners.forEach { corner ->
-        // 水平线
+        // Horizontal line
         val hStart = when (corner) {
             rect.topLeft, rect.bottomLeft -> corner
             else -> corner.copy(x = corner.x - markerLength)
         }
         val hEnd = hStart.copy(x = hStart.x + markerLength)
 
-        // 垂直线
+        // Vertical line
         val vStart = when (corner) {
             rect.topLeft, rect.topRight -> corner
             else -> corner.copy(y = corner.y - markerLength)
@@ -268,14 +459,14 @@ private fun DrawScope.drawCornerMarkers(
 }
 
 /**
- * 绘制扫描线动画
+ * Draw scanning line animation
  */
 private fun DrawScope.drawScanningLine(
     rect: Rect,
     color: Color,
     animatedY: Float
 ) {
-    // 绘制扫描线
+    // Draw scanning line
     val gradient = Brush.verticalGradient(
         colors = listOf(
             Color.Transparent,
@@ -295,7 +486,7 @@ private fun DrawScope.drawScanningLine(
 }
 
 /**
- * 设置相机
+ * Setup camera
  */
 private fun setupCamera(
     previewView: PreviewView,
@@ -316,21 +507,21 @@ private fun setupCamera(
 
             val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
 
-            // 解绑所有用例
+            // Unbind all use cases
             cameraProvider.unbindAll()
 
-            // 绑定相机
+            // Bind camera
             cameraProvider.bindToLifecycle(
                 lifecycleOwner,
                 cameraSelector,
                 preview
             )
 
-            // 绑定VideoRecorder
+            // Bind VideoRecorder
             videoRecorder.bindCamera(cameraProvider, lifecycleOwner, cameraSelector)
 
         } catch (exc: Exception) {
-            Log.e("RppgCameraPreview", "相机绑定失败", exc)
+            Log.e("RppgCameraPreview", "Camera binding failed", exc)
         }
     }, ContextCompat.getMainExecutor(previewView.context))
 }

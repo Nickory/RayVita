@@ -59,10 +59,11 @@ import com.codelab.basiclayouts.ui.screen.home.BottomNavBar
 import com.codelab.basiclayouts.viewmodel.insight.AIConversationViewModel
 import com.codelab.basiclayouts.viewmodel.insight.AIConversationViewModelFactory
 import com.codelab.basiclayouts.viewmodel.insight.InsightViewModel
+import com.codelab.basiclayouts.viewmodel.insight.InsightViewModelFactory
 
 @Composable
 fun InsightScreen(
-    viewModel: InsightViewModel = viewModel(),
+    viewModel: InsightViewModel = viewModel(factory = InsightViewModelFactory(LocalContext.current)),
     selectedTab: Int = 0,
     onTabSelect: (Int) -> Unit = {}
 ) {

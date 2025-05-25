@@ -62,6 +62,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,22 +76,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.codelab.basiclayouts.data.physnet.EnhancedRppgProcessor
 import com.codelab.basiclayouts.data.physnet.EnhancedRppgRepository
 import com.codelab.basiclayouts.data.physnet.VideoRecorder
+import com.codelab.basiclayouts.viewModel.physnet.AccelerometerViewModel
+import com.codelab.basiclayouts.viewModel.physnet.AccelerometerViewModelFactory
 import com.codelab.basiclayouts.viewModel.physnet.EnhancedRppgViewModel
 import com.codelab.basiclayouts.viewModel.physnet.EnhancedRppgViewModelFactory
 
 /**
- * Enhanced rPPG Screen with HRV and SpO2 support
- * Maintains full compatibility with the original version
+ * Enhanced rPPG Screen with HRV, SpO2 support and Motion Detection
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-fun EnhancedRppgScreen(
+fun RppgScreen(
     modifier: Modifier = Modifier,
     viewModel: EnhancedRppgViewModel? = null,
     onBackClick: () -> Unit = {}
@@ -98,12 +101,12 @@ fun EnhancedRppgScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Create dependencies (should be provided via dependency injection in a real project)
+    // Create dependencies
     val videoRecorder = VideoRecorder(context)
     val rppgProcessor = EnhancedRppgProcessor(context)
     val repository = EnhancedRppgRepository(context)
 
-    // Use factory to create ViewModel
+    // Create ViewModels
     val actualViewModel: EnhancedRppgViewModel = viewModel ?: viewModel(
         factory = EnhancedRppgViewModelFactory(
             context = context.applicationContext,
@@ -113,7 +116,14 @@ fun EnhancedRppgScreen(
         )
     )
 
+    // Create Accelerometer ViewModel
+    val accelerometerViewModel: AccelerometerViewModel = viewModel(
+        factory = AccelerometerViewModelFactory(context)
+    )
+
+    // Collect states
     val uiState by actualViewModel.uiState.collectAsStateWithLifecycle()
+    val motionState by accelerometerViewModel.motionState.collectAsState()
 
     // State for settings dialog
     var showSettingsDialog by remember { mutableStateOf(false) }
@@ -201,13 +211,15 @@ fun EnhancedRppgScreen(
                     )
                 ) {
                     Box {
+                        // Enhanced camera preview with motion detection
                         RppgCameraPreview(
                             videoRecorder = actualViewModel.getVideoRecorder(),
                             lifecycleOwner = lifecycleOwner,
-                            onFaceAlignmentChanged = actualViewModel::updateFaceAlignment
+                            onFaceAlignmentChanged = actualViewModel::updateFaceAlignment,
+                            accelerometerViewModel = accelerometerViewModel
                         )
 
-                        // Alignment indicator
+                        // Face alignment indicator
                         if (!uiState.isFaceAligned && !uiState.isRecording) {
                             Surface(
                                 modifier = Modifier
@@ -268,10 +280,33 @@ fun EnhancedRppgScreen(
                         )
                     } else {
                         RecordButton(
-                            enabled = !uiState.isProcessing && uiState.isFaceAligned,
-                            onClick = actualViewModel::startRecording
+                            enabled = !uiState.isProcessing &&
+                                    uiState.isFaceAligned &&
+                                    motionState.isStationary && // Use accelerometer state
+                                    motionState.isDetectionActive,
+                            onClick = {
+                                if (accelerometerViewModel.isReadyForMeasurement()) {
+                                    actualViewModel.startRecording()
+                                }
+                            },
+                            motionReady = accelerometerViewModel.isReadyForMeasurement()
                         )
                     }
+                }
+
+                // Motion status info card
+                AnimatedVisibility(
+                    visible = motionState.isDetectionActive,
+                    enter = fadeIn() + slideInVertically(),
+                    exit = fadeOut() + slideOutVertically()
+                ) {
+                    MotionStatusCard(
+                        motionState = motionState,
+                        motionDescription = accelerometerViewModel.getMotionDescription(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -373,17 +408,113 @@ fun EnhancedRppgScreen(
 }
 
 /**
- * Original RppgScreen for compatibility
+ * Motion Status Information Card
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-fun RppgScreen(
-    modifier: Modifier = Modifier,
-    viewModel: EnhancedRppgViewModel,
-    onBackClick: () -> Unit = {}
+private fun MotionStatusCard(
+    motionState: AccelerometerViewModel.MotionState,
+    motionDescription: String,
+    modifier: Modifier = Modifier
 ) {
-    EnhancedRppgScreen(modifier = modifier, viewModel = viewModel, onBackClick = onBackClick)
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = if (motionState.isStationary) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+            } else {
+                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
+            }
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = "Motion Detection",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = motionDescription,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            if (!motionState.isStationary) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Motion Level: ${String.format("%.2f", motionState.motionLevel)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
 }
+
+/**
+ * Enhanced Record Button with motion awareness
+ */
+@Composable
+private fun RecordButton(
+    enabled: Boolean,
+    onClick: () -> Unit,
+    motionReady: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val animatedScale by animateFloatAsState(
+        targetValue = if (enabled) 1f else 0.9f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
+
+    val buttonColor = if (motionReady) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.outline
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        FilledIconButton(
+            onClick = onClick,
+            enabled = enabled,
+            modifier = modifier
+                .size(80.dp)
+                .scale(animatedScale),
+            colors = IconButtonDefaults.filledIconButtonColors(
+                containerColor = buttonColor
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Default.FiberManualRecord,
+                contentDescription = "Start Recording",
+                modifier = Modifier.size(40.dp)
+            )
+        }
+
+        Text(
+            text = if (motionReady) {
+                "Ready to Record"
+            } else {
+                "Waiting for Stillness"
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+// ... (Keep all other existing composables: RecordingIndicator, PulsingDot, AnalysisModeDialog, HealthRecommendationCard, RppgLoadingOverlay)
 
 /**
  * Recording Indicator
@@ -443,41 +574,6 @@ private fun RecordingIndicator(
         )
 
         PulsingDot()
-    }
-}
-
-/**
- * Record Button
- */
-@Composable
-private fun RecordButton(
-    enabled: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val animatedScale by animateFloatAsState(
-        targetValue = if (enabled) 1f else 0.9f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        )
-    )
-
-    FilledIconButton(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = modifier
-            .size(80.dp)
-            .scale(animatedScale),
-        colors = IconButtonDefaults.filledIconButtonColors(
-            containerColor = MaterialTheme.colorScheme.primary
-        )
-    ) {
-        Icon(
-            imageVector = Icons.Default.FiberManualRecord,
-            contentDescription = "Start Recording",
-            modifier = Modifier.size(40.dp)
-        )
     }
 }
 
@@ -643,7 +739,7 @@ private fun HealthRecommendationCard(
         }
     }
 }
-
+//
 ///**
 // * Enhanced Loading Overlay
 // */

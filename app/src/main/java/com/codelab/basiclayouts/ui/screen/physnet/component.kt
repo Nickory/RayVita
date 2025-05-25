@@ -8,6 +8,8 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +27,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Air
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MonitorHeart
@@ -32,6 +35,7 @@ import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -839,7 +843,122 @@ fun AnalysisModeSelector(
         }
     }
 }
+@Composable
+fun MotionStatusIndicator(
+    isStationary: Boolean,
+    motionStatus: String,
+    motionLevel: Float,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        color = if (isStationary) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.errorContainer
+        },
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // 运动状态图标
+            Icon(
+                imageVector = if (isStationary) {
+                    Icons.Default.Check
+                } else {
+                    Icons.Default.Warning
+                },
+                contentDescription = null,
+                tint = if (isStationary) {
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                } else {
+                    MaterialTheme.colorScheme.onErrorContainer
+                },
+                modifier = Modifier.size(16.dp)
+            )
 
+            // 状态文本
+            Text(
+                text = motionStatus,
+                style = MaterialTheme.typography.labelMedium,
+                color = if (isStationary) {
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                } else {
+                    MaterialTheme.colorScheme.onErrorContainer
+                }
+            )
+
+            // 运动级别指示器（可选）
+            if (!isStationary) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(
+                            when {
+                                motionLevel > 2.0f -> MaterialTheme.colorScheme.error
+                                motionLevel > 1.0f -> MaterialTheme.colorScheme.tertiary
+                                else -> MaterialTheme.colorScheme.secondary
+                            }
+                        )
+                )
+            }
+        }
+    }
+}
+
+/**
+ * 在相机预览中使用的运动状态提示
+ */
+@Composable
+fun MotionStatusOverlay(
+    isStationary: Boolean,
+    motionStatus: String,
+    modifier: Modifier = Modifier
+) {
+    AnimatedVisibility(
+        visible = !isStationary,
+        enter = fadeIn() + slideInVertically(),
+        exit = fadeOut() + slideOutVertically(),
+        modifier = modifier
+    ) {
+        Surface(
+            color = MaterialTheme.colorScheme.errorContainer,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(18.dp)
+                )
+
+                Column {
+                    Text(
+                        text = "请尽可能保持平稳静止",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    Text(
+                        text = "当前状态：$motionStatus",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f)
+                    )
+                }
+            }
+        }
+    }
+}
 /**
  * Mode details helper
  */

@@ -1,3 +1,4 @@
+
 package com.codelab.basiclayouts.ui.screen.physnet
 
 import android.Manifest
@@ -39,6 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -53,11 +55,8 @@ import com.codelab.basiclayouts.data.physnet.EnhancedRppgRepository
 import com.codelab.basiclayouts.data.physnet.VideoRecorder
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
 import com.codelab.basiclayouts.viewModel.physnet.EnhancedRppgViewModel
+import com.codelab.basiclayouts.viewModel.physnet.MeasurementStorageViewModel
 
-/**
- * 主 Activity - 升级版
- * 支持 Material 3 设计、权限管理和应用生命周期
- */
 class PhysnetActivity : ComponentActivity() {
 
     companion object {
@@ -221,7 +220,7 @@ class PhysnetActivity : ComponentActivity() {
 
     @Composable
     private fun PermissionItem(
-        icon: androidx.compose.ui.graphics.vector.ImageVector,
+        icon: ImageVector,
         title: String,
         description: String
     ) {
@@ -316,7 +315,7 @@ class PhysnetActivity : ComponentActivity() {
 }
 
 /**
- * ViewModel 工厂，用于手动创建 RppgViewModel
+ * ViewModel 工厂，用于手动创建 EnhancedRppgViewModel
  */
 class RppgViewModelFactory(
     private val context: Context,
@@ -327,7 +326,13 @@ class RppgViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(EnhancedRppgViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return EnhancedRppgViewModel(context, videoRecorder, rppgProcessor, repository) as T
+            return EnhancedRppgViewModel(
+                context = context,
+                videoRecorder = videoRecorder,
+                rppgProcessor = rppgProcessor,
+                repository = repository,
+                storageViewModel = MeasurementStorageViewModel(context) // Instantiate MeasurementStorageViewModel
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -19,6 +19,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.compose'
     id 'kotlin-kapt' // 确保应用 kapt 插件
+    id "org.jetbrains.kotlin.plugin.serialization" version "1.9.23"
+
 }
 
 android {

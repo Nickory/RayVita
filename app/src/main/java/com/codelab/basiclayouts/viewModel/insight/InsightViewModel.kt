@@ -1,24 +1,76 @@
 package com.codelab.basiclayouts.viewmodel.insight
 
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.codelab.basiclayouts.network.RetrofitClient
 import com.codelab.basiclayouts.network.model.ChatRequest
 import com.codelab.basiclayouts.network.model.ChatResponse
 import com.codelab.basiclayouts.network.model.Message
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.Random
+
+@Serializable
+data class PhysNetMeasurementData(
+    val timestamp: Long,
+    val sessionId: String,
+    val rppgSignal: FloatArray,
+    val heartRate: Float,
+    val frameCount: Int,
+    val processingTimeMs: Int,
+    val confidence: Float,
+    val hrvResult: HRVResult? = null,
+    val spo2Result: SPO2Result? = null,
+    val signalQuality: SignalQuality? = null
+)
+
+@Serializable
+data class HRVResult(
+    val rmssd: Float,
+    val pnn50: Float,
+    val sdnn: Float,
+    val meanRR: Float,
+    val triangularIndex: Float,
+    val stressIndex: Float,
+    val isValid: Boolean
+)
+
+@Serializable
+data class SPO2Result(
+    val spo2: Float,
+    val redAC: Float,
+    val redDC: Float,
+    val irAC: Float,
+    val irDC: Float,
+    val ratioOfRatios: Float,
+    val confidence: Float,
+    val isValid: Boolean
+)
+
+@Serializable
+data class SignalQuality(
+    val snr: Float,
+    val motionArtifact: Float,
+    val illuminationQuality: Float,
+    val overallQuality: Float
+)
 
 data class HealthRecord(
     val date: Date,
@@ -43,7 +95,10 @@ data class ActivityData(
     val isToday: Boolean
 )
 
-class InsightViewModel : ViewModel() {
+class InsightViewModel(
+    context: Context
+) : ViewModel() {
+    private val appContext = context.applicationContext
     private val _heartRate = MutableStateFlow(72)
     val heartRate: StateFlow<Int> = _heartRate.asStateFlow()
 
@@ -74,9 +129,63 @@ class InsightViewModel : ViewModel() {
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+    private val _measurementsByDate = MutableStateFlow<Map<String, List<PhysNetMeasurementData>>>(emptyMap())
+    val measurementsByDate: StateFlow<Map<String, List<PhysNetMeasurementData>>> = _measurementsByDate.asStateFlow()
+
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+    private val json = Json // 使用默认 Json 配置，无需 ignoreUnknownKeys
+
     init {
         generateSampleData()
         startSimulation()
+        loadMeasurements()
+    }
+
+    // Load measurements from local JSON files
+    private fun loadMeasurements() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val dir = File(appContext.filesDir, "measurements")
+                val files = dir.listFiles { _, name -> name.endsWith(".json") }?.toList() ?: emptyList()
+                val measurements = files.mapNotNull { file ->
+                    try {
+                        val jsonString = file.readText()
+                        json.decodeFromString<PhysNetMeasurementData>(jsonString)
+                    } catch (e: Exception) {
+                        Log.e("InsightViewModel", "Failed to parse JSON file: ${file.name}, error: ${e.message}", e)
+                        null
+                    }
+                }
+                val grouped = measurements.groupBy { dateFormat.format(Date(it.timestamp)) }
+                    .mapValues { it.value.sortedByDescending { m -> m.timestamp } }
+                _measurementsByDate.value = grouped
+                if (measurements.size < files.size) {
+                    Log.w("InsightViewModel", "Some JSON files failed to parse: ${files.size - measurements.size} files skipped")
+                    _errorMessage.value = "Failed to load ${files.size - measurements.size} measurement files"
+                }
+            } catch (e: Exception) {
+                Log.e("InsightViewModel", "Failed to load measurements directory", e)
+                _errorMessage.value = "Error loading measurement data"
+            }
+        }
+    }
+
+    // Get available dates for navigation
+    fun getAvailableDates(): List<Date> {
+        return _measurementsByDate.value.keys.mapNotNull { key ->
+            try {
+                dateFormat.parse(key)
+            } catch (e: Exception) {
+                null
+            }
+        }.sortedByDescending { it.time }
+    }
+
+    // Get measurements for a specific date
+    fun getMeasurementsForDate(date: Date): List<PhysNetMeasurementData> {
+        val dateKey = dateFormat.format(date)
+        return _measurementsByDate.value[dateKey] ?: emptyList()
     }
 
     fun updateHeartRate(hr: Int) {
@@ -201,5 +310,15 @@ class InsightViewModel : ViewModel() {
                 )
             }
         }
+    }
+}
+
+class InsightViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(InsightViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return InsightViewModel(context) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

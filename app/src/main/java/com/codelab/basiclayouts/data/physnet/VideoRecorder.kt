@@ -37,16 +37,214 @@ import kotlin.math.min
  * 支持实时人脸检测、质量控制和性能监控
  */
 class VideoRecorder(private val context: Context) {
-
+    
     companion object {
         private const val TAG = "VideoRecorder"
         private const val TARGET_FRAME_COUNT = 500
-        private const val RECORDING_DURATION_MS = 20000L // 20秒
-        private const val TARGET_RESOLUTION_WIDTH = 640
-        private const val TARGET_RESOLUTION_HEIGHT = 480
-        private const val FACE_CROP_SIZE = 128
-        private const val MIN_FACE_SIZE = 80
+        private const val RECORDING_DURATION_MS = 20000L // 20 seconds
+        private const val TARGET_RESOLUTION_WIDTH = 640 // Reduced from 640
+        private const val TARGET_RESOLUTION_HEIGHT = 320 // Reduced from 480
+        private const val FACE_CROP_SIZE = 64 // Reduced from 128
+        private const val MIN_FACE_SIZE = 40 // Adjusted for smaller resolution
         private const val QUALITY_THRESHOLD = 0.6f
+    }
+
+    /**
+     * 处理相机帧
+     */
+    private fun processImageProxy(imageProxy: ImageProxy) {
+        if (!isRecording.get()) {
+            imageProxy.close()
+            return
+        }
+
+        val startTime = System.nanoTime() // Track processing time
+        try {
+            val currentFrame = frameCount.get()
+            if (currentFrame >= TARGET_FRAME_COUNT) {
+                imageProxy.close()
+                stopRecording()
+                return
+            }
+
+            // Convert to Bitmap
+            val bitmap = imageProxyToBitmap(imageProxy) ?: run {
+                Log.w(TAG, "Failed to convert image")
+                imageProxy.close()
+                return
+            }
+
+            // Face detection and cropping (synchronous)
+            val (faceBitmap, faceDetected) = detectAndCropFace(bitmap)
+            onFaceDetected?.invoke(faceDetected)
+
+            // Quality scoring every 10 frames
+            val shouldCalculateQuality = (currentFrame % 10 == 0)
+            var quality = if (frameQualityScores.isNotEmpty()) frameQualityScores.last() else 0.5f
+
+            // Save frame if valid
+            if (faceBitmap != null) {
+                synchronized(capturedFrames) {
+                    capturedFrames.add(faceBitmap)
+                    val currentCount = frameCount.incrementAndGet()
+                    val qualityCount = if (shouldCalculateQuality) qualityFrameCount.get() + 1 else qualityFrameCount.get()
+
+                    // Async quality scoring
+                    if (shouldCalculateQuality) {
+                        processingScope.launch {
+                            try {
+                                val calculatedQuality = calculateFrameQuality(faceBitmap, bitmap)
+                                synchronized(frameQualityScores) {
+                                    frameQualityScores.add(calculatedQuality)
+                                }
+                                // Update state with async quality
+                                updateRecordingState { state ->
+                                    state.copy(
+                                        qualityFrameCount = qualityCount,
+                                        currentQuality = calculatedQuality,
+                                        averageQuality = if (frameQualityScores.isNotEmpty()) frameQualityScores.average().toFloat() else 0f
+                                    )
+                                }
+                                Log.v(TAG, "Async quality score: brightness=${(calculatedQuality * 0.3f / 0.3f).coerceIn(0f, 1f)}, contrast=${(calculatedQuality * 0.3f / 0.3f).coerceIn(0f, 1f)}, sharpness=${(calculatedQuality * 0.4f / 0.4f).coerceIn(0f, 1f)}, total=$calculatedQuality")
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Async quality scoring failed", e)
+                            }
+                        }
+                    }
+
+                    // Synchronous state update
+                    updateRecordingState { state ->
+                        state.copy(
+                            frameCount = currentCount,
+                            qualityFrameCount = qualityCount,
+                            progress = currentCount.toFloat() / TARGET_FRAME_COUNT,
+                            currentQuality = quality,
+                            averageQuality = if (frameQualityScores.isNotEmpty()) frameQualityScores.average().toFloat() else 0f,
+                            faceDetected = faceDetected
+                        )
+                    }
+
+                    Log.v(TAG, "Captured frame $currentCount/$TARGET_FRAME_COUNT, quality: $quality${if (shouldCalculateQuality) " (pending async score)" else " (reused)"}")
+                }
+            } else {
+                val currentCount = frameCount.incrementAndGet()
+                updateRecordingState { state ->
+                    state.copy(
+                        frameCount = currentCount,
+                        progress = currentCount.toFloat() / TARGET_FRAME_COUNT,
+                        currentQuality = quality,
+                        faceDetected = faceDetected,
+                        averageQuality = if (frameQualityScores.isNotEmpty()) frameQualityScores.average().toFloat() else 0f
+                    )
+                }
+            }
+
+            // Log processing time
+            val processingTime = (System.nanoTime() - startTime) / 1_000_000f
+            val currentCount = ""
+            Log.d(TAG, "Frame ${currentCount} processing time: ${processingTime}ms")
+
+            // Check completion
+            if (frameCount.get() >= TARGET_FRAME_COUNT) {
+                stopRecording()
+            }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Frame processing failed", e)
+        } finally {
+            imageProxy.close()
+        }
+    }
+
+    /**
+     * Convert ImageProxy to Bitmap
+     */
+    private fun yuv420ToBitmap(imageProxy: ImageProxy): Bitmap? {
+        try {
+            val yBuffer = imageProxy.planes[0].buffer
+            val uBuffer = imageProxy.planes[1].buffer
+            val vBuffer = imageProxy.planes[2].buffer
+
+            val ySize = yBuffer.remaining()
+            val uSize = uBuffer.remaining()
+            val vSize = vBuffer.remaining()
+
+            val nv21 = ByteArray(ySize + uSize + vSize)
+            yBuffer.get(nv21, 0, ySize)
+            vBuffer.get(nv21, ySize, vSize)
+            uBuffer.get(nv21, ySize + vSize, uSize)
+
+            val yuvImage = YuvImage(nv21, ImageFormat.NV21, imageProxy.width, imageProxy.height, null)
+            val outputStream = ByteArrayOutputStream()
+            yuvImage.compressToJpeg(
+                Rect(0, 0, imageProxy.width, imageProxy.height),
+                80, // Reduced compression quality
+                outputStream
+            )
+            val jpegBytes = outputStream.toByteArray()
+            return BitmapFactory.decodeByteArray(jpegBytes, 0, jpegBytes.size)
+        } catch (e: Exception) {
+            Log.e(TAG, "Image conversion failed", e)
+            return null
+        }
+    }
+
+    /**
+     * Face detection and cropping
+     */
+    private fun detectAndCropFace(bitmap: Bitmap): Pair<Bitmap?, Boolean> {
+        try {
+            val faceRect = detectFaceRegion(bitmap)
+            if (faceRect != null) {
+                val croppedFace = cropFaceRegion(bitmap, faceRect)
+                return Pair(croppedFace, true)
+            } else {
+                val centerCrop = cropCenterRegion(bitmap)
+                return Pair(centerCrop, false)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Face detection failed", e)
+            return Pair(null, false)
+        }
+    }
+
+    /**
+     * Crop face region
+     */
+    private fun cropFaceRegion(bitmap: Bitmap, faceRect: Rect): Bitmap {
+        val croppedBitmap = Bitmap.createBitmap(
+            bitmap,
+            faceRect.left.coerceAtLeast(0),
+            faceRect.top.coerceAtLeast(0),
+            faceRect.width().coerceAtMost(bitmap.width - faceRect.left),
+            faceRect.height().coerceAtMost(bitmap.height - faceRect.top)
+        )
+        return Bitmap.createScaledBitmap(croppedBitmap, FACE_CROP_SIZE, FACE_CROP_SIZE, false) // Disable filtering
+    }
+
+    /**
+     * Crop center region
+     */
+    private fun cropCenterRegion(bitmap: Bitmap): Bitmap {
+        val size = min(bitmap.width, bitmap.height)
+        val left = (bitmap.width - size) / 2
+        val top = (bitmap.height - size) / 2
+        val croppedBitmap = Bitmap.createBitmap(bitmap, left, top, size, size)
+        return Bitmap.createScaledBitmap(croppedBitmap, FACE_CROP_SIZE, FACE_CROP_SIZE, false) // Disable filtering
+    }
+
+    /**
+     * Select best frames
+     */
+    private fun selectBestFrames(frames: List<Bitmap>, qualities: List<Float>, targetCount: Int): List<Bitmap> {
+        // Pad qualities if fewer than frames
+        val paddedQualities = qualities.toMutableList().apply {
+            while (size < frames.size) add(0.5f) // Default quality for unscored frames
+        }
+        val indexedFrames = frames.zip(paddedQualities).withIndex()
+        val sortedByQuality = indexedFrames.sortedByDescending { it.value.second }
+        val selectedFrames = sortedByQuality.take(targetCount).sortedBy { it.index }
+        return selectedFrames.map { it.value.first }
     }
 
     // 执行器
@@ -212,84 +410,7 @@ class VideoRecorder(private val context: Context) {
         onFaceDetected = callback
     }
 
-    /**
-     * 处理相机帧
-     */
-    private fun processImageProxy(imageProxy: ImageProxy) {
-        if (!isRecording.get()) {
-            imageProxy.close()
-            return
-        }
-
-        try {
-            val currentFrame = frameCount.get()
-            if (currentFrame >= TARGET_FRAME_COUNT) {
-                imageProxy.close()
-                stopRecording()
-                return
-            }
-
-            // 转换为Bitmap
-            val bitmap = imageProxyToBitmap(imageProxy) ?: run {
-                Log.w(TAG, "无法转换图像")
-                imageProxy.close()
-                return
-            }
-
-            // 人脸检测和裁剪
-            val faceResult = detectAndCropFace(bitmap)
-            val faceBitmap = faceResult.first
-            val faceDetected = faceResult.second
-            val quality = faceResult.third
-
-            // 更新人脸检测状态
-            onFaceDetected?.invoke(faceDetected)
-
-            // 保存高质量帧
-            if (quality >= QUALITY_THRESHOLD && faceBitmap != null) {
-                synchronized(capturedFrames) {
-                    capturedFrames.add(faceBitmap)
-                    frameQualityScores.add(quality)
-
-                    val currentCount = frameCount.incrementAndGet()
-                    val qualityCount = qualityFrameCount.incrementAndGet()
-
-                    // 更新状态
-                    updateRecordingState { state ->
-                        state.copy(
-                            frameCount = currentCount,
-                            qualityFrameCount = qualityCount,
-                            progress = currentCount.toFloat() / TARGET_FRAME_COUNT,
-                            currentQuality = quality,
-                            averageQuality = frameQualityScores.average().toFloat(),
-                            faceDetected = faceDetected
-                        )
-                    }
-
-                    Log.v(TAG, "捕获帧 $currentCount/$TARGET_FRAME_COUNT, 质量: $quality")
-
-                    // 检查是否完成
-                    if (currentCount >= TARGET_FRAME_COUNT) {
-                        stopRecording()
-                    }
-                }
-            } else {
-                // 即使质量不够，也要更新状态
-                updateRecordingState { state ->
-                    state.copy(
-                        currentQuality = quality,
-                        faceDetected = faceDetected
-                    )
-                }
-            }
-
-        } catch (e: Exception) {
-            Log.e(TAG, "处理帧失败", e)
-        } finally {
-            imageProxy.close()
-        }
-    }
-
+   
     /**
      * 转换ImageProxy为Bitmap
      */
@@ -305,73 +426,6 @@ class VideoRecorder(private val context: Context) {
         } catch (e: Exception) {
             Log.e(TAG, "图像转换失败", e)
             null
-        }
-    }
-
-    /**
-     * YUV420转Bitmap
-     */
-    private fun yuv420ToBitmap(imageProxy: ImageProxy): Bitmap? {
-        val yBuffer = imageProxy.planes[0].buffer
-        val uBuffer = imageProxy.planes[1].buffer
-        val vBuffer = imageProxy.planes[2].buffer
-
-        val ySize = yBuffer.remaining()
-        val uSize = uBuffer.remaining()
-        val vSize = vBuffer.remaining()
-
-        val nv21 = ByteArray(ySize + uSize + vSize)
-
-        // Y
-        yBuffer.get(nv21, 0, ySize)
-        // V
-        vBuffer.get(nv21, ySize, vSize)
-        // U
-        uBuffer.get(nv21, ySize + vSize, uSize)
-
-        val yuvImage = YuvImage(
-            nv21,
-            ImageFormat.NV21,
-            imageProxy.width,
-            imageProxy.height,
-            null
-        )
-
-        val outputStream = ByteArrayOutputStream()
-        yuvImage.compressToJpeg(
-            Rect(0, 0, imageProxy.width, imageProxy.height),
-            95, // 高质量
-            outputStream
-        )
-
-        val jpegBytes = outputStream.toByteArray()
-        return BitmapFactory.decodeByteArray(jpegBytes, 0, jpegBytes.size)
-    }
-
-    /**
-     * 人脸检测和裁剪
-     * 返回: (裁剪后的人脸图像, 是否检测到人脸, 质量分数)
-     */
-    private fun detectAndCropFace(bitmap: Bitmap): Triple<Bitmap?, Boolean, Float> {
-        return try {
-            // 简化的人脸检测（基于中心区域）
-            // 在实际应用中，应该使用ML Kit或其他人脸检测API
-            val faceRect = detectFaceRegion(bitmap)
-
-            if (faceRect != null) {
-                val croppedFace = cropFaceRegion(bitmap, faceRect)
-                val quality = calculateFrameQuality(croppedFace, bitmap)
-                Triple(croppedFace, true, quality)
-            } else {
-                // 如果没有检测到人脸，使用中心区域
-                val centerCrop = cropCenterRegion(bitmap)
-                val quality = calculateFrameQuality(centerCrop, bitmap)
-                Triple(centerCrop, false, quality * 0.5f) // 降低质量分数
-            }
-
-        } catch (e: Exception) {
-            Log.e(TAG, "人脸检测失败", e)
-            Triple(null, false, 0f)
         }
     }
 
@@ -393,34 +447,8 @@ class VideoRecorder(private val context: Context) {
         return Rect(left, top, left + faceWidth, top + faceHeight)
     }
 
-    /**
-     * 裁剪人脸区域
-     */
-    private fun cropFaceRegion(bitmap: Bitmap, faceRect: Rect): Bitmap {
-        val croppedBitmap = Bitmap.createBitmap(
-            bitmap,
-            faceRect.left.coerceAtLeast(0),
-            faceRect.top.coerceAtLeast(0),
-            faceRect.width().coerceAtMost(bitmap.width - faceRect.left),
-            faceRect.height().coerceAtMost(bitmap.height - faceRect.top)
-        )
-
-        // 缩放到目标尺寸
-        return Bitmap.createScaledBitmap(croppedBitmap, FACE_CROP_SIZE, FACE_CROP_SIZE, true)
-    }
-
-    /**
-     * 裁剪中心区域
-     */
-    private fun cropCenterRegion(bitmap: Bitmap): Bitmap {
-        val size = min(bitmap.width, bitmap.height)
-        val left = (bitmap.width - size) / 2
-        val top = (bitmap.height - size) / 2
-
-        val croppedBitmap = Bitmap.createBitmap(bitmap, left, top, size, size)
-        return Bitmap.createScaledBitmap(croppedBitmap, FACE_CROP_SIZE, FACE_CROP_SIZE, true)
-    }
-
+    
+  
     /**
      * 计算帧质量分数
      */
@@ -565,23 +593,7 @@ class VideoRecorder(private val context: Context) {
         }
     }
 
-    /**
-     * 选择质量最好的帧
-     */
-    private fun selectBestFrames(frames: List<Bitmap>, qualities: List<Float>, targetCount: Int): List<Bitmap> {
-        // 确保 frames 和 qualities 长度匹配
-        require(frames.size == qualities.size) { "Frames and qualities must have the same size" }
-
-        // 创建带索引的帧和质量对
-        val indexedFrames = frames.zip(qualities).withIndex()
-        // 按质量降序排序
-        val sortedByQuality = indexedFrames.sortedByDescending { it.value.second }
-        // 取目标数量的帧，按原始索引升序排序
-        val selectedFrames = sortedByQuality.take(targetCount).sortedBy { it.index }
-        // 提取原始 Bitmap
-        return selectedFrames.map { it.value.first }
-    }
-
+  
     /**
      * 帧插值
      */

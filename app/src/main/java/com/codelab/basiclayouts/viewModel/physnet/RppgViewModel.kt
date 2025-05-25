@@ -1,3 +1,4 @@
+
 package com.codelab.basiclayouts.viewModel.physnet
 
 import android.content.Context
@@ -10,7 +11,6 @@ import com.codelab.basiclayouts.data.physnet.EnhancedRppgRepository
 import com.codelab.basiclayouts.data.physnet.HrvCalculator
 import com.codelab.basiclayouts.data.physnet.SpO2Calculator
 import com.codelab.basiclayouts.data.physnet.VideoRecorder
-
 import com.codelab.basiclayouts.data.physnet.model.CaptureSession
 import com.codelab.basiclayouts.data.physnet.model.EnhancedRppgResult
 import com.codelab.basiclayouts.data.physnet.model.HrvData
@@ -27,15 +27,12 @@ import java.util.UUID
 import kotlin.math.abs
 import kotlin.math.log10
 
-/**
- * 增强的 rPPG ViewModel - 支持HRV和SpO2计算
- * 保持与原版本的完全兼容性
- */
 class EnhancedRppgViewModel(
     private val context: Context,
     private val videoRecorder: VideoRecorder,
     private val rppgProcessor: EnhancedRppgProcessor,
-    private val repository: EnhancedRppgRepository
+    private val repository: EnhancedRppgRepository,
+    private val storageViewModel: MeasurementStorageViewModel // Inject new ViewModel
 ) : ViewModel() {
 
     companion object {
@@ -56,18 +53,13 @@ class EnhancedRppgViewModel(
         val loadingMessage: String = "",
         val sessionHistory: List<EnhancedRppgResult> = emptyList(),
         val isFaceAligned: Boolean = false,
-
-        // 新增的状态
         val showHrvDetails: Boolean = false,
         val showSpO2Details: Boolean = false,
         val analysisMode: AnalysisMode = AnalysisMode.ALL
     )
 
     enum class AnalysisMode {
-        HEART_RATE_ONLY,  // 仅心率
-        HRV_ONLY,         // 仅HRV
-        SPO2_ONLY,        // 仅SpO2
-        ALL               // 全部分析
+        HEART_RATE_ONLY, HRV_ONLY, SPO2_ONLY, ALL
     }
 
     private val _uiState = MutableStateFlow(EnhancedRppgUiState())
@@ -132,7 +124,7 @@ class EnhancedRppgViewModel(
             try {
                 val startTime = System.currentTimeMillis()
 
-                // 1. 基础rPPG处理
+                // 1. Process rPPG
                 _uiState.value = _uiState.value.copy(
                     loadingMessage = "正在分析心率..."
                 )
@@ -140,7 +132,7 @@ class EnhancedRppgViewModel(
                     rppgProcessor.processFramesWithRGB(frames)
                 }
 
-                // 2. 计算信号质量
+                // 2. Calculate signal quality
                 _uiState.value = _uiState.value.copy(
                     loadingMessage = "评估信号质量..."
                 )
@@ -149,16 +141,14 @@ class EnhancedRppgViewModel(
                 var hrvResult: HrvData? = null
                 var spo2Result: SpO2Data? = null
 
-                // 3. HRV分析
+                // 3. HRV analysis
                 if (_uiState.value.analysisMode in listOf(AnalysisMode.HRV_ONLY, AnalysisMode.ALL)) {
                     _uiState.value = _uiState.value.copy(
                         loadingMessage = "分析心率变异性..."
                     )
-
                     val hrvCalculationResult = withContext(Dispatchers.Default) {
                         hrvCalculator.calculateHRV(processingResult.rppgSignal, SAMPLING_RATE)
                     }
-
                     if (hrvCalculationResult.isValid) {
                         hrvResult = HrvData(
                             rmssd = hrvCalculationResult.rmssd,
@@ -173,12 +163,11 @@ class EnhancedRppgViewModel(
                     }
                 }
 
-                // 4. SpO2分析
+                // 4. SpO2 analysis
                 if (_uiState.value.analysisMode in listOf(AnalysisMode.SPO2_ONLY, AnalysisMode.ALL)) {
                     _uiState.value = _uiState.value.copy(
                         loadingMessage = "计算血氧饱和度..."
                     )
-
                     val spo2CalculationResult = withContext(Dispatchers.Default) {
                         spo2Calculator.calculateSpO2(
                             processingResult.rgbData.redChannel,
@@ -187,7 +176,6 @@ class EnhancedRppgViewModel(
                             SAMPLING_RATE
                         )
                     }
-
                     if (spo2CalculationResult.isValid && spo2CalculationResult.confidence > 0.3) {
                         spo2Result = SpO2Data(
                             spo2 = spo2CalculationResult.spo2,
@@ -207,10 +195,10 @@ class EnhancedRppgViewModel(
 
                 val processingTime = System.currentTimeMillis() - startTime
 
-                // 5. 创建完整结果
+                // 5. Create result
                 val result = EnhancedRppgResult(
                     sessionId = currentSession?.sessionId ?: UUID.randomUUID().toString(),
-                    timestamp = System.currentTimeMillis(),  // 修复TODO
+                    timestamp = System.currentTimeMillis(),
                     heartRate = processingResult.heartRate,
                     rppgSignal = processingResult.rppgSignal.toList(),
                     frameCount = frames.size,
@@ -218,22 +206,25 @@ class EnhancedRppgViewModel(
                     confidence = calculateOverallConfidence(signalQuality, hrvResult, spo2Result),
                     hrvResult = hrvResult,
                     spo2Result = spo2Result,
-                    signalQuality = signalQuality,
+                    signalQuality = signalQuality
                 )
 
-                // 6. 保存结果
+                // 6. Save to repository
                 _uiState.value = _uiState.value.copy(
                     loadingMessage = "保存测量结果..."
                 )
                 saveEnhancedResult(result)
 
-                // 7. 上传到云端
+                // 7. Save to local JSON file
+                storageViewModel.saveMeasurement(result)
+
+                // 8. Upload to server
                 _uiState.value = _uiState.value.copy(
                     loadingMessage = "同步到云端..."
                 )
                 uploadResultToServer(result)
 
-                // 8. 更新UI状态
+                // 9. Update UI state
                 _uiState.value = _uiState.value.copy(
                     isProcessing = false,
                     isLoading = false,
@@ -260,28 +251,20 @@ class EnhancedRppgViewModel(
         rppgSignal: FloatArray,
         rgbData: EnhancedRppgProcessor.RgbChannelData
     ): SignalQuality {
-        // 计算信噪比
         val mean = rppgSignal.average()
         val signalPower = mean * mean
         val noisePower = rppgSignal.map { (it - mean) * (it - mean) }.average()
         val snr = if (noisePower > 0) 10 * log10(signalPower / noisePower) else 0.0
-
-        // 评估运动伪影 (基于信号变化率)
         val derivatives = rppgSignal.toList().zipWithNext { a, b -> abs(b - a) }
         val avgDerivative = derivatives.average()
         val maxSignal = rppgSignal.maxOrNull() ?: 1f
         val motionArtifact = 1.0 - (avgDerivative / maxSignal).coerceIn(0.0, 1.0)
-
-        // 评估光照质量 (基于RGB通道强度)
         val avgIntensity = (rgbData.redChannel.average() +
                 rgbData.greenChannel.average() +
                 rgbData.blueChannel.average()) / 3.0
         val illuminationQuality = (avgIntensity / 255.0).coerceIn(0.0, 1.0)
-
-        // 整体质量
         val overallQuality = (snr / 30.0 * 0.4 + motionArtifact * 0.3 + illuminationQuality * 0.3)
             .coerceIn(0.0, 1.0)
-
         return SignalQuality(snr, 1.0 - motionArtifact, illuminationQuality, overallQuality)
     }
 
@@ -292,35 +275,29 @@ class EnhancedRppgViewModel(
     ): Float {
         var totalConfidence = signalQuality.overallQuality.toFloat()
         var count = 1
-
         hrvResult?.let {
             if (it.isValid) {
-                // HRV有效性基于RMSSD值
                 val hrvConfidence = (it.rmssd / 100.0).coerceIn(0.0, 1.0).toFloat()
                 totalConfidence += hrvConfidence
                 count++
             }
         }
-
         spo2Result?.let {
             if (it.isValid) {
                 totalConfidence += it.confidence.toFloat()
                 count++
             }
         }
-
         return (totalConfidence / count).coerceIn(0f, 1f)
     }
 
     private suspend fun saveEnhancedResult(result: EnhancedRppgResult) {
         try {
-            // 优先保存增强结果
             repository.saveEnhancedResult(result)
             Log.d(TAG, "增强结果保存成功")
         } catch (e: Exception) {
             Log.e(TAG, "保存增强结果失败，尝试保存基础结果", e)
             try {
-                // 如果增强保存失败，保存基础结果
                 repository.saveResult(result.toRppgResult())
                 Log.d(TAG, "基础结果保存成功")
             } catch (e2: Exception) {
@@ -331,13 +308,11 @@ class EnhancedRppgViewModel(
 
     private suspend fun uploadResultToServer(result: EnhancedRppgResult) {
         try {
-            // 优先上传增强结果
             val success = repository.uploadEnhancedResult(result)
             if (success) {
                 Log.d(TAG, "增强结果上传成功")
             } else {
                 Log.w(TAG, "增强结果上传失败，尝试上传基础结果")
-                // 如果增强上传失败，上传基础结果
                 repository.uploadResult(result.toRppgResult())
             }
         } catch (e: Exception) {
@@ -348,16 +323,13 @@ class EnhancedRppgViewModel(
     private fun loadSessionHistory() {
         viewModelScope.launch {
             try {
-                // 尝试加载增强历史记录
                 val enhancedHistory = repository.getRecentEnhancedResults(10)
-
                 if (enhancedHistory.isNotEmpty()) {
                     _uiState.value = _uiState.value.copy(
                         sessionHistory = enhancedHistory
                     )
                     Log.d(TAG, "加载了${enhancedHistory.size}条增强历史记录")
                 } else {
-                    // 如果没有增强记录，加载原始记录并转换
                     val history = repository.getRecentResults(10)
                     val convertedHistory = history.map { originalResult ->
                         EnhancedRppgResult(
@@ -368,8 +340,8 @@ class EnhancedRppgViewModel(
                             frameCount = originalResult.frameCount,
                             processingTimeMs = originalResult.processingTimeMs,
                             confidence = originalResult.confidence,
-                            hrvResult = null, // 历史数据没有HRV
-                            spo2Result = null, // 历史数据没有SpO2
+                            hrvResult = null,
+                            spo2Result = null,
                             signalQuality = SignalQuality(
                                 0.0,
                                 0.0,
@@ -378,7 +350,6 @@ class EnhancedRppgViewModel(
                             )
                         )
                     }
-
                     _uiState.value = _uiState.value.copy(
                         sessionHistory = convertedHistory
                     )
@@ -386,7 +357,6 @@ class EnhancedRppgViewModel(
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "加载历史记录失败", e)
-                // 设置空的历史记录，避免UI错误
                 _uiState.value = _uiState.value.copy(
                     sessionHistory = emptyList()
                 )
@@ -394,7 +364,6 @@ class EnhancedRppgViewModel(
         }
     }
 
-    // UI控制函数
     fun toggleHrvDetails() {
         _uiState.value = _uiState.value.copy(
             showHrvDetails = !_uiState.value.showHrvDetails
