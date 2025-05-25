@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,17 +36,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -55,7 +53,13 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * 优雅的RPPG加载界面 - 现代化设计
+ * 重新设计的RPPG加载界面 - 简洁优雅
+ *
+ * @param message 显示的加载消息
+ * @param progress 进度值：
+ *                -1 = 不确定进度（20秒内从0%增长到95%，停在"即将完成"）
+ *                0-1 = 确定进度（直接显示传入的进度值）
+ * @param modifier 修饰符
  */
 @Composable
 fun RppgLoadingOverlay(
@@ -63,49 +67,84 @@ fun RppgLoadingOverlay(
     progress: Float = -1f, // -1 为不确定进度，0-1 为确定进度
     modifier: Modifier = Modifier
 ) {
+    // 主题色定义
+    val primaryColor = Color(0xFF6B5C4D)
+    val primaryContainer = Color(0xFFF4DFCD)
+    val onPrimaryContainer = Color(0xFF241A0E)
+    val surface = Color(0xFFFFFBFF)
+    val onSurface = Color(0xFF1D1B1A)
+    val surfaceVariant = Color(0xFFE7E1DE)
+    val outline = Color(0xFF7A7674)
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFF0A0A0A).copy(alpha = 0.90f),
-                        Color(0xFF000000).copy(alpha = 0.96f)
-                    ),
-                    radius = 800f
-                )
-            ),
+            .background(Color.Black.copy(alpha = 0.75f)),
         contentAlignment = Alignment.Center
     ) {
+        // 主内容卡片
         Card(
             modifier = Modifier
-                .padding(24.dp)
-                .widthIn(max = 360.dp),
+                .wrapContentSize()
+                .padding(32.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.08f)
+                containerColor = surface.copy(alpha = 0.95f)
             ),
-            shape = RoundedCornerShape(28.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(40.dp)
-                    .fillMaxWidth(),
+                    .padding(32.dp)
+                    .widthIn(min = 280.dp, max = 320.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(28.dp)
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                // 主要动画 - 心率脉冲分析器
-                HeartRateAnalyzer()
+                // 主动画 - 心率监测器
+                HeartRateMonitor(
+                    primaryColor = primaryColor,
+                    surfaceColor = surfaceVariant
+                )
 
-                // 状态信息区域
-                StatusSection(message = message)
+                // 状态文字
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 0.2.sp
+                        ),
+                        color = onSurface,
+                        textAlign = TextAlign.Center
+                    )
 
-                // 进度指示器
-                ProgressIndicator(progress = progress)
+                    Text(
+                        text = "请保持静止，确保检测准确性",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = onSurface.copy(alpha = 0.7f),
+                        textAlign = TextAlign.Center
+                    )
+                }
 
-                // 实时数据指标
-                if (progress > 0.3f || progress < 0) {
-                    LiveMetrics()
+                // 进度指示
+                ProgressSection(
+                    progress = progress,
+                    primaryColor = primaryColor,
+                    primaryContainer = primaryContainer,
+                    onPrimaryContainer = onPrimaryContainer,
+                    outline = outline
+                )
+
+                // 实时状态指标
+                if (progress > 0.2f || progress < 0) {
+                    StatusIndicators(
+                        primaryColor = primaryColor,
+                        surfaceVariant = surfaceVariant,
+                        onSurface = onSurface
+                    )
                 }
             }
         }
@@ -113,75 +152,98 @@ fun RppgLoadingOverlay(
 }
 
 /**
- * 心率分析器动画 - 主要视觉焦点
+ * 心率监测器 - 主要动画组件
  */
 @Composable
-private fun HeartRateAnalyzer() {
+private fun HeartRateMonitor(
+    primaryColor: Color,
+    surfaceColor: Color
+) {
     val infiniteTransition = rememberInfiniteTransition()
 
-    // 心跳脉冲动画
-    val heartBeat by infiniteTransition.animateFloat(
-        initialValue = 0.85f,
+    // 心跳脉冲 - 模拟真实心跳频率
+    val heartScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
         targetValue = 1.15f,
         animationSpec = infiniteRepeatable(
-            animation = tween(850, easing = CubicBezierEasing(0.4f, 0f, 0.6f, 1f)),
+            animation = tween(860, easing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f)),
             repeatMode = RepeatMode.Reverse
         )
     )
 
-    // 外围扫描环
+    // 扫描旋转 - 每5秒一圈，20秒内完成4圈
     val scanRotation by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
         animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = LinearEasing)
+            animation = tween(5000, easing = LinearEasing)
         )
     )
 
-    // 数据波纹效果
-    val rippleScale by infiniteTransition.animateFloat(
-        initialValue = 0.6f,
-        targetValue = 2.2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1f))
-        )
-    )
-
+    // 波纹效果 - 每4秒一个周期，20秒内5个周期
     val rippleAlpha by infiniteTransition.animateFloat(
         initialValue = 0.8f,
         targetValue = 0f,
         animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1f))
+            animation = tween(4000, easing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f))
+        )
+    )
+
+    val rippleScale by infiniteTransition.animateFloat(
+        initialValue = 0.8f,
+        targetValue = 2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(4000, easing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f))
         )
     )
 
     Box(
-        modifier = Modifier.size(140.dp),
+        modifier = Modifier.size(120.dp),
         contentAlignment = Alignment.Center
     ) {
-        // 背景波纹效果
-        repeat(2) { index ->
-            val delay = index * 1500
+        // 背景圆环
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawCircle(
+                color = surfaceColor,
+                radius = size.minDimension / 2.5f,
+                style = Stroke(width = 2.dp.toPx())
+            )
+        }
+
+        // 扫描环
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .scale(0.9f)
+        ) {
+            rotate(scanRotation) {
+                drawScanArc(primaryColor)
+            }
+        }
+
+        // 波纹效果 - 每个波纹间隔调整为适配20秒
+        repeat(3) { index ->
+            val delay = index * 1200 // 1.2秒间隔，更适合长时间观看
             val waveScale by infiniteTransition.animateFloat(
-                initialValue = 0.4f,
-                targetValue = 2.0f,
+                initialValue = 0.3f,
+                targetValue = 1.8f,
                 animationSpec = infiniteRepeatable(
                     animation = tween(
-                        durationMillis = 3000,
+                        durationMillis = 4000, // 4秒一个周期
                         delayMillis = delay,
-                        easing = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1f)
+                        easing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f)
                     )
                 )
             )
 
             val waveAlpha by infiniteTransition.animateFloat(
-                initialValue = 0.5f,
+                initialValue = 0.6f,
                 targetValue = 0f,
                 animationSpec = infiniteRepeatable(
                     animation = tween(
-                        durationMillis = 3000,
+                        durationMillis = 4000, // 4秒一个周期
                         delayMillis = delay,
-                        easing = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1f)
+                        easing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f)
                     )
                 )
             )
@@ -192,93 +254,79 @@ private fun HeartRateAnalyzer() {
                     .scale(waveScale)
             ) {
                 drawCircle(
-                    color = Color(0xFF4CAF50).copy(alpha = waveAlpha * 0.15f),
-                    radius = size.minDimension / 6,
-                    style = Stroke(width = 2.dp.toPx())
+                    color = primaryColor.copy(alpha = waveAlpha * 0.3f),
+                    radius = size.minDimension / 8,
+                    style = Stroke(width = 1.5.dp.toPx())
                 )
             }
         }
 
-        // 扫描环系统
+        // 中心脉冲圆点
         Canvas(
             modifier = Modifier
-                .fillMaxSize()
-                .rotate(scanRotation)
+                .size(32.dp)
+                .scale(heartScale)
         ) {
-            drawScanningRings(
-                primaryColor = Color(0xFF4CAF50),
-                secondaryColor = Color(0xFF66BB6A)
+            // 渐变填充
+            val gradient = Brush.radialGradient(
+                colors = listOf(
+                    primaryColor,
+                    primaryColor.copy(alpha = 0.8f)
+                ),
+                radius = size.minDimension / 2
+            )
+
+            drawCircle(
+                brush = gradient,
+                radius = size.minDimension / 2
+            )
+
+            // 边框
+            drawCircle(
+                color = primaryColor,
+                radius = size.minDimension / 2,
+                style = Stroke(width = 1.dp.toPx())
             )
         }
 
-        // 中心心率图标
-        Canvas(
-            modifier = Modifier
-                .size(60.dp)
-                .scale(heartBeat)
-        ) {
-            drawHeartIcon(
-                color = Color(0xFF4CAF50),
-                size = size
-            )
-        }
-
-        // ECG波形叠加
+        // ECG波形效果
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawECGWave(
-                color = Color(0xFF81C784).copy(alpha = 0.6f),
-                progress = rippleScale
+                color = primaryColor.copy(alpha = 0.4f),
+                offset = rippleScale
             )
         }
     }
 }
 
 /**
- * 状态信息区域
+ * 进度区域
  */
 @Composable
-private fun StatusSection(message: String) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Medium,
-                letterSpacing = 0.3.sp
-            ),
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            lineHeight = 24.sp
-        )
-
-        Text(
-            text = "请保持静止，确保最佳检测效果",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-/**
- * 进度指示器
- */
-@Composable
-private fun ProgressIndicator(progress: Float) {
+private fun ProgressSection(
+    progress: Float,
+    primaryColor: Color,
+    primaryContainer: Color,
+    onPrimaryContainer: Color,
+    outline: Color
+) {
     val infiniteTransition = rememberInfiniteTransition()
 
     val animatedProgress by if (progress < 0) {
+        // 不确定进度：20秒内从0%到95%，模拟真实的分析进度
         infiniteTransition.animateFloat(
             initialValue = 0f,
-            targetValue = 1f,
+            targetValue = 0.95f, // 最终停在95%，表示"即将完成"
             animationSpec = infiniteRepeatable(
-                animation = tween(2500, easing = LinearEasing),
+                animation = tween(
+                    durationMillis = 40000, // 20秒完成
+                    easing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f) // 先快后慢的自然曲线
+                ),
                 repeatMode = RepeatMode.Restart
             )
         )
     } else {
+        // 确定进度：如果是从外部传入的实际进度值
         remember(progress) { mutableStateOf(progress) }
     }
 
@@ -286,264 +334,170 @@ private fun ProgressIndicator(progress: Float) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // 现代进度条
+        // 进度条
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(4.dp)
-                .clip(RoundedCornerShape(2.dp))
-                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
+                .height(6.dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(outline.copy(alpha = 0.2f))
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
                     .fillMaxWidth(animatedProgress)
                     .background(
+                        // 统一使用简洁的渐变，不再区分确定/不确定模式
                         Brush.horizontalGradient(
                             colors = listOf(
-                                Color(0xFF4CAF50),
-                                Color(0xFF66BB6A),
-                                Color(0xFF81C784)
+                                primaryColor,
+                                primaryColor.copy(alpha = 0.8f)
                             )
                         )
                     )
-                    .clip(RoundedCornerShape(2.dp))
+                    .clip(RoundedCornerShape(3.dp))
             )
         }
 
-        // 进度百分比和阶段信息
+        // 进度信息
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (progress >= 0) {
+            Text(
+                text = if (progress >= 0) "${(animatedProgress * 100).toInt()}%" else "分析中",
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Medium
+                ),
+                color = primaryColor
+            )
+
+            Surface(
+                color = primaryContainer.copy(alpha = 0.7f),
+                shape = RoundedCornerShape(8.dp)
+            ) {
                 Text(
-                    text = "${(animatedProgress * 100).toInt()}%",
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    color = Color(0xFF4CAF50)
-                )
-            } else {
-                Text(
-                    text = "分析中...",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    text = getProcessingStage(animatedProgress),
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = onPrimaryContainer
                 )
             }
-
-            Text(
-                text = getCurrentStage(animatedProgress),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
         }
     }
 }
 
 /**
- * 实时指标显示
+ * 状态指标
  */
 @Composable
-private fun LiveMetrics() {
+private fun StatusIndicators(
+    primaryColor: Color,
+    surfaceVariant: Color,
+    onSurface: Color
+) {
     val infiniteTransition = rememberInfiniteTransition()
 
+    // 心率变化 - 模拟真实心率波动，3秒一个周期
     val heartRate by infiniteTransition.animateFloat(
-        initialValue = 72f,
-        targetValue = 78f,
+        initialValue = 68f,
+        targetValue = 75f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1800, easing = FastOutSlowInEasing),
+            animation = tween(3000, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         )
     )
 
-    val confidence by infiniteTransition.animateFloat(
-        initialValue = 0.87f,
-        targetValue = 0.94f,
+    // 信号质量变化 - 4秒一个周期，模拟检测质量波动
+    val signalQuality by infiniteTransition.animateFloat(
+        initialValue = 0.85f,
+        targetValue = 0.92f,
         animationSpec = infiniteRepeatable(
-            animation = tween(2200, easing = FastOutSlowInEasing),
+            animation = tween(4000, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         )
     )
 
     Surface(
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.08f),
-        shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth()
+        color = surfaceVariant.copy(alpha = 0.3f),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            MetricDisplay(
-                label = "心率",
-                value = "${heartRate.toInt()}",
-                unit = "BPM",
-                color = Color(0xFFE53E3E)
-            )
+            // 心率指标
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = "${heartRate.toInt()}",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = Color(0xFFE53E3E)
+                )
+                Text(
+                    text = "BPM",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = onSurface.copy(alpha = 0.6f)
+                )
+            }
 
-            Spacer(
+            // 分隔线
+            Box(
                 modifier = Modifier
                     .width(1.dp)
-                    .height(40.dp)
-                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                    .height(32.dp)
+                    .background(onSurface.copy(alpha = 0.2f))
             )
 
-            MetricDisplay(
-                label = "信号质量",
-                value = "${(confidence * 100).toInt()}",
-                unit = "%",
-                color = Color(0xFF4CAF50)
-            )
+            // 信号质量
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = "${(signalQuality * 100).toInt()}%",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = primaryColor
+                )
+                Text(
+                    text = "质量",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = onSurface.copy(alpha = 0.6f)
+                )
+            }
         }
     }
 }
 
 /**
- * 单个指标显示组件
+ * 绘制扫描弧线
  */
-@Composable
-private fun MetricDisplay(
-    label: String,
-    value: String,
-    unit: String,
-    color: Color
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                color = color
-            )
-            Text(
-                text = unit,
-                style = MaterialTheme.typography.labelSmall,
-                color = color.copy(alpha = 0.7f),
-                modifier = Modifier.padding(bottom = 2.dp)
-            )
-        }
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
-    }
-}
+private fun DrawScope.drawScanArc(color: Color) {
+    val radius = size.minDimension / 2.5f
 
-/**
- * 绘制扫描环系统
- */
-private fun DrawScope.drawScanningRings(
-    primaryColor: Color,
-    secondaryColor: Color
-) {
-    val centerX = size.width / 2
-    val centerY = size.height / 2
-    val radius = size.minDimension / 3
-
-    // 主扫描环
     drawArc(
-        color = primaryColor.copy(alpha = 0.6f),
+        color = color.copy(alpha = 0.8f),
         startAngle = -90f,
-        sweepAngle = 60f,
+        sweepAngle = 90f,
         useCenter = false,
         style = Stroke(
             width = 3.dp.toPx(),
             cap = StrokeCap.Round
         ),
-        topLeft = Offset(centerX - radius, centerY - radius),
-        size = Size(radius * 2, radius * 2)
-    )
-
-    // 副扫描环
-    drawArc(
-        color = secondaryColor.copy(alpha = 0.4f),
-        startAngle = 90f,
-        sweepAngle = 45f,
-        useCenter = false,
-        style = Stroke(
-            width = 2.dp.toPx(),
-            cap = StrokeCap.Round
+        topLeft = Offset(
+            (size.width - radius * 2) / 2,
+            (size.height - radius * 2) / 2
         ),
-        topLeft = Offset(centerX - radius * 0.8f, centerY - radius * 0.8f),
-        size = Size(radius * 1.6f, radius * 1.6f)
-    )
-}
-
-/**
- * 绘制心脏图标
- */
-private fun DrawScope.drawHeartIcon(
-    color: Color,
-    size: Size
-) {
-    val heartPath = Path().apply {
-        val width = size.width * 0.8f
-        val height = size.height * 0.8f
-        val offsetX = (size.width - width) / 2
-        val offsetY = (size.height - height) / 2
-
-        // 创建更精确的心形路径
-        moveTo(offsetX + width / 2, offsetY + height * 0.25f)
-
-        // 左半部分
-        cubicTo(
-            offsetX + width / 2, offsetY,
-            offsetX, offsetY,
-            offsetX, offsetY + height * 0.375f
-        )
-        cubicTo(
-            offsetX, offsetY + height * 0.75f,
-            offsetX + width / 2, offsetY + height,
-            offsetX + width / 2, offsetY + height
-        )
-
-        // 右半部分
-        cubicTo(
-            offsetX + width / 2, offsetY + height,
-            offsetX + width, offsetY + height * 0.75f,
-            offsetX + width, offsetY + height * 0.375f
-        )
-        cubicTo(
-            offsetX + width, offsetY,
-            offsetX + width / 2, offsetY,
-            offsetX + width / 2, offsetY + height * 0.25f
-        )
-        close()
-    }
-
-    // 心脏渐变填充
-    drawPath(
-        path = heartPath,
-        brush = Brush.linearGradient(
-            colors = listOf(
-                color,
-                color.copy(alpha = 0.8f)
-            ),
-            start = Offset(0f, 0f),
-            end = Offset(size.width, size.height)
-        )
-    )
-
-    // 心脏边框
-    drawPath(
-        path = heartPath,
-        color = color.copy(alpha = 0.9f),
-        style = Stroke(
-            width = 1.5.dp.toPx(),
-            cap = StrokeCap.Round,
-            join = StrokeJoin.Round
-        )
+        size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2)
     )
 }
 
@@ -552,26 +506,25 @@ private fun DrawScope.drawHeartIcon(
  */
 private fun DrawScope.drawECGWave(
     color: Color,
-    progress: Float
+    offset: Float
 ) {
     val centerX = size.width / 2
     val centerY = size.height / 2
-    val radius = size.minDimension / 3
+    val radius = size.minDimension / 3.5f
 
     val path = Path()
     var isFirst = true
 
-    for (i in 0..360 step 5) {
-        val angle = Math.toRadians(i.toDouble())
-        val baseRadius = radius + when (i % 60) {
-            in 10..15 -> 8f * sin((i - 10) * Math.PI / 5).toFloat()
-            in 20..25 -> -12f * sin((i - 20) * Math.PI / 5).toFloat()
-            in 30..35 -> 15f * sin((i - 30) * Math.PI / 5).toFloat()
+    for (i in 0..360 step 8) {
+        val angle = Math.toRadians(i.toDouble() + offset * 50)
+        val amplitude = when {
+            i % 60 in 20..25 -> 8f * sin((i - 20) * Math.PI / 5).toFloat()
+            i % 60 in 30..35 -> 12f * sin((i - 30) * Math.PI / 5).toFloat()
             else -> 0f
         }
 
-        val x = centerX + baseRadius * cos(angle).toFloat()
-        val y = centerY + baseRadius * sin(angle).toFloat()
+        val x = centerX + (radius + amplitude) * cos(angle).toFloat()
+        val y = centerY + (radius + amplitude) * sin(angle).toFloat()
 
         if (isFirst) {
             path.moveTo(x, y)
@@ -594,13 +547,14 @@ private fun DrawScope.drawECGWave(
 /**
  * 获取当前处理阶段
  */
-private fun getCurrentStage(progress: Float): String {
+private fun getProcessingStage(progress: Float): String {
     return when {
-        progress < 0.2f -> "信号采集"
-        progress < 0.4f -> "噪声过滤"
-        progress < 0.6f -> "特征提取"
-        progress < 0.8f -> "数据分析"
-        progress < 1.0f -> "结果验证"
-        else -> "分析完成"
+        progress < 0.05f -> "初始化"
+        progress < 0.20f -> "信号采集"
+        progress < 0.40f -> "预处理"
+        progress < 0.60f -> "噪声过滤"
+        progress < 0.80f -> "特征提取"
+        progress < 0.95f -> "数据分析"
+        else -> "即将完成"
     }
 }
