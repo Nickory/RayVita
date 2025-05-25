@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -31,7 +32,7 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudOff
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.TrendingDown
@@ -53,302 +54,451 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.codelab.basiclayouts.data.physnet.model.RppgResult
+import com.codelab.basiclayouts.data.physnet.model.EnhancedRppgResult
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 /**
- * 心率结果展示卡片
+ * Enhanced Material3 Heart Rate Result Display Card
+ * Redesigned with modern UI principles and improved layout
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-fun RppgResultCard(
-    result: RppgResult,
+fun EnhancedRppgResultCard(
+    result: EnhancedRppgResult,
     modifier: Modifier = Modifier
 ) {
-    // 心跳动画
-    val heartbeatAnimation = rememberInfiniteTransition()
+    // Synchronized heartbeat animation based on actual heart rate
+    val heartbeatAnimation = rememberInfiniteTransition(label = "heartbeat")
     val heartScale by heartbeatAnimation.animateFloat(
         initialValue = 1f,
-        targetValue = 1.2f,
+        targetValue = 1.12f,
         animationSpec = infiniteRepeatable(
             animation = tween(
                 durationMillis = (60000 / result.heartRate).toInt(),
                 easing = FastOutSlowInEasing
             ),
             repeatMode = RepeatMode.Reverse
-        )
+        ),
+        label = "heart_scale"
     )
 
-    // 渐变背景
-    val gradientColors = when {
-        result.heartRate < 60 -> listOf(
-            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f),
-            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.05f)
-        )
-        result.heartRate > 100 -> listOf(
-            MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
-            MaterialTheme.colorScheme.error.copy(alpha = 0.05f)
-        )
-        else -> listOf(
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)
-        )
-    }
+    // Dynamic gradient based on heart rate zones with enhanced Material3 colors
+    val (gradientColors, statusInfo) = getHeartRateTheme(result.heartRate)
 
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(32.dp),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp,
-            pressedElevation = 8.dp
+            defaultElevation = 3.dp,
+            pressedElevation = 8.dp,
+            hoveredElevation = 6.dp
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
         )
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    Brush.verticalGradient(gradientColors)
+                    Brush.radialGradient(
+                        colors = gradientColors,
+                        radius = 500f
+                    )
                 )
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp),
+                    .padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // 标题行
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Favorite,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.scale(heartScale)
-                        )
-                        Text(
-                            text = "心率测量结果",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                // Enhanced Header Section
+                CardHeader(
+                    heartScale = heartScale,
+//                    isSynced = result.isSynced
+                )
 
-                    // 同步状态
-                    SyncStatusChip(isSynced = result.isSynced)
-                }
+                Spacer(modifier = Modifier.height(40.dp))
 
-                Spacer(modifier = Modifier.height(24.dp))
+                // Premium Heart Rate Display Circle
+                HeartRateDisplay(
+                    heartRate = result.heartRate,
+                    statusInfo = statusInfo
+                )
 
-                // 心率数值
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    // 背景圆环
-                    Box(
-                        modifier = Modifier
-                            .size(160.dp)
-                            .clip(CircleShape)
-                            .background(
-                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                            )
-                    )
+                Spacer(modifier = Modifier.height(36.dp))
 
-                    // 内部圆环
-                    Box(
-                        modifier = Modifier
-                            .size(140.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surface)
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            AnimatedContent(
-                                targetState = result.heartRate.toInt(),
-                                transitionSpec = {
-                                    slideInVertically { height -> height } + fadeIn() with
-                                            slideOutVertically { height -> -height } + fadeOut()
-                                }
-                            ) { heartRate ->
-                                Text(
-                                    text = "$heartRate",
-                                    style = MaterialTheme.typography.displayLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = getHeartRateColor(result.heartRate)
-                                )
-                            }
-                            Text(
-                                text = "BPM",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
+                // Status Badge
+                HeartRateStatusBadge(
+                    status = statusInfo.status,
+                    color = statusInfo.color,
+                    icon = statusInfo.icon
+                )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
-                // 状态指示
-                HeartRateStatus(heartRate = result.heartRate)
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 详细信息
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    InfoColumn(
-                        icon = Icons.Default.AccessTime,
-                        label = "测量时间",
-                        value = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-                            .format(result.date)
-                    )
-
-                    InfoColumn(
-                        icon = Icons.Default.Speed,
-                        label = "置信度",
-                        value = "${(result.confidence * 100).toInt()}%"
-                    )
-
-                    InfoColumn(
-                        icon = Icons.Default.Timer,
-                        label = "处理时间",
-                        value = "${result.processingTimeMs}ms"
-                    )
-                }
+                // Enhanced Information Grid
+                EnhancedInfoGrid(result = result)
             }
         }
     }
 }
 
 /**
- * 同步状态芯片
+ * Modern card header with improved typography and layout
  */
 @Composable
-private fun SyncStatusChip(isSynced: Boolean) {
-    val containerColor = if (isSynced) {
-        MaterialTheme.colorScheme.primaryContainer
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant
-    }
-
-    val contentColor = if (isSynced) {
-        MaterialTheme.colorScheme.onPrimaryContainer
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
-    Surface(
-        color = containerColor,
-        contentColor = contentColor,
-        shape = RoundedCornerShape(8.dp),
-        modifier = Modifier.height(24.dp)
+private fun CardHeader(
+    heartScale: Float,
+//    isSynced: Boolean
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Icon(
-                imageVector = if (isSynced) Icons.Default.CloudDone else Icons.Default.CloudOff,
-                contentDescription = null,
-                modifier = Modifier.size(16.dp)
+                imageVector = Icons.Default.MonitorHeart,
+                contentDescription = "Heart Rate Monitor",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .scale(heartScale)
+                    .size(28.dp)
             )
-            Text(
-                text = if (isSynced) "已同步" else "未同步",
-                style = MaterialTheme.typography.labelSmall
-            )
+            Column {
+                Text(
+                    text = "Heart Rate",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Monitoring Result",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+//        // Enhanced sync status
+//        SyncStatusIndicator(isSynced = isSynced)
+    }
+}
+
+/**
+ * Premium heart rate display with enhanced visual design
+ */
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun HeartRateDisplay(
+    heartRate: Float,
+    statusInfo: HeartRateStatusInfo
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // Outer glow ring
+        Box(
+            modifier = Modifier
+                .size(200.dp)
+                .clip(CircleShape)
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(
+                            statusInfo.color.copy(alpha = 0.15f),
+                            statusInfo.color.copy(alpha = 0.08f),
+                            statusInfo.color.copy(alpha = 0.03f),
+                            Color.Transparent
+                        )
+                    )
+                )
+        )
+
+        // Middle ring
+        Box(
+            modifier = Modifier
+                .size(176.dp)
+                .clip(CircleShape)
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                            MaterialTheme.colorScheme.surface
+                        )
+                    )
+                )
+        )
+
+        // Inner content area
+        Box(
+            modifier = Modifier
+                .size(160.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Animated heart rate value
+                AnimatedContent(
+                    targetState = heartRate.toInt(),
+                    transitionSpec = {
+                        slideInVertically { height -> height / 2 } + fadeIn() with
+                                slideOutVertically { height -> -height / 2 } + fadeOut()
+                    },
+                    label = "heart_rate_animation"
+                ) { rate ->
+                    Text(
+                        text = "$rate",
+                        style = MaterialTheme.typography.displayLarge.copy(
+                            fontSize = MaterialTheme.typography.displayLarge.fontSize * 1.2f
+                        ),
+                        fontWeight = FontWeight.ExtraBold,
+                        color = statusInfo.color
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "BPM",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = MaterialTheme.typography.titleLarge.letterSpacing * 1.5f
+                )
+            }
         }
     }
 }
 
 /**
- * 心率状态指示
+ * Enhanced status badge with modern Material3 styling
  */
 @Composable
-private fun HeartRateStatus(heartRate: Float) {
-    val (status, color, icon) = when {
-        heartRate < 60 -> Triple("偏低", MaterialTheme.colorScheme.tertiary, Icons.Default.TrendingDown)
-        heartRate > 100 -> Triple("偏高", MaterialTheme.colorScheme.error, Icons.Default.TrendingUp)
-        else -> Triple("正常", MaterialTheme.colorScheme.primary, Icons.Default.CheckCircle)
-    }
-
+private fun HeartRateStatusBadge(
+    status: String,
+    color: Color,
+    icon: androidx.compose.ui.graphics.vector.ImageVector
+) {
     Surface(
-        color = color.copy(alpha = 0.1f),
-        shape = RoundedCornerShape(12.dp)
+        color = color.copy(alpha = 0.12f),
+        shape = RoundedCornerShape(20.dp),
+        modifier = Modifier.height(44.dp)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = color,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(24.dp)
             )
             Text(
-                text = "心率$status",
+                text = status,
                 color = color,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
             )
         }
     }
 }
 
 /**
- * 信息列
+ * Modern information grid with improved spacing and typography
  */
 @Composable
-private fun InfoColumn(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    value: String
-) {
+private fun EnhancedInfoGrid(result: EnhancedRppgResult) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(20.dp)
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium
+        // Top row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            InfoCard(
+                icon = Icons.Default.AccessTime,
+                label = "Measured",
+                value = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+                    .format(result.timestamp),
+                modifier = Modifier.weight(1f)
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            InfoCard(
+                icon = Icons.Default.Speed,
+                label = "Confidence",
+                value = "${(result.confidence * 100).toInt()}%",
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        // Bottom centered card
+        InfoCard(
+            icon = Icons.Default.Timer,
+            label = "Processing Time",
+            value = "${result.processingTimeMs}ms",
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
 
 /**
- * 根据心率获取颜色
+ * Enhanced info card with modern Material3 design
  */
 @Composable
-private fun getHeartRateColor(heartRate: Float): Color {
+private fun InfoCard(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        shape = RoundedCornerShape(20.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
+/**
+ * Modern sync status indicator
+ */
+@Composable
+private fun SyncStatusIndicator(isSynced: Boolean) {
+    val containerColor = if (isSynced) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        MaterialTheme.colorScheme.errorContainer
+    }
+
+    val contentColor = if (isSynced) {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    } else {
+        MaterialTheme.colorScheme.onErrorContainer
+    }
+
+    Surface(
+        color = containerColor,
+        contentColor = contentColor,
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.height(32.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = if (isSynced) Icons.Default.CloudDone else Icons.Default.CloudOff,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = contentColor
+            )
+            Text(
+                text = if (isSynced) "Synced" else "Offline",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = contentColor
+            )
+        }
+    }
+}
+
+/**
+ * Heart rate status information data class
+ */
+private data class HeartRateStatusInfo(
+    val status: String,
+    val color: Color,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector
+)
+
+/**
+ * Enhanced heart rate theme provider with Material3 colors
+ */
+@Composable
+private fun getHeartRateTheme(heartRate: Float): Pair<List<Color>, HeartRateStatusInfo> {
     return when {
-        heartRate < 60 -> MaterialTheme.colorScheme.tertiary
-        heartRate > 100 -> MaterialTheme.colorScheme.error
-        else -> MaterialTheme.colorScheme.primary
+        heartRate < 60 -> {
+            val color = MaterialTheme.colorScheme.tertiary
+            Pair(
+                listOf(
+                    color.copy(alpha = 0.08f),
+                    color.copy(alpha = 0.03f)
+                ),
+                HeartRateStatusInfo(
+                    status = "Below Normal",
+                    color = color,
+                    icon = Icons.Default.TrendingDown
+                )
+            )
+        }
+        heartRate > 100 -> {
+            val color = MaterialTheme.colorScheme.error
+            Pair(
+                listOf(
+                    color.copy(alpha = 0.08f),
+                    color.copy(alpha = 0.03f)
+                ),
+                HeartRateStatusInfo(
+                    status = "Above Normal",
+                    color = color,
+                    icon = Icons.Default.TrendingUp
+                )
+            )
+        }
+        else -> {
+            val color = MaterialTheme.colorScheme.primary
+            Pair(
+                listOf(
+                    color.copy(alpha = 0.08f),
+                    color.copy(alpha = 0.03f)
+                ),
+                HeartRateStatusInfo(
+                    status = "Normal Range",
+                    color = color,
+                    icon = Icons.Default.CheckCircle
+                )
+            )
+        }
     }
 }

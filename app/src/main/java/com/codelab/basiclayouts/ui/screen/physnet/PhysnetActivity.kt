@@ -48,11 +48,11 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.codelab.basiclayouts.data.physnet.RppgProcessor
-import com.codelab.basiclayouts.data.physnet.RppgRepository
+import com.codelab.basiclayouts.data.physnet.EnhancedRppgProcessor
+import com.codelab.basiclayouts.data.physnet.EnhancedRppgRepository
 import com.codelab.basiclayouts.data.physnet.VideoRecorder
 import com.codelab.basiclayouts.ui.theme.MySootheTheme
-import com.codelab.basiclayouts.viewModel.physnet.RppgViewModel
+import com.codelab.basiclayouts.viewModel.physnet.EnhancedRppgViewModel
 
 /**
  * 主 Activity - 升级版
@@ -112,12 +112,12 @@ class PhysnetActivity : ComponentActivity() {
     @Composable
     private fun AppContent() {
         val context = LocalContext.current
-        val viewModel: RppgViewModel = viewModel(
+        val viewModel: EnhancedRppgViewModel = viewModel(
             factory = RppgViewModelFactory(
                 context = context,
                 videoRecorder = VideoRecorder(context),
-                rppgProcessor = RppgProcessor(context),
-                repository = RppgRepository(context)
+                rppgProcessor = EnhancedRppgProcessor(context),
+                repository = EnhancedRppgRepository(context)
             )
         )
 
@@ -321,13 +321,13 @@ class PhysnetActivity : ComponentActivity() {
 class RppgViewModelFactory(
     private val context: Context,
     private val videoRecorder: VideoRecorder,
-    private val rppgProcessor: RppgProcessor,
-    private val repository: RppgRepository
+    private val rppgProcessor: EnhancedRppgProcessor,
+    private val repository: EnhancedRppgRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(RppgViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(EnhancedRppgViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return RppgViewModel(context, videoRecorder, rppgProcessor, repository) as T
+            return EnhancedRppgViewModel(context, videoRecorder, rppgProcessor, repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
