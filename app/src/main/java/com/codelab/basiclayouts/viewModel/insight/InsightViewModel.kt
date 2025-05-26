@@ -31,6 +31,7 @@ import java.util.Random
 data class PhysNetMeasurementData(
     val timestamp: Long,
     val sessionId: String,
+    val userId: Long, // 新增：用户 ID
     val rppgSignal: FloatArray,
     val heartRate: Float,
     val frameCount: Int,
@@ -38,9 +39,9 @@ data class PhysNetMeasurementData(
     val confidence: Float,
     val hrvResult: HRVResult? = null,
     val spo2Result: SPO2Result? = null,
-    val signalQuality: SignalQuality? = null
+    val signalQuality: SignalQuality? = null,
+    val syncStatus: String = "pending" // 新增：同步状态
 )
-
 @Serializable
 data class HRVResult(
     val rmssd: Float,

@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
@@ -37,6 +38,8 @@ import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Timeline
+import androidx.compose.material.icons.filled.ViewDay
+import androidx.compose.material.icons.filled.ViewWeek
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -56,6 +59,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -84,6 +88,11 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
+// 时间视图模式枚举
+enum class TimeViewMode {
+    DAY, WEEK, MONTH
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HealthHistoryScreen(viewModel: InsightViewModel, onBackPressed: () -> Unit) {
@@ -92,8 +101,15 @@ fun HealthHistoryScreen(viewModel: InsightViewModel, onBackPressed: () -> Unit) 
     var selectedDate by remember {
         mutableStateOf(availableDates.firstOrNull() ?: Calendar.getInstance().time)
     }
-    val measurements = dataState.getMeasurementsForDate(selectedDate)
+    var timeViewMode by remember { mutableStateOf(TimeViewMode.DAY) }
     var visualizationMode by remember { mutableStateOf(VisualizationMode.HEART_RATE) }
+
+    // 根据时间视图模式获取数据
+    val displayData = when (timeViewMode) {
+        TimeViewMode.DAY -> dataState.getMeasurementsForDate(selectedDate)
+        TimeViewMode.WEEK -> dataState.getMeasurementsForWeek(selectedDate)
+        TimeViewMode.MONTH -> dataState.getMeasurementsForMonth(selectedDate)
+    }
 
     Scaffold(
         topBar = {
@@ -149,43 +165,66 @@ fun HealthHistoryScreen(viewModel: InsightViewModel, onBackPressed: () -> Unit) 
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Premium Date Calendar
-            PremiumDateCalendar(
-                selectedDate = selectedDate,
-                availableDates = availableDates,
-                onDateChanged = { selectedDate = it },
+            // 时间视图模式切换器
+            TimeViewModeSelector(
+                selectedMode = timeViewMode,
+                onModeChanged = { timeViewMode = it },
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
             )
 
-            // Premium Visualization Chart
-            if (measurements.isNotEmpty()) {
-                PremiumVisualizationChart(
-                    measurements = measurements,
+            // 日期选择器（适配不同视图模式）
+            EnhancedDateSelector(
+                selectedDate = selectedDate,
+                availableDates = availableDates,
+                timeViewMode = timeViewMode,
+                onDateChanged = { selectedDate = it },
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            // 增强的可视化图表
+            if (displayData.isNotEmpty()) {
+                EnhancedVisualizationChart(
+                    measurements = displayData,
                     mode = visualizationMode,
+                    timeViewMode = timeViewMode,
                     onModeChanged = { visualizationMode = it },
                     dataProcessor = dataState.processor,
+                    selectedDate = selectedDate,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
 
-            // Enhanced Measurement Records with optimized spacing
-            if (measurements.isEmpty()) {
-                EmptyStateView(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                )
-            } else {
-                LazyColumn(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(24.dp), // Slightly reduced
-                    contentPadding = PaddingValues(vertical = 12.dp)
-                ) {
-                    items(measurements) { measurement ->
-                        PremiumMeasurementCard(measurement)
+            // 测量记录列表（只在日视图显示详细卡片）
+            when (timeViewMode) {
+                TimeViewMode.DAY -> {
+                    if (displayData.isEmpty()) {
+                        EmptyStateView(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp)
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(vertical = 12.dp, horizontal = 4.dp)
+                        ) {
+                            items(displayData) { measurement ->
+                                EnhancedMeasurementCard(measurement)
+                            }
+                        }
                     }
+                }
+                TimeViewMode.WEEK, TimeViewMode.MONTH -> {
+                    WeekMonthSummaryView(
+                        measurements = displayData,
+                        timeViewMode = timeViewMode,
+                        selectedDate = selectedDate,
+                        dataProcessor = dataState.processor,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
                 }
             }
         }
@@ -193,14 +232,93 @@ fun HealthHistoryScreen(viewModel: InsightViewModel, onBackPressed: () -> Unit) 
 }
 
 @Composable
-fun PremiumDateCalendar(
+fun TimeViewModeSelector(
+    selectedMode: TimeViewMode,
+    onModeChanged: (TimeViewMode) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            TimeViewModeChip(
+                icon = Icons.Default.ViewDay,
+                label = "Day",
+                isSelected = selectedMode == TimeViewMode.DAY,
+                onClick = { onModeChanged(TimeViewMode.DAY) }
+            )
+
+            TimeViewModeChip(
+                icon = Icons.Default.ViewWeek,
+                label = "Week",
+                isSelected = selectedMode == TimeViewMode.WEEK,
+                onClick = { onModeChanged(TimeViewMode.WEEK) }
+            )
+
+            TimeViewModeChip(
+                icon = Icons.Default.CalendarMonth,
+                label = "Month",
+                isSelected = selectedMode == TimeViewMode.MONTH,
+                onClick = { onModeChanged(TimeViewMode.MONTH) }
+            )
+        }
+    }
+}
+
+@Composable
+fun TimeViewModeChip(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    FilterChip(
+        selected = isSelected,
+        onClick = onClick,
+        label = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Text(
+                    label,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        },
+        colors = FilterChipDefaults.filterChipColors(
+            selectedContainerColor = MaterialTheme.colorScheme.primary,
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        modifier = Modifier.height(36.dp)
+    )
+}
+
+@Composable
+fun EnhancedDateSelector(
     selectedDate: Date,
     availableDates: List<Date>,
+    timeViewMode: TimeViewMode,
     onDateChanged: (Date) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val processor = HealthHistoryDataProcessor()
-    val dateInfo = processor.formatCalendarDate(selectedDate)
     val sortedDates = availableDates.sortedBy { it.time }
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -215,7 +333,7 @@ fun PremiumDateCalendar(
         Column(
             modifier = Modifier.padding(12.dp)
         ) {
-            // Compact Header with Expand/Collapse
+            // 标题显示根据模式调整
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -234,7 +352,19 @@ fun PremiumDateCalendar(
                         modifier = Modifier.size(14.dp)
                     )
                     Text(
-                        "${dateInfo.month} ${dateInfo.day}, ${dateInfo.year}",
+                        when (timeViewMode) {
+                            TimeViewMode.DAY -> {
+                                val dateInfo = processor.formatCalendarDate(selectedDate)
+                                "${dateInfo.month} ${dateInfo.day}, ${dateInfo.year}"
+                            }
+                            TimeViewMode.WEEK -> {
+                                val weekRange = processor.getWeekRange(selectedDate)
+                                "Week: ${weekRange.first} - ${weekRange.second}"
+                            }
+                            TimeViewMode.MONTH -> {
+                                SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(selectedDate)
+                            }
+                        },
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp,
@@ -249,8 +379,10 @@ fun PremiumDateCalendar(
                     if (!isExpanded) {
                         IconButton(
                             onClick = {
-                                val prevDate = sortedDates.indexOf(selectedDate).let { index ->
-                                    if (index > 0) sortedDates[index - 1] else null
+                                val prevDate = when (timeViewMode) {
+                                    TimeViewMode.DAY -> processor.getPreviousDay(selectedDate, sortedDates)
+                                    TimeViewMode.WEEK -> processor.getPreviousWeek(selectedDate)
+                                    TimeViewMode.MONTH -> processor.getPreviousMonth(selectedDate)
                                 }
                                 prevDate?.let { onDateChanged(it) }
                             },
@@ -266,8 +398,10 @@ fun PremiumDateCalendar(
 
                         IconButton(
                             onClick = {
-                                val nextDate = sortedDates.indexOf(selectedDate).let { index ->
-                                    if (index < sortedDates.size - 1) sortedDates[index + 1] else null
+                                val nextDate = when (timeViewMode) {
+                                    TimeViewMode.DAY -> processor.getNextDay(selectedDate, sortedDates)
+                                    TimeViewMode.WEEK -> processor.getNextWeek(selectedDate)
+                                    TimeViewMode.MONTH -> processor.getNextMonth(selectedDate)
                                 }
                                 nextDate?.let { onDateChanged(it) }
                             },
@@ -291,7 +425,7 @@ fun PremiumDateCalendar(
                 }
             }
 
-            // Expandable Date Selection
+            // 可展开的日期选择
             AnimatedVisibility(
                 visible = isExpanded,
                 enter = expandVertically() + fadeIn(),
@@ -299,13 +433,15 @@ fun PremiumDateCalendar(
             ) {
                 Column {
                     Spacer(modifier = Modifier.height(8.dp))
-
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         items(sortedDates.take(15)) { date ->
-                            val isSelected = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date) ==
-                                    SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedDate)
+                            val isSelected = when (timeViewMode) {
+                                TimeViewMode.DAY -> processor.isSameDay(date, selectedDate)
+                                TimeViewMode.WEEK -> processor.isSameWeek(date, selectedDate)
+                                TimeViewMode.MONTH -> processor.isSameMonth(date, selectedDate)
+                            }
                             val dateInfo = processor.formatCalendarDate(date)
 
                             Box(
@@ -355,17 +491,19 @@ fun PremiumDateCalendar(
 }
 
 @Composable
-fun PremiumVisualizationChart(
+fun EnhancedVisualizationChart(
     measurements: List<PhysNetMeasurementData>,
     mode: VisualizationMode,
+    timeViewMode: TimeViewMode,
     onModeChanged: (VisualizationMode) -> Unit,
     dataProcessor: HealthHistoryDataProcessor,
+    selectedDate: Date,
     modifier: Modifier = Modifier
 ) {
     val statistics = dataProcessor.processHealthStatistics(measurements)
     val sortedMeasurements = measurements.sortedBy { it.timestamp }
 
-    // Create color palettes in Composable context
+    // 创建颜色调色板
     val hrPalette = dataProcessor.createHeartRateColorPalette(
         primaryColor = MaterialTheme.colorScheme.primary,
         tertiaryColor = MaterialTheme.colorScheme.tertiary,
@@ -395,7 +533,7 @@ fun PremiumVisualizationChart(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // Compact Header with Mode Toggle
+            // 标题和模式切换
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -461,29 +599,59 @@ fun PremiumVisualizationChart(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Compact Visualization Canvas
+            // 根据时间视图模式选择不同高度
+            val chartHeight = when (timeViewMode) {
+                TimeViewMode.DAY -> 70.dp
+                TimeViewMode.WEEK -> 120.dp
+                TimeViewMode.MONTH -> 150.dp
+            }
+
             Canvas(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(70.dp) // Reduced height
+                    .height(chartHeight)
             ) {
                 if (sortedMeasurements.isEmpty()) return@Canvas
 
-                when (mode) {
-                    VisualizationMode.HEART_RATE -> {
-                        drawPremiumHeartRateVisualization(
+                when (timeViewMode) {
+                    TimeViewMode.DAY -> {
+                        when (mode) {
+                            VisualizationMode.HEART_RATE -> {
+                                drawPremiumHeartRateVisualization(
+                                    measurements = sortedMeasurements,
+                                    statistics = statistics,
+                                    dataProcessor = dataProcessor,
+                                    hrPalette = hrPalette
+                                )
+                            }
+                            VisualizationMode.HRV -> {
+                                drawPremiumHRVVisualization(
+                                    measurements = sortedMeasurements,
+                                    statistics = statistics,
+                                    dataProcessor = dataProcessor,
+                                    hrvPalette = hrvPalette
+                                )
+                            }
+                        }
+                    }
+                    TimeViewMode.WEEK -> {
+                        drawWeeklyBandVisualization(
                             measurements = sortedMeasurements,
-                            statistics = statistics,
+                            mode = mode,
                             dataProcessor = dataProcessor,
-                            hrPalette = hrPalette
+                            hrPalette = hrPalette,
+                            hrvPalette = hrvPalette,
+                            selectedDate = selectedDate
                         )
                     }
-                    VisualizationMode.HRV -> {
-                        drawPremiumHRVVisualization(
+                    TimeViewMode.MONTH -> {
+                        drawMonthlyBandVisualization(
                             measurements = sortedMeasurements,
-                            statistics = statistics,
+                            mode = mode,
                             dataProcessor = dataProcessor,
-                            hrvPalette = hrvPalette
+                            hrPalette = hrPalette,
+                            hrvPalette = hrvPalette,
+                            selectedDate = selectedDate
                         )
                     }
                 }
@@ -491,7 +659,7 @@ fun PremiumVisualizationChart(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Compact Statistics Display
+            // 统计信息显示
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -512,7 +680,6 @@ fun PremiumVisualizationChart(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // Time Range Display
             Text(
                 "${statistics.timeRange.first} - ${statistics.timeRange.second}",
                 style = MaterialTheme.typography.bodySmall,
@@ -521,6 +688,89 @@ fun PremiumVisualizationChart(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         }
+    }
+}
+
+@Composable
+fun WeekMonthSummaryView(
+    measurements: List<PhysNetMeasurementData>,
+    timeViewMode: TimeViewMode,
+    selectedDate: Date,
+    dataProcessor: HealthHistoryDataProcessor,
+    modifier: Modifier = Modifier
+) {
+    val statistics = dataProcessor.processHealthStatistics(measurements)
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                when (timeViewMode) {
+                    TimeViewMode.WEEK -> "Weekly Summary"
+                    TimeViewMode.MONTH -> "Monthly Summary"
+                    else -> "Summary"
+                },
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                SummaryStatCard("Total", "${statistics.measurementCount}", "Sessions")
+                SummaryStatCard("Avg HR", "${statistics.avgHR}", "BPM")
+                SummaryStatCard("Avg HRV", "${statistics.avgHRV}", "ms")
+            }
+
+            if (statistics.timeRange.first != "--:--") {
+                Text(
+                    "Period: ${statistics.timeRange.first} - ${statistics.timeRange.second}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    fontSize = 11.sp,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SummaryStatCard(label: String, value: String, unit: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            value,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            unit,
+            style = MaterialTheme.typography.bodySmall,
+            fontSize = 10.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+        )
+        Text(
+            label,
+            style = MaterialTheme.typography.labelMedium,
+            fontSize = 11.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -557,7 +807,7 @@ fun CompactStatItem(label: String, value: String, unit: String) {
     }
 }
 
-// Canvas drawing functions - NOT @Composable
+// Canvas绘制函数 - 解决阴影裁剪问题的关键是使用正确的容器padding
 
 fun DrawScope.drawPremiumHeartRateVisualization(
     measurements: List<PhysNetMeasurementData>,
@@ -568,20 +818,18 @@ fun DrawScope.drawPremiumHeartRateVisualization(
     val sortedMeasurements = measurements.sortedBy { it.timestamp }
     if (sortedMeasurements.isEmpty()) return
 
-    // Draw artistic grid
     drawPremiumGrid()
 
     val maxBarHeight = size.height * 0.85f
     val range = (statistics.maxHR - statistics.minHR).coerceAtLeast(1).toFloat()
     val baselineY = size.height - 8.dp.toPx()
 
-    // Calculate enhanced bar spacing for premium look
     val totalWidth = size.width - 24.dp.toPx()
     val barSpacing = 3.dp.toPx()
     val availableWidth = totalWidth - (sortedMeasurements.size - 1) * barSpacing
     val barWidth = (availableWidth / sortedMeasurements.size).coerceAtLeast(4.dp.toPx())
 
-    // Draw connection path for trend
+    // 绘制趋势线
     val trendPath = Path()
     var firstPoint = true
 
@@ -598,7 +846,6 @@ fun DrawScope.drawPremiumHeartRateVisualization(
         }
     }
 
-    // Draw trend line with glow effect
     drawPath(
         path = trendPath,
         color = hrPalette.normalZone.copy(alpha = 0.6f),
@@ -609,7 +856,7 @@ fun DrawScope.drawPremiumHeartRateVisualization(
         )
     )
 
-    // Draw premium bars with advanced gradients
+    // 绘制柱状图
     sortedMeasurements.forEachIndexed { index, measurement ->
         val x = 12.dp.toPx() + index * (barWidth + barSpacing)
         val normalizedHeight = ((measurement.heartRate - statistics.minHR) / range) * maxBarHeight
@@ -618,7 +865,7 @@ fun DrawScope.drawPremiumHeartRateVisualization(
         val baseColor = dataProcessor.getHeartRateZoneColor(measurement.heartRate, hrPalette)
         val lightColor = dataProcessor.getHeartRateZoneLightColor(measurement.heartRate, hrPalette)
 
-        // Draw shadow
+        // 阴影
         drawRoundRect(
             color = Color.Black.copy(alpha = 0.1f),
             topLeft = Offset(x + 1.dp.toPx(), y + 2.dp.toPx()),
@@ -626,7 +873,7 @@ fun DrawScope.drawPremiumHeartRateVisualization(
             cornerRadius = CornerRadius(3.dp.toPx())
         )
 
-        // Draw main bar with sophisticated gradient
+        // 主要柱体
         drawRoundRect(
             brush = Brush.verticalGradient(
                 colors = listOf(
@@ -642,7 +889,7 @@ fun DrawScope.drawPremiumHeartRateVisualization(
             cornerRadius = CornerRadius(3.dp.toPx())
         )
 
-        // Add highlight
+        // 高光效果
         drawRoundRect(
             brush = Brush.verticalGradient(
                 colors = listOf(
@@ -668,20 +915,18 @@ fun DrawScope.drawPremiumHRVVisualization(
     val hrvMeasurements = measurements.filter { it.hrvResult != null }.sortedBy { it.timestamp }
     if (hrvMeasurements.isEmpty()) return
 
-    // Draw artistic grid
     drawPremiumGrid()
 
     val maxBarHeight = size.height * 0.85f
     val range = (statistics.maxHRV - statistics.minHRV).coerceAtLeast(1).toFloat()
     val baselineY = size.height - 8.dp.toPx()
 
-    // Calculate enhanced bar spacing
     val totalWidth = size.width - 24.dp.toPx()
     val barSpacing = 3.dp.toPx()
     val availableWidth = totalWidth - (hrvMeasurements.size - 1) * barSpacing
     val barWidth = (availableWidth / hrvMeasurements.size).coerceAtLeast(4.dp.toPx())
 
-    // Draw trend line
+    // 趋势线
     val trendPath = Path()
     var firstPoint = true
 
@@ -699,7 +944,6 @@ fun DrawScope.drawPremiumHRVVisualization(
         }
     }
 
-    // Draw trend line with premium styling
     drawPath(
         path = trendPath,
         color = hrvPalette.normalZone.copy(alpha = 0.6f),
@@ -710,7 +954,7 @@ fun DrawScope.drawPremiumHRVVisualization(
         )
     )
 
-    // Draw premium HRV bars
+    // HRV柱状图
     hrvMeasurements.forEachIndexed { index, measurement ->
         val hrvValue = measurement.hrvResult?.rmssd?.toFloat() ?: return@forEachIndexed
         val x = 12.dp.toPx() + index * (barWidth + barSpacing)
@@ -720,7 +964,6 @@ fun DrawScope.drawPremiumHRVVisualization(
         val baseColor = dataProcessor.getHRVZoneColor(hrvValue, hrvPalette)
         val lightColor = dataProcessor.getHRVZoneLightColor(hrvValue, hrvPalette)
 
-        // Draw shadow
         drawRoundRect(
             color = Color.Black.copy(alpha = 0.1f),
             topLeft = Offset(x + 1.dp.toPx(), y + 2.dp.toPx()),
@@ -728,7 +971,6 @@ fun DrawScope.drawPremiumHRVVisualization(
             cornerRadius = CornerRadius(3.dp.toPx())
         )
 
-        // Draw main bar
         drawRoundRect(
             brush = Brush.verticalGradient(
                 colors = listOf(
@@ -744,7 +986,6 @@ fun DrawScope.drawPremiumHRVVisualization(
             cornerRadius = CornerRadius(3.dp.toPx())
         )
 
-        // Add highlight
         drawRoundRect(
             brush = Brush.verticalGradient(
                 colors = listOf(
@@ -761,10 +1002,191 @@ fun DrawScope.drawPremiumHRVVisualization(
     }
 }
 
+// 新增：周视图带状图绘制
+fun DrawScope.drawWeeklyBandVisualization(
+    measurements: List<PhysNetMeasurementData>,
+    mode: VisualizationMode,
+    dataProcessor: HealthHistoryDataProcessor,
+    hrPalette: HeartRateColorPalette,
+    hrvPalette: HRVColorPalette,
+    selectedDate: Date
+) {
+    if (measurements.isEmpty()) return
+
+    drawPremiumGrid()
+
+    // 按天分组数据
+    val weeklyData = dataProcessor.groupMeasurementsByDay(measurements, selectedDate)
+    val dayWidth = size.width / 7f
+    val maxBandHeight = size.height * 0.8f
+
+    weeklyData.forEachIndexed { dayIndex, dayMeasurements ->
+        if (dayMeasurements.isEmpty()) return@forEachIndexed
+
+        val x = dayIndex * dayWidth
+        val values = when (mode) {
+            VisualizationMode.HEART_RATE -> dayMeasurements.map { it.heartRate }
+            VisualizationMode.HRV -> dayMeasurements.mapNotNull { it.hrvResult?.rmssd?.toFloat() }
+        }
+
+        if (values.isNotEmpty()) {
+            val minValue = values.minOrNull() ?: 0f
+            val maxValue = values.maxOrNull() ?: 100f
+            val avgValue = values.average().toFloat()
+
+            // 计算全局范围用于归一化
+            val globalMin = when (mode) {
+                VisualizationMode.HEART_RATE -> 50f
+                VisualizationMode.HRV -> 20f
+            }
+            val globalMax = when (mode) {
+                VisualizationMode.HEART_RATE -> 120f
+                VisualizationMode.HRV -> 100f
+            }
+            val globalRange = globalMax - globalMin
+
+            // 归一化值
+            val normalizedMin = ((minValue - globalMin) / globalRange).coerceIn(0f, 1f)
+            val normalizedMax = ((maxValue - globalMin) / globalRange).coerceIn(0f, 1f)
+            val normalizedAvg = ((avgValue - globalMin) / globalRange).coerceIn(0f, 1f)
+
+            // 计算Y坐标
+            val baseY = size.height - 10.dp.toPx()
+            val minY = baseY - normalizedMin * maxBandHeight
+            val maxY = baseY - normalizedMax * maxBandHeight
+            val avgY = baseY - normalizedAvg * maxBandHeight
+
+            val bandColor = when (mode) {
+                VisualizationMode.HEART_RATE -> dataProcessor.getHeartRateZoneColor(avgValue, hrPalette)
+                VisualizationMode.HRV -> dataProcessor.getHRVZoneColor(avgValue, hrvPalette)
+            }
+
+            // 绘制范围带
+            drawRoundRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        bandColor.copy(alpha = 0.3f),
+                        bandColor.copy(alpha = 0.1f)
+                    ),
+                    startY = maxY,
+                    endY = minY
+                ),
+                topLeft = Offset(x + 4.dp.toPx(), maxY),
+                size = Size(dayWidth - 8.dp.toPx(), minY - maxY),
+                cornerRadius = CornerRadius(4.dp.toPx())
+            )
+
+            // 绘制平均值线
+            drawRoundRect(
+                color = bandColor,
+                topLeft = Offset(x + 4.dp.toPx(), avgY - 1.dp.toPx()),
+                size = Size(dayWidth - 8.dp.toPx(), 2.dp.toPx()),
+                cornerRadius = CornerRadius(1.dp.toPx())
+            )
+
+            // 绘制测量点数指示器
+            drawCircle(
+                color = bandColor,
+                radius = 3.dp.toPx(),
+                center = Offset(x + dayWidth / 2, baseY + 6.dp.toPx())
+            )
+        }
+    }
+}
+
+// 新增：月视图带状图绘制
+fun DrawScope.drawMonthlyBandVisualization(
+    measurements: List<PhysNetMeasurementData>,
+    mode: VisualizationMode,
+    dataProcessor: HealthHistoryDataProcessor,
+    hrPalette: HeartRateColorPalette,
+    hrvPalette: HRVColorPalette,
+    selectedDate: Date
+) {
+    if (measurements.isEmpty()) return
+
+    drawPremiumGrid()
+
+    // 按周分组数据
+    val monthlyData = dataProcessor.groupMeasurementsByWeek(measurements, selectedDate)
+    val weekWidth = size.width / 4f // 假设每月4周
+    val maxBandHeight = size.height * 0.8f
+
+    monthlyData.forEachIndexed { weekIndex, weekMeasurements ->
+        if (weekMeasurements.isEmpty()) return@forEachIndexed
+
+        val x = weekIndex * weekWidth
+        val values = when (mode) {
+            VisualizationMode.HEART_RATE -> weekMeasurements.map { it.heartRate }
+            VisualizationMode.HRV -> weekMeasurements.mapNotNull { it.hrvResult?.rmssd?.toFloat() }
+        }
+
+        if (values.isNotEmpty()) {
+            val minValue = values.minOrNull() ?: 0f
+            val maxValue = values.maxOrNull() ?: 100f
+            val avgValue = values.average().toFloat()
+
+            val globalMin = when (mode) {
+                VisualizationMode.HEART_RATE -> 50f
+                VisualizationMode.HRV -> 20f
+            }
+            val globalMax = when (mode) {
+                VisualizationMode.HEART_RATE -> 120f
+                VisualizationMode.HRV -> 100f
+            }
+            val globalRange = globalMax - globalMin
+
+            val normalizedMin = ((minValue - globalMin) / globalRange).coerceIn(0f, 1f)
+            val normalizedMax = ((maxValue - globalMin) / globalRange).coerceIn(0f, 1f)
+            val normalizedAvg = ((avgValue - globalMin) / globalRange).coerceIn(0f, 1f)
+
+            val baseY = size.height - 10.dp.toPx()
+            val minY = baseY - normalizedMin * maxBandHeight
+            val maxY = baseY - normalizedMax * maxBandHeight
+            val avgY = baseY - normalizedAvg * maxBandHeight
+
+            val bandColor = when (mode) {
+                VisualizationMode.HEART_RATE -> dataProcessor.getHeartRateZoneColor(avgValue, hrPalette)
+                VisualizationMode.HRV -> dataProcessor.getHRVZoneColor(avgValue, hrvPalette)
+            }
+
+            // 绘制更宽的范围带
+            drawRoundRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        bandColor.copy(alpha = 0.4f),
+                        bandColor.copy(alpha = 0.2f),
+                        bandColor.copy(alpha = 0.1f)
+                    ),
+                    startY = maxY,
+                    endY = minY
+                ),
+                topLeft = Offset(x + 6.dp.toPx(), maxY),
+                size = Size(weekWidth - 12.dp.toPx(), minY - maxY),
+                cornerRadius = CornerRadius(6.dp.toPx())
+            )
+
+            // 平均值线
+            drawRoundRect(
+                color = bandColor,
+                topLeft = Offset(x + 6.dp.toPx(), avgY - 2.dp.toPx()),
+                size = Size(weekWidth - 12.dp.toPx(), 4.dp.toPx()),
+                cornerRadius = CornerRadius(2.dp.toPx())
+            )
+
+            // 测量次数指示器
+            drawCircle(
+                color = bandColor,
+                radius = 4.dp.toPx(),
+                center = Offset(x + weekWidth / 2, baseY + 8.dp.toPx())
+            )
+        }
+    }
+}
+
 fun DrawScope.drawPremiumGrid() {
     val gridColor = Color.Gray.copy(alpha = 0.08f)
 
-    // Enhanced horizontal lines
     for (i in 1..2) {
         val y = size.height * i / 3
         drawLine(
@@ -776,7 +1198,6 @@ fun DrawScope.drawPremiumGrid() {
         )
     }
 
-    // Enhanced vertical lines
     for (i in 1..3) {
         val x = size.width * i / 4
         drawLine(
@@ -790,142 +1211,147 @@ fun DrawScope.drawPremiumGrid() {
 }
 
 @Composable
-fun PremiumMeasurementCard(measurement: PhysNetMeasurementData) {
+fun EnhancedMeasurementCard(measurement: PhysNetMeasurementData) {
     var isExpanded by remember { mutableStateOf(false) }
     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
-    Card(
+    // 关键修复：使用clip和正确的容器padding来避免阴影被裁剪
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { isExpanded = !isExpanded }
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            ),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .clip(RoundedCornerShape(12.dp)) // 确保容器形状一致
     ) {
-        Column(
-            modifier = Modifier.padding(24.dp)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { isExpanded = !isExpanded }
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                ),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp) // 稍微增加阴影
         ) {
-            // Compact Header Row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.padding(20.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Text(
-                        timeFormat.format(Date(measurement.timestamp)),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                                shape = RoundedCornerShape(4.dp)
-                            )
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    ) {
-                        Text(
-                            measurement.sessionId.take(4),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 9.sp
-                        )
-                    }
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        "${measurement.heartRate.roundToInt()} BPM",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp,
-                        color = MaterialTheme.colorScheme.error
-                    )
-
-                    Icon(
-                        if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = "Expand",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-            }
-
-            // Compact Metrics Row
-            if (!isExpanded) {
-                Spacer(modifier = Modifier.height(6.dp))
+                // 紧凑标题行
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    measurement.hrvResult?.let { hrv ->
-                        CompactMetricItem(
-                            label = "HRV",
-                            value = "${hrv.rmssd.roundToInt()}ms",
-                            color = MaterialTheme.colorScheme.secondary
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            timeFormat.format(Date(measurement.timestamp)),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                measurement.sessionId.take(4),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 9.sp
+                            )
+                        }
                     }
 
-                    measurement.spo2Result?.let { spo2 ->
-                        CompactMetricItem(
-                            label = "SpO2",
-                            value = "${spo2.spo2.roundToInt()}%",
-                            color = MaterialTheme.colorScheme.tertiary
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            "${measurement.heartRate.roundToInt()} BPM",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            color = MaterialTheme.colorScheme.error
+                        )
+
+                        Icon(
+                            if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                            contentDescription = "Expand",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            modifier = Modifier.size(18.dp)
                         )
                     }
-
-                    CompactMetricItem(
-                        label = "Confidence",
-                        value = "${(measurement.confidence * 100).roundToInt()}%",
-                        color = MaterialTheme.colorScheme.primary
-                    )
                 }
-            }
 
-            Spacer(modifier = Modifier.height(10.dp))
+                // 紧凑指标行
+                if (!isExpanded) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        measurement.hrvResult?.let { hrv ->
+                            CompactMetricItem(
+                                label = "HRV",
+                                value = "${hrv.rmssd.roundToInt()}ms",
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        }
 
-            // Compact Signal Visualization
-            CompactSignalVisualization(
-                signal = measurement.rppgSignal,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(if (isExpanded) 80.dp else 50.dp)
-            )
+                        measurement.spo2Result?.let { spo2 ->
+                            CompactMetricItem(
+                                label = "SpO2",
+                                value = "${spo2.spo2.roundToInt()}%",
+                                color = MaterialTheme.colorScheme.tertiary
+                            )
+                        }
 
-            // Simplified Expandable Detail Section
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter = expandVertically(animationSpec = tween(300)) + fadeIn(),
-                exit = shrinkVertically(animationSpec = tween(300)) + fadeOut()
-            ) {
-                Column {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    CompactDetailedMetricsSection(measurement)
+                        CompactMetricItem(
+                            label = "Confidence",
+                            value = "${(measurement.confidence * 100).roundToInt()}%",
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // 信号可视化
+                CompactSignalVisualization(
+                    signal = measurement.rppgSignal,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(if (isExpanded) 80.dp else 50.dp)
+                )
+
+                // 可展开详细信息
+                AnimatedVisibility(
+                    visible = isExpanded,
+                    enter = expandVertically(animationSpec = tween(300)) + fadeIn(),
+                    exit = shrinkVertically(animationSpec = tween(300)) + fadeOut()
+                ) {
+                    Column {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        CompactDetailedMetricsSection(measurement)
+                    }
                 }
             }
         }
     }
 }
-
-
 
 @Composable
 fun CompactMetricItem(
@@ -1006,7 +1432,6 @@ fun CompactSignalVisualization(
                 }
             }
 
-            // Draw compact gradient fill
             drawPath(
                 path = gradientPath,
                 brush = Brush.verticalGradient(
@@ -1018,7 +1443,6 @@ fun CompactSignalVisualization(
                 )
             )
 
-            // Draw compact waveform
             drawPath(
                 path = path,
                 color = primaryColor,
