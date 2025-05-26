@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.DirectionsRun
@@ -300,74 +299,7 @@ fun InsightScreen(
                 }
             }
 
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 16.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.BarChart,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Daily Summary",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        SummaryMetric(
-                            value = dailySummary.avgHeartRate.toString(),
-                            unit = "bpm",
-                            label = "Avg HR"
-                        )
-                        SummaryMetric(
-                            value = dailySummary.maxHeartRate.toString(),
-                            unit = "bpm",
-                            label = "Max HR"
-                        )
-                        SummaryMetric(
-                            value = dailySummary.steps.toString(),
-                            unit = "steps",
-                            label = "Activity"
-                        )
-                        SummaryMetric(
-                            value = "${dailySummary.recovery}%",
-                            unit = "",
-                            label = "Recovery"
-                        )
-                    }
-                    LinearProgressIndicator(
-                        progress = dailySummary.recovery / 100f,
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                }
-            }
-
-            EnhancedTipCard(
-                tip = aiTip,
-                isLoading = isLoading,
-                onRefresh = { viewModel.requestInsightPrompt() },
-                onChatClick = { showChatScreen = true }
-            )
-
+            // Steps & Activity Section (Preserved from original)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -415,33 +347,31 @@ fun InsightScreen(
                     )
                 }
             }
+
+            // Enhanced AI Tip Card with Summary Data Integration
+            EnhancedTipCard(
+                tip = aiTip,
+                isLoading = isLoading,
+                onRefresh = {
+                    // Pass summary data to AI tip prompt for better personalized insights
+                    val summaryData = buildString {
+                        append("Current Health Status: ")
+                        append("Heart Rate: $heartRate BPM, ")
+                        append("Signal Quality: $signalQuality, ")
+                        append("Battery: $batteryLevel%, ")
+                        append("Daily Summary: ")
+                        append("Avg HR: ${dailySummary.avgHeartRate} BPM, ")
+                        append("Max HR: ${dailySummary.maxHeartRate} BPM, ")
+                        append("Steps: ${dailySummary.steps}, ")
+                        append("Recovery: ${dailySummary.recovery}%")
+                    }
+                    viewModel.requestInsightPrompt(summaryData)
+                },
+                onChatClick = { showChatScreen = true }
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
         }
-    }
-}
-
-@Composable
-fun SummaryMetric(value: String, unit: String, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        if (unit.isNotEmpty()) {
-            Text(
-                text = unit,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-            )
-        }
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
     }
 }
 

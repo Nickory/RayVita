@@ -220,8 +220,8 @@ class InsightViewModel(
         return flow.asStateFlow()
     }
 
-    fun requestInsightPrompt() {
-        val content = "Based on heart rate ${_heartRate.value} bpm and signal quality ${_signalQuality.value}, provide a 50-word useful health tip."
+    fun requestInsightPrompt(summaryData: String) {
+        val content = "Based on user today ${summaryData}, provide a 50-word useful health tip."
         val messages = listOf(Message("user", content))
         val request = ChatRequest(model = "deepseek-chat", messages = messages)
 
