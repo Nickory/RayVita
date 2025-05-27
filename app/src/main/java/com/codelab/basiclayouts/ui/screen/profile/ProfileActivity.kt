@@ -25,6 +25,7 @@ class ProfileActivity : ComponentActivity() {
         private const val TAG = "ProfileActivity"
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

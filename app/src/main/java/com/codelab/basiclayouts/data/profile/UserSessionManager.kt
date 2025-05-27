@@ -92,6 +92,8 @@ class UserSessionManager(context: Context) {
             editor.remove(KEY_EXPIRY_DATE)
             editor.apply()
             Log.d(TAG, "User session cleared")
+            Log.d("UserSessionManager", "Clearing user session, reason: ${Thread.currentThread().stackTrace.joinToString("\n")}")
+
         } catch (e: Exception) {
             Log.e(TAG, "Failed to clear user session", e)
         }

@@ -5,6 +5,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.codelab.basiclayouts.data.UserSessionManager
 import com.codelab.basiclayouts.model.LoginRequest
@@ -59,7 +60,11 @@ enum class AvatarOption(val index: Int, val emoji: String, val description: Stri
     UNICORN(11, "🦄", "Unicorn")
 }
 
-class AuthViewModel(application: Application) : AndroidViewModel(application) {
+class AuthViewModel(
+    application: Application,
+    savedStateHandle: SavedStateHandle
+) : AndroidViewModel(application) {
+
     companion object {
         private const val TAG = "AuthViewModel"
         private const val VERIFICATION_VALID_MINUTES = 5
@@ -72,7 +77,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val authApi = RetrofitClient.authApi
     private val sessionManager = UserSessionManager(application)
     val avatarOptions = AvatarOption.values().toList()
-
+    init {
+        val savedLoginState = savedStateHandle.get<Boolean>("isLoggedIn") ?: false
+        _uiState.value = _uiState.value.copy(isLoggedIn = savedLoginState)
+    }
     init {
         checkSavedLoginStatus()
         loadSavedAvatar()

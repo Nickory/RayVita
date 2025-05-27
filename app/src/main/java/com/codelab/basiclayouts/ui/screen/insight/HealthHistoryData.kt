@@ -591,7 +591,7 @@ data class EnhancedHealthHistoryDataState(
      */
     fun refreshFromCloud() {
         // TODO: 实现云端刷新逻辑
-        // viewModel.refreshDataFromCloud()
+       viewModel.syncWithCloud()
     }
 
     /**

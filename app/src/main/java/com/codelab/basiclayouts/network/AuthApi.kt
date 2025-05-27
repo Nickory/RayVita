@@ -1,5 +1,6 @@
 package com.codelab.basiclayouts.network
 
+
 import com.codelab.basiclayouts.model.LoginRequest
 import com.codelab.basiclayouts.model.LoginResponse
 import com.codelab.basiclayouts.model.RegisterRequest
@@ -54,6 +55,8 @@ interface AuthApi {
      */
     @GET("user/{id}")
     suspend fun getUserInfo(@Path("id") userId: Int): Response<UserInfo>
-
+//
+//    @POST("/auth/refresh")
+//    suspend fun refreshToken(@Body refreshToken: String): Response<AuthResponse>
 
 }

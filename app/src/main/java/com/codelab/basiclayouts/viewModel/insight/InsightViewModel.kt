@@ -5,10 +5,15 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.codelab.basiclayouts.data.UserSessionManager
+import com.codelab.basiclayouts.data.model.HealthMeasurementDto
 import com.codelab.basiclayouts.network.RetrofitClient
 import com.codelab.basiclayouts.network.model.ChatRequest
 import com.codelab.basiclayouts.network.model.ChatResponse
 import com.codelab.basiclayouts.network.model.Message
+import com.codelab.basiclayouts.utils.NetworkUtil
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,12 +31,14 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.Random
+import java.util.UUID
+import javax.inject.Inject
 
 @Serializable
 data class PhysNetMeasurementData(
     val timestamp: Long,
     val sessionId: String,
-    val userId: Long, // 新增：用户 ID
+    val userId: String? = null,
     val rppgSignal: FloatArray,
     val heartRate: Float,
     val frameCount: Int,
@@ -39,9 +46,10 @@ data class PhysNetMeasurementData(
     val confidence: Float,
     val hrvResult: HRVResult? = null,
     val spo2Result: SPO2Result? = null,
-    val signalQuality: SignalQuality? = null,
-    val syncStatus: String = "pending" // 新增：同步状态
+    val signalQuality: SignalQuality?,
+    val syncStatus: String = "pending"
 )
+
 @Serializable
 data class HRVResult(
     val rmssd: Float,
@@ -96,10 +104,22 @@ data class ActivityData(
     val isToday: Boolean
 )
 
-class InsightViewModel(
-    context: Context
+// 新增：同步结果数据类
+data class SyncResult(
+    val uploadedCount: Int = 0,
+    val downloadedCount: Int = 0,
+    val message: String = ""
+)
+
+@HiltViewModel
+class InsightViewModel @Inject constructor(
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val appContext = context.applicationContext
+
+    private val userSessionManager = UserSessionManager(appContext)
+    private val userId: Int? get() = userSessionManager.getUserSession()?.user_id
+
     private val _heartRate = MutableStateFlow(72)
     val heartRate: StateFlow<Int> = _heartRate.asStateFlow()
 
@@ -133,28 +153,43 @@ class InsightViewModel(
     private val _measurementsByDate = MutableStateFlow<Map<String, List<PhysNetMeasurementData>>>(emptyMap())
     val measurementsByDate: StateFlow<Map<String, List<PhysNetMeasurementData>>> = _measurementsByDate.asStateFlow()
 
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    // 新增：同步结果状态
+    private val _syncResult = MutableStateFlow<SyncResult?>(null)
+    val syncResult: StateFlow<SyncResult?> = _syncResult.asStateFlow()
 
-    private val json = Json // 使用默认 Json 配置，无需 ignoreUnknownKeys
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+
+    private val json = Json { encodeDefaults = true }
 
     init {
         generateSampleData()
-        startSimulation()
+//        startSimulation()
         loadMeasurements()
+        viewModelScope.launch {
+            delay(1000)
+            if (userId == null) {
+                _errorMessage.value = "请登录以同步数据"
+            }
+        }
     }
 
-    // Load measurements from local JSON files
     private fun loadMeasurements() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val dir = File(appContext.filesDir, "measurements")
+                if (!dir.exists()) dir.mkdirs()
                 val files = dir.listFiles { _, name -> name.endsWith(".json") }?.toList() ?: emptyList()
                 val measurements = files.mapNotNull { file ->
                     try {
                         val jsonString = file.readText()
-                        json.decodeFromString<PhysNetMeasurementData>(jsonString)
+                        val measurement = json.decodeFromString<PhysNetMeasurementData>(jsonString)
+                        measurement.copy(
+                            userId = (userId ?: measurement.userId).toString(),
+                            syncStatus = measurement.syncStatus.takeIf { it.isNotEmpty() } ?: "pending"
+                        )
                     } catch (e: Exception) {
-                        Log.e("InsightViewModel", "Failed to parse JSON file: ${file.name}, error: ${e.message}", e)
+                        Log.e("InsightViewModel", "解析 JSON 文件失败: ${file.name}", e)
                         null
                     }
                 }
@@ -162,17 +197,16 @@ class InsightViewModel(
                     .mapValues { it.value.sortedByDescending { m -> m.timestamp } }
                 _measurementsByDate.value = grouped
                 if (measurements.size < files.size) {
-                    Log.w("InsightViewModel", "Some JSON files failed to parse: ${files.size - measurements.size} files skipped")
-                    _errorMessage.value = "Failed to load ${files.size - measurements.size} measurement files"
+                    Log.w("InsightViewModel", "${files.size - measurements.size} 个文件解析失败")
+                    _errorMessage.value = "无法加载 ${files.size - measurements.size} 个测量文件"
                 }
             } catch (e: Exception) {
-                Log.e("InsightViewModel", "Failed to load measurements directory", e)
-                _errorMessage.value = "Error loading measurement data"
+                Log.e("InsightViewModel", "加载测量目录失败", e)
+                _errorMessage.value = "加载测量数据错误"
             }
         }
     }
 
-    // Get available dates for navigation
     fun getAvailableDates(): List<Date> {
         return _measurementsByDate.value.keys.mapNotNull { key ->
             try {
@@ -183,10 +217,207 @@ class InsightViewModel(
         }.sortedByDescending { it.time }
     }
 
-    // Get measurements for a specific date
     fun getMeasurementsForDate(date: Date): List<PhysNetMeasurementData> {
         val dateKey = dateFormat.format(date)
         return _measurementsByDate.value[dateKey] ?: emptyList()
+    }
+
+    fun saveMeasurement(measurement: PhysNetMeasurementData) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val updatedMeasurement = measurement.copy(
+                    userId = measurement.userId ?: userId?.toString() ?: "unknown"
+                )
+                val dir = File(appContext.filesDir, "measurements")
+                if (!dir.exists()) dir.mkdirs()
+                val file = File(dir, "${updatedMeasurement.sessionId}.json")
+                val jsonString = json.encodeToString(PhysNetMeasurementData.serializer(), updatedMeasurement)
+                file.writeText(jsonString)
+                loadMeasurements()
+            } catch (e: Exception) {
+                Log.e("InsightViewModel", "Failed to save measurement: ${measurement.sessionId}", e)
+                _errorMessage.value = "Error saving measurement"
+            }
+        }
+    }
+    fun fixExistingMeasurementFiles() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val dir = File(appContext.filesDir, "measurements")
+                val files = dir.listFiles { _, name -> name.endsWith(".json") }?.toList() ?: return@launch
+                files.forEach { file ->
+                    try {
+                        val jsonString = file.readText()
+                        val measurement = json.decodeFromString<PhysNetMeasurementData>(jsonString)
+                        if (measurement.userId == null) {
+                            val updated = measurement.copy(
+                                userId = userId?.toString() ?: "unknown"
+                            )
+                            file.writeText(json.encodeToString(PhysNetMeasurementData.serializer(), updated))
+                        }
+                    } catch (e: Exception) {
+                        Log.e("InsightViewModel", "Failed to fix file: ${file.name}", e)
+                    }
+                }
+                loadMeasurements()
+            } catch (e: Exception) {
+                Log.e("InsightViewModel", "Failed to fix JSON files", e)
+            }
+        }
+    }
+    private fun updateMeasurementSyncStatus(sessionId: String, newStatus: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val file = File(appContext.filesDir, "measurements/$sessionId.json")
+                if (!file.exists()) return@launch
+                val jsonString = file.readText()
+                val measurement = json.decodeFromString<PhysNetMeasurementData>(jsonString)
+                val updated = measurement.copy(syncStatus = newStatus)
+                file.writeText(json.encodeToString(PhysNetMeasurementData.serializer(), updated))
+                loadMeasurements()
+            } catch (e: Exception) {
+                Log.e("InsightViewModel", "更新同步状态失败: $sessionId", e)
+            }
+        }
+    }
+
+
+    fun syncWithCloud() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (!NetworkUtil.isOnline(appContext)) {
+                Log.w("Sync", "无网络连接")
+                _errorMessage.value = "无网络连接"
+                _syncResult.value = SyncResult(message = "无网络连接")
+                return@launch
+            }
+            val currentUserId = userId
+            if (currentUserId == null) {
+                Log.e("Sync", "用户未登录")
+                _errorMessage.value = "请登录以同步数据"
+                _syncResult.value = SyncResult(message = "请登录以同步数据")
+                return@launch
+            }
+            _isLoading.value = true
+            try {
+                val healthApi = RetrofitClient.getHealthApi(appContext)
+                // 步骤 1：上传本地 pending/failed 数据
+                val measurements = _measurementsByDate.value.values.flatten()
+                val toSync = measurements.filter { it.syncStatus == "pending" || it.syncStatus == "failed" }
+                val syncedSessionIds = mutableListOf<String>()
+                for (measurement in toSync) {
+                    try {
+                        val dto = toHealthMeasurementDto(measurement)
+                        val response = healthApi.createMeasurement(dto)
+                        if (response.body()?.get("msg") == "measurement created") {
+                            updateMeasurementSyncStatus(measurement.sessionId, "synced")
+                            syncedSessionIds.add(measurement.sessionId)
+                        } else if (response.body()?.get("msg") == "sessionId already exists") {
+                            val newMeasurement = measurement.copy(sessionId = UUID.randomUUID().toString())
+                            saveMeasurement(newMeasurement)
+                            val newDto = toHealthMeasurementDto(newMeasurement)
+                            val newResponse = healthApi.createMeasurement(newDto)
+                            if (newResponse.body()?.get("msg") == "measurement created") {
+                                updateMeasurementSyncStatus(newMeasurement.sessionId, "synced")
+                                syncedSessionIds.add(newMeasurement.sessionId)
+                            } else {
+                                updateMeasurementSyncStatus(newMeasurement.sessionId, "failed")
+                                Log.e("Sync", "重试上传失败 ${newMeasurement.sessionId}")
+                            }
+                        }
+                    } catch (e: Exception) {
+                        updateMeasurementSyncStatus(measurement.sessionId, "failed")
+                        Log.e("Sync", "上传测量失败 ${measurement.sessionId}", e)
+                    }
+                }
+
+                // 步骤 2：通知云端已同步的 sessionIds
+                if (syncedSessionIds.isNotEmpty()) {
+                    try {
+                        val syncResponse = healthApi.syncMeasurements(mapOf("sessionIds" to syncedSessionIds))
+                        if (!syncResponse.isSuccessful) {
+                            Log.e("Sync", "通知同步失败: ${syncResponse.code()} - ${syncResponse.message()}")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("Sync", "通知同步失败", e)
+                    }
+                }
+
+                // 步骤 3：下载云端数据
+                var downloadedCount = 0
+                try {
+                    val cloudMeasurements = healthApi.getPendingMeasurements(currentUserId.toString())
+                    for (dto in cloudMeasurements) {
+                        val measurement = toPhysNetMeasurementData(dto)
+                        saveMeasurement(measurement)
+                        downloadedCount++
+                    }
+                } catch (e: Exception) {
+                    Log.e("Sync", "下载云数据失败", e)
+                    _errorMessage.value = "数据上传成功，但下载云数据失败: ${e.message}"
+                    _syncResult.value = SyncResult(
+                        uploadedCount = syncedSessionIds.size,
+                        downloadedCount = downloadedCount,
+                        message = "数据上传成功，但下载云数据失败: ${e.message}"
+                    )
+                    _isLoading.value = false
+                    return@launch
+                }
+
+                _errorMessage.value = "同步成功"
+                _syncResult.value = SyncResult(
+                    uploadedCount = syncedSessionIds.size,
+                    downloadedCount = downloadedCount,
+                    message = "同步成功"
+                )
+            } catch (e: Exception) {
+                Log.e("Sync", "同步失败", e)
+                _errorMessage.value = "同步失败: ${e.message}"
+                _syncResult.value = SyncResult(
+                    uploadedCount = 0,
+                    downloadedCount = 0,
+                    message = "同步失败: ${e.message}"
+                )
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    private fun toHealthMeasurementDto(measurement: PhysNetMeasurementData): HealthMeasurementDto {
+        return HealthMeasurementDto(
+            sessionId = measurement.sessionId,
+            userId = measurement.userId ?: userId?.toString() ?: "unknown", // 修复类型不匹配
+            timestamp = measurement.timestamp,
+            heartRate = measurement.heartRate,
+            rppgSignal = measurement.rppgSignal.toList(),
+            frameCount = measurement.frameCount,
+            processingTimeMs = measurement.processingTimeMs,
+            confidence = measurement.confidence,
+            hrvResult = measurement.hrvResult,
+            spo2Result = measurement.spo2Result,
+            signalQuality = measurement.signalQuality,
+            createdAt = dateTimeFormat.format(Date(measurement.timestamp)),
+            updatedAt = dateTimeFormat.format(Date()),
+            syncStatus = measurement.syncStatus
+        )
+    }
+
+
+    private fun toPhysNetMeasurementData(dto: HealthMeasurementDto): PhysNetMeasurementData {
+        return PhysNetMeasurementData(
+            timestamp = dto.timestamp,
+            sessionId = dto.sessionId ?: UUID.randomUUID().toString(),
+            userId = dto.userId,
+            rppgSignal = dto.rppgSignal.toFloatArray(),
+            heartRate = dto.heartRate ?: 0f,
+            frameCount = dto.frameCount ?: 0,
+            processingTimeMs = dto.processingTimeMs ?: 0,
+            confidence = dto.confidence ?: 0f,
+            hrvResult = dto.hrvResult,
+            spo2Result = dto.spo2Result,
+            signalQuality = dto.signalQuality,
+            syncStatus = dto.syncStatus ?: "synced"
+        )
     }
 
     fun updateHeartRate(hr: Int) {
@@ -222,7 +453,7 @@ class InsightViewModel(
     }
 
     fun requestInsightPrompt(summaryData: String) {
-        val content = "Based on user today ${summaryData}, provide a 50-word useful health tip."
+        val content = "Based on user today $summaryData, provide a 50-word useful health tip."
         val messages = listOf(Message("user", content))
         val request = ChatRequest(model = "deepseek-chat", messages = messages)
 
@@ -236,10 +467,10 @@ class InsightViewModel(
                     _isLoading.value = false
                     if (response.isSuccessful) {
                         val reply = response.body()?.choices?.firstOrNull()?.message?.content
-                        _aiPrompt.value = reply ?: "Maintain a consistent exercise routine and monitor your heart rate to optimize cardiovascular health."
+                        _aiPrompt.value = reply ?: "保持规律运动，监测心率以优化心血管健康。"
                     } else {
-                        _errorMessage.value = "Error: ${response.code()} - ${response.message()}"
-                        _aiPrompt.value = "Maintain a consistent exercise routine and monitor your heart rate to optimize cardiovascular health."
+                        _errorMessage.value = "错误: ${response.code()} - ${response.message()}"
+                        _aiPrompt.value = "保持规律运动，监测心率以优化心血管健康。"
                     }
                 }
             }
@@ -248,8 +479,8 @@ class InsightViewModel(
                 viewModelScope.launch {
                     delay(500)
                     _isLoading.value = false
-                    _errorMessage.value = "Network error: ${t.localizedMessage}"
-                    _aiPrompt.value = "Maintain a consistent exercise routine and monitor your heart rate to optimize cardiovascular health."
+                    _errorMessage.value = "网络错误: ${t.localizedMessage}"
+                    _aiPrompt.value = "保持规律运动，监测心率以优化心血管健康。"
                 }
             }
         })
@@ -309,6 +540,21 @@ class InsightViewModel(
                         signalQuality = newQuality
                     )
                 )
+                userId?.let { uid ->
+                    saveMeasurement(
+                        PhysNetMeasurementData(
+                            timestamp = System.currentTimeMillis(),
+                            sessionId = UUID.randomUUID().toString(),
+                            userId = uid.toString(),
+                            rppgSignal = FloatArray(10) { Random().nextFloat() },
+                            heartRate = newHR.toFloat(),
+                            frameCount = 100,
+                            processingTimeMs = 500,
+                            confidence = 0.95f,
+                            signalQuality = SignalQuality(20f, 0.1f, 0.8f, 0.9f)
+                        )
+                    )
+                }
             }
         }
     }

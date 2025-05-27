@@ -1,14 +1,13 @@
-package com.codelab.basiclayouts.data.physnet.model
+package com.codelab.basiclayouts.data.model
 
-
-import com.google.gson.annotations.SerializedName
 import com.codelab.basiclayouts.viewmodel.insight.HRVResult
 import com.codelab.basiclayouts.viewmodel.insight.SPO2Result
 import com.codelab.basiclayouts.viewmodel.insight.SignalQuality
+import com.google.gson.annotations.SerializedName
 
 data class HealthMeasurementDto(
     @SerializedName("sessionId") val sessionId: String?,
-    @SerializedName("user_id") val userId: Long,
+    @SerializedName("user_id") val userId: String,
     @SerializedName("timestamp") val timestamp: Long,
     @SerializedName("heartRate") val heartRate: Float?,
     @SerializedName("rppgSignal") val rppgSignal: List<Float>,

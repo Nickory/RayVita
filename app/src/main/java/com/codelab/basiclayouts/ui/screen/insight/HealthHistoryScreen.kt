@@ -1,5 +1,6 @@
 package com.codelab.basiclayouts.ui.insight
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -49,13 +50,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,6 +89,7 @@ import com.codelab.basiclayouts.ui.screen.insight.VisualizationMode
 import com.codelab.basiclayouts.ui.screen.insight.rememberHealthHistoryData
 import com.codelab.basiclayouts.viewmodel.insight.InsightViewModel
 import com.codelab.basiclayouts.viewmodel.insight.PhysNetMeasurementData
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -92,7 +100,7 @@ import kotlin.math.roundToInt
 enum class TimeViewMode {
     DAY, WEEK, MONTH
 }
-
+@SuppressLint("RememberReturnType")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HealthHistoryScreen(viewModel: InsightViewModel, onBackPressed: () -> Unit) {
@@ -109,6 +117,33 @@ fun HealthHistoryScreen(viewModel: InsightViewModel, onBackPressed: () -> Unit) 
         TimeViewMode.DAY -> dataState.getMeasurementsForDate(selectedDate)
         TimeViewMode.WEEK -> dataState.getMeasurementsForWeek(selectedDate)
         TimeViewMode.MONTH -> dataState.getMeasurementsForMonth(selectedDate)
+    }
+
+    // 新增：SnackBar 相关状态
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val syncResult by viewModel.syncResult.collectAsState()
+
+    // 监听同步结果并显示 SnackBar
+    syncResult?.let { result ->
+        LaunchedEffect(result) {
+            coroutineScope.launch {
+                val totalUpdated = result.uploadedCount + result.downloadedCount
+                val message = when {
+                    result.message.contains("同步成功") -> {
+                        "Synced successfully, updated $totalUpdated measurements"
+                    }
+                    result.message.contains("下载云数据失败") -> {
+                        "Uploaded ${result.uploadedCount} measurements, download failed: ${result.message.substringAfter(":")}"
+                    }
+                    else -> result.message
+                }
+                snackbarHostState.showSnackbar(
+                    message = message,
+                    duration = androidx.compose.material3.SnackbarDuration.Long // 4 秒
+                )
+            }
+        }
     }
 
     Scaffold(
@@ -158,6 +193,27 @@ fun HealthHistoryScreen(viewModel: InsightViewModel, onBackPressed: () -> Unit) 
                     navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
+        },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.padding(16.dp)
+            ) { data ->
+                Snackbar(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = data.visuals.message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 13.sp
+                    )
+                }
+            }
         }
     ) { paddingValues ->
         Column(
