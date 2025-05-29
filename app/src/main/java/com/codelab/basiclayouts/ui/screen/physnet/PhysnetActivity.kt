@@ -53,7 +53,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.codelab.basiclayouts.data.physnet.EnhancedRppgProcessor
 import com.codelab.basiclayouts.data.physnet.EnhancedRppgRepository
 import com.codelab.basiclayouts.data.physnet.VideoRecorder
-import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import com.codelab.basiclayouts.ui.theme.RayVitaTheme
 import com.codelab.basiclayouts.viewModel.physnet.EnhancedRppgViewModel
 import com.codelab.basiclayouts.viewModel.physnet.MeasurementStorageViewModel
 
@@ -97,7 +97,7 @@ class PhysnetActivity : ComponentActivity() {
         checkAndRequestPermissions()
 
         setContent {
-            MySootheTheme {
+            RayVitaTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

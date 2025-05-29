@@ -90,7 +90,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun MySootheTheme(
+fun RayVitaTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable() () -> Unit
 ) {

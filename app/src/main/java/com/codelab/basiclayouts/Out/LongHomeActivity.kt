@@ -79,7 +79,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 //import com.codelab.basiclayouts.ui.screen.MainActivity
-import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import com.codelab.basiclayouts.ui.theme.RayVitaTheme
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -88,7 +88,7 @@ class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MySootheTheme {
+            RayVitaTheme {
                 // Wrap in Surface to provide MaterialTheme background
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -787,7 +787,7 @@ fun BottomNavigation(
 @Preview(showBackground = true, name = "RayVita App Preview")
 @Composable
 fun RayVitaAppPreview() {
-    MySootheTheme {
+    RayVitaTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = Color(0xFFF4F4F4)

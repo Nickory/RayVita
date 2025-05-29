@@ -16,7 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import com.codelab.basiclayouts.ui.theme.RayVitaTheme
 import com.codelab.basiclayouts.viewmodel.profile.AuthViewModel
 
 class ProfileActivity : ComponentActivity() {
@@ -30,7 +30,7 @@ class ProfileActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MySootheTheme {
+            RayVitaTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

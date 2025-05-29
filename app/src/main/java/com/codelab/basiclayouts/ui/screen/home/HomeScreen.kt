@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import com.codelab.basiclayouts.ui.theme.RayVitaTheme
 import com.codelab.basiclayouts.ui.viewmodel.home.HomeViewModel
 
 @Composable
@@ -113,7 +113,7 @@ fun RayVitaApp(viewModel: HomeViewModel) {
 @Preview(showBackground = true, name = "RayVita App Preview")
 @Composable
 fun RayVitaAppPreview() {
-    MySootheTheme {
+    RayVitaTheme {
         androidx.compose.material3.Surface(
             modifier = Modifier.fillMaxSize(),
             color = Color(0xFFF4F4F4)

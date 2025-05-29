@@ -17,5 +17,62 @@
     <string name="hide_password">隐藏密码</string>
     <string name="show_password">显示密码</string>
     <string name="verification_code_countdown">%1$ds</string>
+    <!-- 主要标题 -->
+    <string name="rppg_result_title">rPPG 检测结果</string>
+    <string name="realtime_monitoring">实时监测</string>
 
+    <!-- 质量等级 -->
+    <string name="quality_excellent">优秀</string>
+    <string name="quality_good">良好</string>
+    <string name="quality_fair">一般</string>
+    <string name="quality_poor">较差</string>
+
+    <!-- 心率 -->
+    <string name="heart_rate">心率</string>
+    <string name="heart_rate_bpm">%d 次/分</string>
+
+    <!-- 通用 -->
+    <string name="confidence">置信度</string>
+    <string name="percentage_format">%d%%</string>
+    <string name="expand">展开</string>
+    <string name="collapse">收起</string>
+
+    <!-- HRV -->
+    <string name="hrv_analysis">HRV 分析</string>
+    <string name="hrv_value_ms">HRV: %d 毫秒</string>
+    <string name="rmssd">RMSSD</string>
+    <string name="sdnn">SDNN</string>
+    <string name="pnn50">pNN50</string>
+    <string name="stress">压力</string>
+    <string name="value_ms">%d 毫秒</string>
+
+    <!-- SpO2 -->
+    <string name="oxygen_saturation">血氧饱和度</string>
+    <string name="spo2_value_percent">血氧: %d%%</string>
+    <string name="spo2_disclaimer">⚠️ 基于摄像头的血氧检测仅供参考</string>
+    <string name="level">水平</string>
+    <string name="r_value">R值</string>
+
+    <!-- 技术细节 -->
+    <string name="technical_details">技术细节</string>
+    <string name="frames">帧数</string>
+    <string name="time">时间</string>
+    <string name="snr">信噪比</string>
+    <string name="time_seconds">%.1f秒</string>
+    <string name="snr_db">%d分贝</string>
+
+    <!-- 分析模式 -->
+    <string name="analysis_mode">分析模式</string>
+    <string name="mode_heart_rate_only">仅心率</string>
+    <string name="mode_heart_rate_only_desc">高精度心率测量</string>
+    <string name="mode_hrv_analysis">HRV 分析</string>
+    <string name="mode_hrv_analysis_desc">心率变异性和压力评估</string>
+    <string name="mode_spo2_measurement">血氧测量</string>
+    <string name="mode_spo2_measurement_desc">血氧饱和度监测</string>
+    <string name="mode_complete_analysis">完整分析</string>
+    <string name="mode_complete_analysis_desc">全面健康监测套件</string>
+
+    <!-- 运动状态 -->
+    <string name="motion_status_warning">请尽可能保持平稳静止</string>
+    <string name="current_status">当前状态：%s</string>
 </resources>

@@ -84,7 +84,7 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import com.codelab.basiclayouts.ui.theme.RayVitaTheme
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
@@ -134,7 +134,7 @@ class SocialActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MySootheTheme {
+            RayVitaTheme {
                 // Generate test data for demonstration
                 val testUser = generateTestUser()
 

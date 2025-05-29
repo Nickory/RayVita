@@ -46,7 +46,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.codelab.basiclayouts.model.UserInfo
-import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import com.codelab.basiclayouts.ui.theme.RayVitaTheme
 import com.codelab.basiclayouts.viewmodel.profile.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,7 +58,7 @@ class FriendSearchActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MySootheTheme {
+            RayVitaTheme {
                 val uiState by viewModel.uiState.collectAsState()
                 val focusManager = LocalFocusManager.current
                 var searchQuery by remember { mutableStateOf("") }

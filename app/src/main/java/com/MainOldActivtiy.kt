@@ -61,7 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import com.codelab.basiclayouts.ui.theme.RayVitaTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Collections
@@ -179,7 +179,7 @@ fun HeartRateApp() {
         }
     }
 
-    MySootheTheme {
+    RayVitaTheme {
         // Animated background with subtle pulsing effect
         Box(
             modifier = Modifier
@@ -1394,7 +1394,7 @@ private fun calculateBpm(peaks: List<Int>): Int {
 @Preview(showBackground = true)
 @Composable
 fun PreviewHeartRateApp() {
-    MySootheTheme {
+    RayVitaTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background

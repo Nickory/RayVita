@@ -57,8 +57,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.codelab.basiclayouts.R
 import com.codelab.basiclayouts.data.physnet.model.EnhancedRppgResult
 import com.codelab.basiclayouts.data.physnet.model.HrvData
 import com.codelab.basiclayouts.data.physnet.model.QualityLevel
@@ -68,33 +70,8 @@ import com.codelab.basiclayouts.data.physnet.model.SpO2HealthStatus
 import com.codelab.basiclayouts.data.physnet.model.StressLevel
 import com.codelab.basiclayouts.viewModel.physnet.EnhancedRppgViewModel
 
-// Theme Colors
-private val ThemePrimary = Color(0xFF6B5C4D)
-private val ThemeOnPrimary = Color(0xFFFFFFFF)
-private val ThemePrimaryContainer = Color(0xFFF4DFCD)
-private val ThemeOnPrimaryContainer = Color(0xFF241A0E)
-private val ThemeSecondary = Color(0xFF635D59)
-private val ThemeOnSecondary = Color(0xFFFFFFFF)
-private val ThemeSecondaryContainer = Color(0xFFEAE1DB)
-private val ThemeOnSecondaryContainer = Color(0xFF1F1B17)
-private val ThemeTertiary = Color(0xFF5E5F58)
-private val ThemeOnTertiary = Color(0xFFFFFFFF)
-private val ThemeTertiaryContainer = Color(0xFFE3E3DA)
-private val ThemeOnTertiaryContainer = Color(0xFF1B1C17)
-private val ThemeError = Color(0xFFBA1A1A)
-private val ThemeErrorContainer = Color(0xFFFFDAD6)
-private val ThemeOnError = Color(0xFFFFFFFF)
-private val ThemeOnErrorContainer = Color(0xFF410002)
-private val ThemeBackground = Color(0xFFF5F0EE)
-private val ThemeOnBackground = Color(0xFF1D1B1A)
-private val ThemeSurface = Color(0xFFFFFBFF)
-private val ThemeOnSurface = Color(0xFF1D1B1A)
-private val ThemeSurfaceVariant = Color(0xFFE7E1DE)
-private val ThemeOnSurfaceVariant = Color(0xFF494644)
-private val ThemeOutline = Color(0xFF7A7674)
-
 /**
- * Compact Health Monitoring Card with Custom Theme
+ * Compact Health Monitoring Card with Material Theme
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,7 +87,7 @@ fun EnhancedHealthMonitoringCard(
         modifier = modifier,
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = ThemeSurface)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -167,18 +144,17 @@ private fun CompactHeader(quality: QualityLevel) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-
             Column {
                 Text(
-                    text = "rPPG Result",
+                    text = stringResource(id = R.string.rppg_result_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = ThemeOnSurface
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Real-time Monitoring",
+                    text = stringResource(id = R.string.realtime_monitoring),
                     style = MaterialTheme.typography.bodySmall,
-                    color = ThemeOnSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -192,11 +168,11 @@ private fun CompactHeader(quality: QualityLevel) {
  */
 @Composable
 private fun CompactQualityBadge(quality: QualityLevel) {
-    val (color, text) = when (quality) {
-        QualityLevel.EXCELLENT -> ThemePrimary to "Excellent"
-        QualityLevel.GOOD -> ThemeSecondary to "Good"
-        QualityLevel.FAIR -> ThemeTertiary to "Fair"
-        QualityLevel.POOR -> ThemeError to "Poor"
+    val (color, textResId) = when (quality) {
+        QualityLevel.EXCELLENT -> MaterialTheme.colorScheme.primary to R.string.quality_excellent
+        QualityLevel.GOOD -> MaterialTheme.colorScheme.secondary to R.string.quality_good
+        QualityLevel.FAIR -> MaterialTheme.colorScheme.tertiary to R.string.quality_fair
+        QualityLevel.POOR -> MaterialTheme.colorScheme.error to R.string.quality_poor
     }
 
     Surface(
@@ -204,7 +180,7 @@ private fun CompactQualityBadge(quality: QualityLevel) {
         shape = RoundedCornerShape(12.dp)
     ) {
         Text(
-            text = text,
+            text = stringResource(id = textResId),
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             style = MaterialTheme.typography.labelMedium,
             color = color,
@@ -235,28 +211,28 @@ private fun CompactMetricsRow(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(ThemeErrorContainer),
+                    .background(MaterialTheme.colorScheme.errorContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Favorite,
-                    contentDescription = "Heart Rate",
-                    tint = ThemeError,
+                    contentDescription = stringResource(id = R.string.heart_rate),
+                    tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(18.dp)
                 )
             }
 
             Column {
                 Text(
-                    text = "${heartRate.toInt()} BPM",
+                    text = stringResource(id = R.string.heart_rate_bpm, heartRate.toInt()),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = ThemeOnSurface
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Heart Rate",
+                    text = stringResource(id = R.string.heart_rate),
                     style = MaterialTheme.typography.bodySmall,
-                    color = ThemeOnSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -267,7 +243,7 @@ private fun CompactMetricsRow(
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             Text(
-                text = "${(confidence * 100).toInt()}%",
+                text = stringResource(id = R.string.percentage_format, (confidence * 100).toInt()),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = getConfidenceColor(confidence)
@@ -280,14 +256,14 @@ private fun CompactMetricsRow(
                     .height(4.dp)
                     .clip(RoundedCornerShape(2.dp)),
                 color = getConfidenceColor(confidence),
-                trackColor = ThemeSurfaceVariant,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 strokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap
             )
 
             Text(
-                text = "Confidence",
+                text = stringResource(id = R.string.confidence),
                 style = MaterialTheme.typography.labelSmall,
-                color = ThemeOnSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -312,7 +288,7 @@ private fun CompactHrvSection(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onToggleDetails() },
-        colors = CardDefaults.cardColors(containerColor = ThemeSecondaryContainer),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -332,28 +308,28 @@ private fun CompactHrvSection(
                         modifier = Modifier
                             .size(32.dp)
                             .clip(CircleShape)
-                            .background(ThemeSecondary.copy(alpha = 0.2f)),
+                            .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Timeline,
-                            contentDescription = "HRV Analysis",
-                            tint = ThemeSecondary,
+                            contentDescription = stringResource(id = R.string.hrv_analysis),
+                            tint = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.size(16.dp)
                         )
                     }
 
                     Column {
                         Text(
-                            text = "HRV: ${hrvData.rmssd.toInt()} ms",
+                            text = stringResource(id = R.string.hrv_value_ms, hrvData.rmssd.toInt()),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = ThemeOnSecondaryContainer
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         Text(
                             text = hrvData.getHealthStatus().displayName,
                             style = MaterialTheme.typography.bodySmall,
-                            color = ThemeOnSecondaryContainer.copy(alpha = 0.8f)
+                            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
                         )
                     }
                 }
@@ -370,8 +346,11 @@ private fun CompactHrvSection(
                     ) {
                         Icon(
                             imageVector = Icons.Default.ExpandMore,
-                            contentDescription = if (showDetails) "Collapse" else "Expand",
-                            tint = ThemeOnSecondaryContainer,
+                            contentDescription = if (showDetails)
+                                stringResource(id = R.string.collapse)
+                            else
+                                stringResource(id = R.string.expand),
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
                             modifier = Modifier
                                 .size(20.dp)
                                 .rotate(rotationAngle)
@@ -390,7 +369,7 @@ private fun CompactHrvSection(
                     modifier = Modifier.padding(top = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    HorizontalDivider(color = ThemeOnSecondaryContainer.copy(alpha = 0.2f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.2f))
                     CompactHrvGrid(hrvData = hrvData)
                 }
             }
@@ -409,13 +388,13 @@ private fun CompactHrvGrid(hrvData: HrvData) {
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             CompactMetricCard(
-                title = "RMSSD",
-                value = "${hrvData.rmssd.toInt()} ms",
+                title = stringResource(id = R.string.rmssd),
+                value = stringResource(id = R.string.value_ms, hrvData.rmssd.toInt()),
                 modifier = Modifier.weight(1f)
             )
             CompactMetricCard(
-                title = "SDNN",
-                value = "${hrvData.sdnn.toInt()} ms",
+                title = stringResource(id = R.string.sdnn),
+                value = stringResource(id = R.string.value_ms, hrvData.sdnn.toInt()),
                 modifier = Modifier.weight(1f)
             )
         }
@@ -425,12 +404,12 @@ private fun CompactHrvGrid(hrvData: HrvData) {
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             CompactMetricCard(
-                title = "pNN50",
-                value = "${hrvData.pnn50.toInt()}%",
+                title = stringResource(id = R.string.pnn50),
+                value = stringResource(id = R.string.percentage_format, hrvData.pnn50.toInt()),
                 modifier = Modifier.weight(1f)
             )
             CompactMetricCard(
-                title = "Stress",
+                title = stringResource(id = R.string.stress),
                 value = String.format("%.1f", hrvData.stressIndex),
                 modifier = Modifier.weight(1f)
             )
@@ -449,7 +428,7 @@ private fun CompactMetricCard(
 ) {
     Surface(
         modifier = modifier,
-        color = ThemeSurface.copy(alpha = 0.8f),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
         shape = RoundedCornerShape(8.dp)
     ) {
         Column(
@@ -460,14 +439,14 @@ private fun CompactMetricCard(
                 text = title,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.SemiBold,
-                color = ThemePrimary
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
-                color = ThemeOnSurface
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -524,7 +503,7 @@ private fun CompactSpO2Section(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onToggleDetails() },
-        colors = CardDefaults.cardColors(containerColor = ThemeTertiaryContainer),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -544,28 +523,28 @@ private fun CompactSpO2Section(
                         modifier = Modifier
                             .size(32.dp)
                             .clip(CircleShape)
-                            .background(ThemeTertiary.copy(alpha = 0.2f)),
+                            .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Air,
-                            contentDescription = "Oxygen Saturation",
-                            tint = ThemeTertiary,
+                            contentDescription = stringResource(id = R.string.oxygen_saturation),
+                            tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier.size(16.dp)
                         )
                     }
 
                     Column {
                         Text(
-                            text = "SpO₂: ${spo2Data.spo2.toInt()}%",
+                            text = stringResource(id = R.string.spo2_value_percent, spo2Data.spo2.toInt()),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = ThemeOnTertiaryContainer
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
                         )
                         Text(
                             text = spo2Data.getHealthStatus().displayName,
                             style = MaterialTheme.typography.bodySmall,
-                            color = ThemeOnTertiaryContainer.copy(alpha = 0.8f)
+                            color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
                         )
                     }
                 }
@@ -582,8 +561,11 @@ private fun CompactSpO2Section(
                     ) {
                         Icon(
                             imageVector = Icons.Default.ExpandMore,
-                            contentDescription = if (showDetails) "Collapse" else "Expand",
-                            tint = ThemeOnTertiaryContainer,
+                            contentDescription = if (showDetails)
+                                stringResource(id = R.string.collapse)
+                            else
+                                stringResource(id = R.string.expand),
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
                             modifier = Modifier
                                 .size(20.dp)
                                 .rotate(rotationAngle)
@@ -602,18 +584,18 @@ private fun CompactSpO2Section(
                     modifier = Modifier.padding(top = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    HorizontalDivider(color = ThemeOnTertiaryContainer.copy(alpha = 0.2f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.2f))
 
                     // Medical Disclaimer
                     Surface(
-                        color = ThemeSurface.copy(alpha = 0.8f),
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
-                            text = "⚠️ Camera-based SpO₂ is for reference only",
+                            text = stringResource(id = R.string.spo2_disclaimer),
                             modifier = Modifier.padding(8.dp),
                             style = MaterialTheme.typography.bodySmall,
-                            color = ThemeOnSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
@@ -623,17 +605,17 @@ private fun CompactSpO2Section(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         CompactMetricCard(
-                            title = "Level",
-                            value = "${spo2Data.spo2.toInt()}%",
+                            title = stringResource(id = R.string.level),
+                            value = stringResource(id = R.string.percentage_format, spo2Data.spo2.toInt()),
                             modifier = Modifier.weight(1f)
                         )
                         CompactMetricCard(
-                            title = "Confidence",
-                            value = "${(spo2Data.confidence * 100).toInt()}%",
+                            title = stringResource(id = R.string.confidence),
+                            value = stringResource(id = R.string.percentage_format, (spo2Data.confidence * 100).toInt()),
                             modifier = Modifier.weight(1f)
                         )
                         CompactMetricCard(
-                            title = "R-Value",
+                            title = stringResource(id = R.string.r_value),
                             value = String.format("%.2f", spo2Data.ratioOfRatios),
                             modifier = Modifier.weight(1f)
                         )
@@ -650,11 +632,11 @@ private fun CompactSpO2Section(
 @Composable
 private fun CompactSpO2Badge(status: SpO2HealthStatus) {
     val (color, icon) = when (status) {
-        SpO2HealthStatus.NORMAL -> ThemePrimary to "✓"
-        SpO2HealthStatus.MILD_HYPOXEMIA -> ThemeSecondary to "!"
-        SpO2HealthStatus.MODERATE_HYPOXEMIA -> ThemeTertiary to "!!"
-        SpO2HealthStatus.SEVERE_HYPOXEMIA -> ThemeError to "⚠"
-        SpO2HealthStatus.UNKNOWN -> ThemeOutline to "?"
+        SpO2HealthStatus.NORMAL -> MaterialTheme.colorScheme.primary to "✓"
+        SpO2HealthStatus.MILD_HYPOXEMIA -> MaterialTheme.colorScheme.secondary to "!"
+        SpO2HealthStatus.MODERATE_HYPOXEMIA -> MaterialTheme.colorScheme.tertiary to "!!"
+        SpO2HealthStatus.SEVERE_HYPOXEMIA -> MaterialTheme.colorScheme.error to "⚠"
+        SpO2HealthStatus.UNKNOWN -> MaterialTheme.colorScheme.outline to "?"
     }
 
     Surface(
@@ -692,15 +674,15 @@ private fun CompactTechnicalSection(
         ) {
             Icon(
                 imageVector = Icons.Default.Tune,
-                contentDescription = "Technical Details",
-                tint = ThemeOnSurfaceVariant,
+                contentDescription = stringResource(id = R.string.technical_details),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(16.dp)
             )
             Text(
-                text = "Technical Details",
+                text = stringResource(id = R.string.technical_details),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
-                color = ThemeOnSurface
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
 
@@ -709,16 +691,16 @@ private fun CompactTechnicalSection(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             CompactTechInfo(
-                label = "Frames",
+                label = stringResource(id = R.string.frames),
                 value = "$frameCount"
             )
             CompactTechInfo(
-                label = "Time",
-                value = "${processingTime / 1000f}s"
+                label = stringResource(id = R.string.time),
+                value = stringResource(id = R.string.time_seconds, processingTime / 1000f)
             )
             CompactTechInfo(
-                label = "SNR",
-                value = "${signalQuality.snr.toInt()}dB"
+                label = stringResource(id = R.string.snr),
+                value = stringResource(id = R.string.snr_db, signalQuality.snr.toInt())
             )
         }
     }
@@ -740,12 +722,12 @@ private fun CompactTechInfo(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
-            color = ThemePrimary
+            color = MaterialTheme.colorScheme.primary
         )
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = ThemeOnSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -763,7 +745,7 @@ fun AnalysisModeSelector(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = ThemePrimaryContainer)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -775,28 +757,28 @@ fun AnalysisModeSelector(
             ) {
                 Icon(
                     imageVector = Icons.Default.TrendingUp,
-                    contentDescription = "Analysis Mode",
-                    tint = ThemePrimary,
+                    contentDescription = stringResource(id = R.string.analysis_mode),
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )
                 Text(
-                    text = "Analysis Mode",
+                    text = stringResource(id = R.string.analysis_mode),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = ThemeOnPrimaryContainer
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 EnhancedRppgViewModel.AnalysisMode.values().forEach { mode ->
-                    val (title, description, icon) = getModeDetails(mode)
+                    val (titleResId, descriptionResId, icon) = getModeDetails(mode)
 
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onModeChanged(mode) },
                         color = if (currentMode == mode) {
-                            ThemePrimary.copy(alpha = 0.1f)
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                         } else {
                             Color.Transparent
                         },
@@ -811,29 +793,29 @@ fun AnalysisModeSelector(
                                 selected = currentMode == mode,
                                 onClick = { onModeChanged(mode) },
                                 colors = RadioButtonDefaults.colors(
-                                    selectedColor = ThemePrimary,
-                                    unselectedColor = ThemeOnSurfaceVariant
+                                    selectedColor = MaterialTheme.colorScheme.primary,
+                                    unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             )
 
                             Icon(
                                 imageVector = icon,
                                 contentDescription = null,
-                                tint = if (currentMode == mode) ThemePrimary else ThemeOnSurfaceVariant,
+                                tint = if (currentMode == mode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(16.dp)
                             )
 
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = title,
+                                    text = stringResource(id = titleResId),
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = if (currentMode == mode) ThemePrimary else ThemeOnPrimaryContainer
+                                    color = if (currentMode == mode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimaryContainer
                                 )
                                 Text(
-                                    text = description,
+                                    text = stringResource(id = descriptionResId),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = ThemeOnPrimaryContainer.copy(alpha = 0.7f)
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                                 )
                             }
                         }
@@ -843,6 +825,7 @@ fun AnalysisModeSelector(
         }
     }
 }
+
 @Composable
 fun MotionStatusIndicator(
     isStationary: Boolean,
@@ -943,14 +926,14 @@ fun MotionStatusOverlay(
 
                 Column {
                     Text(
-                        text = "请尽可能保持平稳静止",
+                        text = stringResource(id = R.string.motion_status_warning),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onErrorContainer,
                         fontWeight = FontWeight.Medium
                     )
 
                     Text(
-                        text = "当前状态：$motionStatus",
+                        text = stringResource(id = R.string.current_status, motionStatus),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f)
                     )
@@ -959,29 +942,30 @@ fun MotionStatusOverlay(
         }
     }
 }
+
 /**
  * Mode details helper
  */
-private fun getModeDetails(mode: EnhancedRppgViewModel.AnalysisMode): Triple<String, String, ImageVector> {
+private fun getModeDetails(mode: EnhancedRppgViewModel.AnalysisMode): Triple<Int, Int, ImageVector> {
     return when (mode) {
         EnhancedRppgViewModel.AnalysisMode.HEART_RATE_ONLY -> Triple(
-            "Heart Rate Only",
-            "High accuracy heart rate measurement",
+            R.string.mode_heart_rate_only,
+            R.string.mode_heart_rate_only_desc,
             Icons.Default.Favorite
         )
         EnhancedRppgViewModel.AnalysisMode.HRV_ONLY -> Triple(
-            "HRV Analysis",
-            "Heart variability and stress assessment",
+            R.string.mode_hrv_analysis,
+            R.string.mode_hrv_analysis_desc,
             Icons.Default.Timeline
         )
         EnhancedRppgViewModel.AnalysisMode.SPO2_ONLY -> Triple(
-            "SpO₂ Measurement",
-            "Blood oxygen saturation monitoring",
+            R.string.mode_spo2_measurement,
+            R.string.mode_spo2_measurement_desc,
             Icons.Default.Air
         )
         EnhancedRppgViewModel.AnalysisMode.ALL -> Triple(
-            "Complete Analysis",
-            "Full health monitoring suite",
+            R.string.mode_complete_analysis,
+            R.string.mode_complete_analysis_desc,
             Icons.Default.MonitorHeart
         )
     }
@@ -990,10 +974,11 @@ private fun getModeDetails(mode: EnhancedRppgViewModel.AnalysisMode): Triple<Str
 /**
  * Confidence color helper
  */
+@Composable
 private fun getConfidenceColor(confidence: Float): Color {
     return when {
-        confidence >= 0.8f -> ThemePrimary
-        confidence >= 0.6f -> ThemeSecondary
-        else -> ThemeError
+        confidence >= 0.8f -> MaterialTheme.colorScheme.primary
+        confidence >= 0.6f -> MaterialTheme.colorScheme.secondary
+        else -> MaterialTheme.colorScheme.error
     }
 }

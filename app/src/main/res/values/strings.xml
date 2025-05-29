@@ -53,4 +53,63 @@
     <string name="hide_password">Hide password</string>
     <string name="show_password">Show password</string>
     <string name="verification_code_countdown">%1$ds</string>
+
+    <!-- Main titles -->
+    <string name="rppg_result_title">rPPG Result</string>
+    <string name="realtime_monitoring">Real-time Monitoring</string>
+
+    <!-- Quality levels -->
+    <string name="quality_excellent">Excellent</string>
+    <string name="quality_good">Good</string>
+    <string name="quality_fair">Fair</string>
+    <string name="quality_poor">Poor</string>
+
+    <!-- Heart rate -->
+    <string name="heart_rate">Heart Rate</string>
+    <string name="heart_rate_bpm">%d BPM</string>
+
+    <!-- Common -->
+    <string name="confidence">Confidence</string>
+    <string name="percentage_format">%d%%</string>
+    <string name="expand">Expand</string>
+    <string name="collapse">Collapse</string>
+
+    <!-- HRV -->
+    <string name="hrv_analysis">HRV Analysis</string>
+    <string name="hrv_value_ms">HRV: %d ms</string>
+    <string name="rmssd">RMSSD</string>
+    <string name="sdnn">SDNN</string>
+    <string name="pnn50">pNN50</string>
+    <string name="stress">Stress</string>
+    <string name="value_ms">%d ms</string>
+
+    <!-- SpO2 -->
+    <string name="oxygen_saturation">Oxygen Saturation</string>
+    <string name="spo2_value_percent">SpO₂: %d%%</string>
+    <string name="spo2_disclaimer">⚠️ Camera-based SpO₂ is for reference only</string>
+    <string name="level">Level</string>
+    <string name="r_value">R-Value</string>
+
+    <!-- Technical details -->
+    <string name="technical_details">Technical Details</string>
+    <string name="frames">Frames</string>
+    <string name="time">Time</string>
+    <string name="snr">SNR</string>
+    <string name="time_seconds">%.1fs</string>
+    <string name="snr_db">%ddB</string>
+
+    <!-- Analysis modes -->
+    <string name="analysis_mode">Analysis Mode</string>
+    <string name="mode_heart_rate_only">Heart Rate Only</string>
+    <string name="mode_heart_rate_only_desc">High accuracy heart rate measurement</string>
+    <string name="mode_hrv_analysis">HRV Analysis</string>
+    <string name="mode_hrv_analysis_desc">Heart variability and stress assessment</string>
+    <string name="mode_spo2_measurement">SpO₂ Measurement</string>
+    <string name="mode_spo2_measurement_desc">Blood oxygen saturation monitoring</string>
+    <string name="mode_complete_analysis">Complete Analysis</string>
+    <string name="mode_complete_analysis_desc">Full health monitoring suite</string>
+
+    <!-- Motion status -->
+    <string name="motion_status_warning">Please try to remain as still as possible</string>
+    <string name="current_status">Current status: %s</string>
 </resources>

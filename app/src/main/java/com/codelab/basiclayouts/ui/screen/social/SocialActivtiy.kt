@@ -31,7 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.codelab.basiclayouts.ui.screen.home.BottomNavBar
-import com.codelab.basiclayouts.ui.theme.MySootheTheme
+import com.codelab.basiclayouts.ui.theme.RayVitaTheme
 import com.codelab.basiclayouts.viewmodel.social.SocialViewModel
 import com.codelab.basiclayouts.viewmodel.social.SocialViewModelFactory
 import java.io.File
@@ -53,7 +53,7 @@ class SocialActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MySootheTheme {
+            RayVitaTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
