@@ -75,7 +75,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -88,7 +87,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.codelab.basiclayouts.model.UserInfo
-import com.codelab.basiclayouts.ui.screen.home.BottomNavBar
 import com.codelab.basiclayouts.viewmodel.profile.AuthUiState
 import com.codelab.basiclayouts.viewmodel.profile.AuthViewModel
 import com.codelab.basiclayouts.viewmodel.profile.AvatarOption
@@ -352,13 +350,13 @@ fun ProfileScreen(
                 )
             )
         },
-        bottomBar = {
-            BottomNavBar(
-                selectedTab = selectedTab,
-                onTabSelect = { selectedTab = it },
-                context = LocalContext.current
-            )
-        },
+//        bottomBar = {
+//            BottomNavBar(
+//                selectedTab = selectedTab,
+//                onTabSelect = { selectedTab = it },
+//                context = LocalContext.current
+//            )
+//        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->

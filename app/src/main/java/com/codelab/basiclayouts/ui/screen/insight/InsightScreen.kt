@@ -54,7 +54,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.codelab.basiclayouts.ui.screen.home.BottomNavBar
 import com.codelab.basiclayouts.viewmodel.insight.AIConversationViewModel
 import com.codelab.basiclayouts.viewmodel.insight.AIConversationViewModelFactory
 import com.codelab.basiclayouts.viewmodel.insight.InsightViewModel
@@ -95,9 +94,9 @@ fun InsightScreen(
     }
 
     Scaffold(
-        bottomBar = {
-            BottomNavBar(selectedTab = selectedTab, onTabSelect = onTabSelect, context = LocalContext.current)
-        },
+//        bottomBar = {
+//            BottomNavBar(selectedTab = selectedTab, onTabSelect = onTabSelect, context = LocalContext.current)
+//        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
@@ -157,7 +156,7 @@ fun InsightScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Current Health Status",
+                                text = "Current Status",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
