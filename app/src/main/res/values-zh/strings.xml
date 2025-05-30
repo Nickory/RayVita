@@ -34,8 +34,7 @@
     <!-- 通用 -->
     <string name="confidence">置信度</string>
     <string name="percentage_format">%d%%</string>
-    <string name="expand">展开</string>
-    <string name="collapse">收起</string>
+
 
     <!-- HRV -->
     <string name="hrv_analysis">HRV 分析</string>
@@ -75,4 +74,98 @@
     <!-- 运动状态 -->
     <string name="motion_status_warning">请尽可能保持平稳静止</string>
     <string name="current_status">当前状态：%s</string>
+
+    <!-- 主题设置相关 -->
+    <string name="theme_settings">主题设置</string>
+    <string name="back">返回</string>
+    <string name="refresh">刷新</string>
+
+    <!-- AI生成功能 -->
+    <string name="create_ai_theme">创建AI主题</string>
+    <string name="ai_generate">AI 生成</string>
+    <string name="ai_theme_generation">✨ AI 智能主题生成</string>
+    <string name="ai_theme_description">用几个词描述您想要的风格，AI 将为您生成专属配色方案</string>
+    <string name="generate_exclusive_theme">生成专属主题</string>
+    <string name="theme_generation_description">用几个词描述您想要的主题风格，AI 将为您生成炫酷配色方案</string>
+    <string name="describe_theme">描述您的主题...</string>
+    <string name="theme_examples">例如：赛博朋克、星际宇宙、极光幻境、森林秘境</string>
+    <string name="ai_generating_theme">AI 正在生成炫酷主题...</string>
+    <string name="generation_wait_message">请稍候，AI 正在为您精心调配色彩搭配</string>
+    <string name="generate_theme">生成主题</string>
+    <string name="cancel">取消</string>
+
+    <!-- 加载和状态 -->
+    <string name="loading_themes">加载主题中...</string>
+    <string name="no_themes">暂无主题</string>
+    <string name="create_theme_hint">点击右下角 AI 按钮创建专属主题</string>
+
+    <!-- 主题预览卡片 -->
+    <string name="selected_theme">已选中</string>
+    <string name="ai_generated">AI 生成</string>
+    <string name="show_color_details">查看配色说明</string>
+    <string name="hide_color_details">隐藏配色说明</string>
+    <string name="delete_theme">删除主题</string>
+    <string name="color_meaning">配色含义</string>
+    <string name="primary_color">主色</string>
+    <string name="secondary_color">辅色</string>
+    <string name="tertiary_color">强调</string>
+
+    <!-- 颜色预览标签 -->
+    <string name="primary">Primary</string>
+    <string name="secondary">Secondary</string>
+    <string name="tertiary">Tertiary</string>
+    <string name="background_short">Bg</string>
+    <string name="surface">Surface</string>
+    <string name="surface_variant">Variant</string>
+
+    <!-- 配色解析 -->
+    <string name="color_scheme_analysis">配色解析</string>
+    <string name="click_to_view_details">点击查看详细配色含义</string>
+    <string name="collapse">收起</string>
+    <string name="expand">展开</string>
+    <string name="theme_concept">主题理念</string>
+    <string name="primary_colors">主要配色</string>
+    <string name="primary_colors_desc">应用的核心色彩，用于重要按钮、导航等关键元素</string>
+    <string name="functional_colors">功能配色</string>
+    <string name="functional_colors_desc">用于状态提示和用户反馈的颜色</string>
+    <string name="background_colors">背景配色</string>
+    <string name="background_colors_desc">页面背景和卡片表面的颜色搭配</string>
+
+    <!-- 颜色说明 -->
+    <string name="primary_color_desc">品牌色彩，营造整体氛围</string>
+    <string name="secondary_color_desc">平衡主色，增加层次感</string>
+    <string name="tertiary_color_desc">突出重点，引导注意力</string>
+    <string name="error_color">错误色</string>
+    <string name="error_color_desc">警告和错误提示</string>
+    <string name="outline_color">边框色</string>
+    <string name="outline_color_desc">分割线和边框</string>
+    <string name="background_color">背景色</string>
+    <string name="background_color_desc">主要背景，营造空间感</string>
+    <string name="surface_color">表面色</string>
+    <string name="surface_color_desc">卡片和组件背景</string>
+    <string name="surface_variant_color">变体色</string>
+    <string name="surface_variant_color_desc">次级表面，增加层次</string>
+
+    <!-- AI生成说明 -->
+    <string name="ai_smart_coloring">✨ AI 智能配色</string>
+    <string name="ai_generation_note">这套配色方案由 DeepSeek AI 根据您的描述智能生成，确保色彩和谐且符合无障碍标准。</string>
+
+    <!-- 通用颜色含义 -->
+    <string name="forest_color_meaning">绿色系象征自然与生机，营造平静放松的使用体验</string>
+    <string name="ocean_color_meaning">蓝色系代表信任与专业，适合商务和效率应用</string>
+    <string name="purple_color_meaning">紫色系体现创意与神秘，激发想象力和艺术感</string>
+    <string name="orange_color_meaning">橙色系传达温暖与活力，增强用户的积极情绪</string>
+    <string name="ios_color_meaning">简洁清新的设计语言，注重功能性和易用性</string>
+    <string name="default_color_meaning">精心调配的色彩搭配，确保视觉和谐与使用舒适度</string>
+
+    <!-- 提示消息 -->
+    <string name="theme_switched">主题已切换到「%1$s」，即将重启应用</string>
+    <string name="theme_generated_success">主题「%1$s」生成成功，即将重启应用</string>
+    <string name="theme_deleted_success">主题删除成功</string>
+    <string name="theme_generation_failed">生成主题失败：%1$s</string>
+    <string name="theme_switch_failed">切换主题失败：%1$s</string>
+    <string name="theme_delete_failed">删除主题失败：%1$s</string>
+    <string name="loading_failed">加载主题失败：%1$s</string>
+    <string name="input_description_required">请输入描述文字</string>
+    <string name="unknown_error">未知错误</string>
 </resources>

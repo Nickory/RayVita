@@ -35,6 +35,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -53,7 +54,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.codelab.basiclayouts.data.physnet.EnhancedRppgProcessor
 import com.codelab.basiclayouts.data.physnet.EnhancedRppgRepository
 import com.codelab.basiclayouts.data.physnet.VideoRecorder
-import com.codelab.basiclayouts.ui.theme.RayVitaTheme
+import com.codelab.basiclayouts.data.theme.model.ThemePreferences
+import com.codelab.basiclayouts.data.theme.model.ThemeRepository
+import com.codelab.basiclayouts.ui.theme.DynamicRayVitaTheme
 import com.codelab.basiclayouts.viewModel.physnet.EnhancedRppgViewModel
 import com.codelab.basiclayouts.viewModel.physnet.MeasurementStorageViewModel
 
@@ -90,6 +93,10 @@ class PhysnetActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        // 初始化主题相关组件
+        var themePreferences = ThemePreferences(this)
+        var themeRepository = ThemeRepository(this, themePreferences)
+
         splashScreen.setKeepOnScreenCondition {
             !hasAllPermissions && !permissionDenied
         }
@@ -97,12 +104,29 @@ class PhysnetActivity : ComponentActivity() {
         checkAndRequestPermissions()
 
         setContent {
-            RayVitaTheme {
+            // 获取当前主题
+            val currentTheme by themeRepository.getCurrentTheme().collectAsState(initial = null)
+
+            // 使用 DynamicRayVitaTheme
+            currentTheme?.let { themeProfile ->
+                DynamicRayVitaTheme(
+                    themeProfile = themeProfile,
+                    content = {
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = MaterialTheme.colorScheme.background
+                        ) {
+                            AppContent()
+                        }
+                    }
+                )
+            } ?: run {
+                // 主题加载中时的回退 UI
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppContent()
+                    LoadingScreen()
                 }
             }
         }

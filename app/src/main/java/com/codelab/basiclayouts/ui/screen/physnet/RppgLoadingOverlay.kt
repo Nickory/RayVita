@@ -68,13 +68,13 @@ fun RppgLoadingOverlay(
     modifier: Modifier = Modifier
 ) {
     // 主题色定义
-    val primaryColor = Color(0xFF6B5C4D)
-    val primaryContainer = Color(0xFFF4DFCD)
-    val onPrimaryContainer = Color(0xFF241A0E)
-    val surface = Color(0xFFFFFBFF)
-    val onSurface = Color(0xFF1D1B1A)
-    val surfaceVariant = Color(0xFFE7E1DE)
-    val outline = Color(0xFF7A7674)
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val primaryContainer = MaterialTheme.colorScheme.primaryContainer
+    val onPrimaryContainer = MaterialTheme.colorScheme.onPrimaryContainer
+    val surface = MaterialTheme.colorScheme.surface
+    val onSurface = MaterialTheme.colorScheme.onSurface
+    val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
+    val outline = MaterialTheme.colorScheme.outline
 
     Box(
         modifier = modifier

@@ -74,5 +74,10 @@
             android:name=".ui.social.FriendSearchActivity"
             android:exported="false"
             android:theme="@style/Theme.MySoothe" />
+
+        <activity
+            android:name=".ui.screen.themeChange.ThemeSelectorActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MySoothe" />
     </application>
 </manifest>

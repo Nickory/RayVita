@@ -20,11 +20,10 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
-
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 
-private val LightColors = lightColorScheme(
+
+val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
     onPrimary = md_theme_light_onPrimary,
     primaryContainer = md_theme_light_primaryContainer,
@@ -47,11 +46,11 @@ private val LightColors = lightColorScheme(
     onSurface = md_theme_light_onSurface,
     surfaceVariant = md_theme_light_surfaceVariant,
     onSurfaceVariant = md_theme_light_onSurfaceVariant,
-    outline = md_theme_light_outline
+    outline = md_theme_light_outline,
+    inverseOnSurface = md_theme_light_inverseOnSurface
 )
 
-
-private val DarkColors = darkColorScheme(
+val DarkColors = darkColorScheme(
     primary = md_theme_dark_primary,
     onPrimary = md_theme_dark_onPrimary,
     primaryContainer = md_theme_dark_primaryContainer,
@@ -76,23 +75,48 @@ private val DarkColors = darkColorScheme(
     onSurfaceVariant = md_theme_dark_onSurfaceVariant,
     outline = md_theme_dark_outline
 )
+//
+///**
+// * 主要的应用主题组件
+// * 支持动态主题切换和向后兼容
+// */
+//@Composable
+//fun RayVitaTheme(
+//    darkTheme: Boolean = isSystemInDarkTheme(),
+//    dynamicTheme: Boolean = false,
+//    content: @Composable () -> Unit
+//) {
+//    if (dynamicTheme) {
+//        // 使用动态主题
+//        val context = LocalContext.current
+//        val themePreferences = ThemePreferences(context)
+//        val themeRepository = ThemeRepository(context, themePreferences)
+//
+//        val currentTheme by themeRepository.getCurrentTheme().collectAsState(initial = null)
+//
+//        currentTheme?.let { theme ->
+//            DynamicRayVitaTheme(
+//                themeProfile = theme,
+//                darkTheme = darkTheme,
+//                content = content
+//            )
+//        } ?: run {
+//            // 加载中状态，使用默认主题
+//            DefaultRayVitaTheme(darkTheme = darkTheme, content = content)
+//        }
+//    } else {
+//        // 使用默认主题（向后兼容）
+//        DefaultRayVitaTheme(darkTheme = darkTheme, content = content)
+//    }
+//}
 
-private val DarkColorScheme = darkColorScheme(
-
-    surfaceVariant = Color(0xFF2F2F2F),
-    primaryContainer = Color(0xFF3700B3)
-)
-
-private val LightColorScheme = lightColorScheme(
-
-    surfaceVariant = Color(0xFFE0E0E0),
-    primaryContainer = Color(0xFFE8EAF6)
-)
-
+/**
+ * 默认主题（原有逻辑，保持向后兼容）
+ */
 @Composable
-fun RayVitaTheme(
+private fun DefaultRayVitaTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     val colors = if (darkTheme) {
         DarkColors
@@ -106,4 +130,31 @@ fun RayVitaTheme(
         shapes = shapes,
         content = content
     )
+}
+
+///**
+// * 应用级别的主题包装器
+// * 在Application级别使用，自动应用用户选择的主题
+// */
+//@Composable
+//fun AppThemeWrapper(
+//    content: @Composable () -> Unit
+//) {
+//    RayVitaTheme(
+//        dynamicTheme = true,
+//        content = content
+//    )
+//}
+//
+
+/**
+ * 主题工具函数
+ */
+object ThemeUtils {
+    /**
+     * 启动主题选择器
+     */
+    fun openThemeSelector(context: android.content.Context) {
+        com.codelab.basiclayouts.ui.screen.themeChange.ThemeSelectorActivity.start(context)
+    }
 }

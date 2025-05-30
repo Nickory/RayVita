@@ -71,8 +71,7 @@
     <!-- Common -->
     <string name="confidence">Confidence</string>
     <string name="percentage_format">%d%%</string>
-    <string name="expand">Expand</string>
-    <string name="collapse">Collapse</string>
+
 
     <!-- HRV -->
     <string name="hrv_analysis">HRV Analysis</string>
@@ -112,4 +111,98 @@
     <!-- Motion status -->
     <string name="motion_status_warning">Please try to remain as still as possible</string>
     <string name="current_status">Current status: %s</string>
+
+    <!-- Theme Settings -->
+    <string name="theme_settings">Theme Settings</string>
+    <string name="back">Back</string>
+    <string name="refresh">Refresh</string>
+
+    <!-- AI Generation Features -->
+    <string name="create_ai_theme">Create AI Theme</string>
+    <string name="ai_generate">AI Generate</string>
+    <string name="ai_theme_generation">✨ AI Smart Theme Generation</string>
+    <string name="ai_theme_description">Describe your desired style in a few words, AI will generate an exclusive color scheme for you</string>
+    <string name="generate_exclusive_theme">Generate Exclusive Theme</string>
+    <string name="theme_generation_description">Describe your desired theme style in a few words, AI will generate an amazing color scheme for you</string>
+    <string name="describe_theme">Describe your theme...</string>
+    <string name="theme_examples">e.g. Cyberpunk, Interstellar Universe, Aurora Fantasy, Forest Sanctuary</string>
+    <string name="ai_generating_theme">AI is generating an amazing theme...</string>
+    <string name="generation_wait_message">Please wait, AI is carefully crafting color combinations for you</string>
+    <string name="generate_theme">Generate Theme</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- Loading and Status -->
+    <string name="loading_themes">Loading themes...</string>
+    <string name="no_themes">No themes available</string>
+    <string name="create_theme_hint">Tap the AI button in the bottom right to create your exclusive theme</string>
+
+    <!-- Theme Preview Card -->
+    <string name="selected_theme">Selected</string>
+    <string name="ai_generated">AI Generated</string>
+    <string name="show_color_details">View color details</string>
+    <string name="hide_color_details">Hide color details</string>
+    <string name="delete_theme">Delete theme</string>
+    <string name="color_meaning">Color Meaning</string>
+    <string name="primary_color">Primary</string>
+    <string name="secondary_color">Secondary</string>
+    <string name="tertiary_color">Accent</string>
+
+    <!-- Color Preview Labels -->
+    <string name="primary">Primary</string>
+    <string name="secondary">Secondary</string>
+    <string name="tertiary">Tertiary</string>
+    <string name="background_short">Bg</string>
+    <string name="surface">Surface</string>
+    <string name="surface_variant">Variant</string>
+
+    <!-- Color Scheme Analysis -->
+    <string name="color_scheme_analysis">Color Scheme Analysis</string>
+    <string name="click_to_view_details">Tap to view detailed color meanings</string>
+    <string name="collapse">Collapse</string>
+    <string name="expand">Expand</string>
+    <string name="theme_concept">Theme Concept</string>
+    <string name="primary_colors">Primary Colors</string>
+    <string name="primary_colors_desc">Core colors of the app, used for important buttons, navigation, and key elements</string>
+    <string name="functional_colors">Functional Colors</string>
+    <string name="functional_colors_desc">Colors used for status indicators and user feedback</string>
+    <string name="background_colors">Background Colors</string>
+    <string name="background_colors_desc">Color combinations for page backgrounds and card surfaces</string>
+
+    <!-- Color Descriptions -->
+    <string name="primary_color_desc">Brand color that creates the overall atmosphere</string>
+    <string name="secondary_color_desc">Balances primary color, adds layering</string>
+    <string name="tertiary_color_desc">Highlights key points, guides attention</string>
+    <string name="error_color">Error Color</string>
+    <string name="error_color_desc">Warnings and error notifications</string>
+    <string name="outline_color">Outline Color</string>
+    <string name="outline_color_desc">Dividers and borders</string>
+    <string name="background_color">Background Color</string>
+    <string name="background_color_desc">Main background, creates spatial sense</string>
+    <string name="surface_color">Surface Color</string>
+    <string name="surface_color_desc">Card and component backgrounds</string>
+    <string name="surface_variant_color">Variant Color</string>
+    <string name="surface_variant_color_desc">Secondary surface, adds depth</string>
+
+    <!-- AI Generation Notes -->
+    <string name="ai_smart_coloring">✨ AI Smart Coloring</string>
+    <string name="ai_generation_note">This color scheme is intelligently generated by DeepSeek AI based on your description, ensuring color harmony and accessibility compliance.</string>
+
+    <!-- General Color Meanings -->
+    <string name="forest_color_meaning">Green tones symbolize nature and vitality, creating a calm and relaxing user experience</string>
+    <string name="ocean_color_meaning">Blue tones represent trust and professionalism, suitable for business and productivity apps</string>
+    <string name="purple_color_meaning">Purple tones embody creativity and mystery, inspiring imagination and artistic sense</string>
+    <string name="orange_color_meaning">Orange tones convey warmth and energy, enhancing positive user emotions</string>
+    <string name="ios_color_meaning">Clean and fresh design language, focusing on functionality and usability</string>
+    <string name="default_color_meaning">Carefully crafted color combinations ensure visual harmony and usage comfort</string>
+
+    <!-- Toast Messages -->
+    <string name="theme_switched">Theme switched to \"%1$s\", app will restart shortly</string>
+    <string name="theme_generated_success">Theme \"%1$s\" generated successfully, app will restart shortly</string>
+    <string name="theme_deleted_success">Theme deleted successfully</string>
+    <string name="theme_generation_failed">Theme generation failed: %1$s</string>
+    <string name="theme_switch_failed">Theme switch failed: %1$s</string>
+    <string name="theme_delete_failed">Theme deletion failed: %1$s</string>
+    <string name="loading_failed">Theme loading failed: %1$s</string>
+    <string name="input_description_required">Please enter description text</string>
+    <string name="unknown_error">Unknown error</string>
 </resources>

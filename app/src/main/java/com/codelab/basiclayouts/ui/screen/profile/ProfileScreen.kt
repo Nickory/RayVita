@@ -75,6 +75,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -87,6 +88,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.codelab.basiclayouts.model.UserInfo
+import com.codelab.basiclayouts.ui.screen.themeChange.ThemeSelectorActivity
 import com.codelab.basiclayouts.viewmodel.profile.AuthUiState
 import com.codelab.basiclayouts.viewmodel.profile.AuthViewModel
 import com.codelab.basiclayouts.viewmodel.profile.AvatarOption
@@ -651,6 +653,8 @@ fun QuickActionItem(action: QuickAction) {
 
 @Composable
 fun SettingsCard() {
+    val context = LocalContext.current // 获取当前上下文
+
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
@@ -676,7 +680,21 @@ fun SettingsCard() {
             )
 
             settingsItems.forEachIndexed { index, item ->
-                SettingsListItem(item)
+                SettingsListItem(
+                    item = item,
+                    onClick = {
+                        // 处理点击事件
+                        when (item.title) {
+                            "Appearance" -> {
+                                ThemeSelectorActivity.start(context) // 跳转到 ThemeSelectorActivity
+                            }
+                            // 其他设置项的点击事件可以在这里添加
+                            else -> {
+                                // TODO: 处理其他设置项的点击
+                            }
+                        }
+                    }
+                )
                 if (index < settingsItems.size - 1) {
                     Divider(
                         modifier = Modifier.padding(vertical = 8.dp),
@@ -689,9 +707,12 @@ fun SettingsCard() {
 }
 
 @Composable
-fun SettingsListItem(item: SettingsItem) {
+fun SettingsListItem(
+    item: SettingsItem,
+    onClick: () -> Unit // 添加 onClick 参数
+) {
     Surface(
-        onClick = { /* TODO: Handle settings item click */ },
+        onClick = onClick, // 使用传入的 onClick 回调
         color = Color.Transparent
     ) {
         Row(
