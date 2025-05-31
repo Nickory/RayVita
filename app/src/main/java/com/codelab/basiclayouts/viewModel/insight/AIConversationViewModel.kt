@@ -72,7 +72,7 @@ class AIConversationViewModel(private val context: Context) : ViewModel() {
                 viewModelScope.launch {
                     delay(800)
                     val aiResponse = response.body()?.choices?.firstOrNull()?.message?.content
-                        ?.take(200) // 额外截断确保不超过 200 字
+                        ?.take(1000) // 额外截断确保不超过 200 字
                         ?: "Sorry, I couldn't process your request. Try again."
                     Log.d("AIConversation", "AI Response: $aiResponse, length: ${aiResponse.length}")
                     val aiMessage = ChatMessage(aiResponse, false, getCurrentTimestamp())

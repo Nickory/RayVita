@@ -205,4 +205,183 @@
     <string name="loading_failed">Theme loading failed: %1$s</string>
     <string name="input_description_required">Please enter description text</string>
     <string name="unknown_error">Unknown error</string>
+
+    <!-- ==================== rPPG Biomedical Theme Series ==================== -->
+
+    <!-- NeuroPulse Theme -->
+    <string name="theme_neuro_pulse_name">NeuroPulse</string>
+    <string name="theme_neuro_pulse_description">Simulates neural electrical signals with deep purple and electric blue, creating mysterious tension perfect for neural feedback and data analysis</string>
+
+    <!-- BioSerenity Theme -->
+    <string name="theme_bio_serenity_name">BioSerenity</string>
+    <string name="theme_bio_serenity_description">Captures stable blood flow signals synchronized with natural breathing, using green and ivory white to evoke organic life perception, designed for health monitoring</string>
+
+    <!-- OptiWave Theme -->
+    <string name="theme_opti_wave_name">OptiWave</string>
+    <string name="theme_opti_wave_description">Reflects rPPG light interference with skin interactions, using tech silver and deep cyan to embody the calm professionalism of precision medicine</string>
+
+    <!-- CardioSync Theme -->
+    <string name="theme_cardio_sync_name">CardioSync</string>
+    <string name="theme_cardio_sync_description">Embodies the rhythmic beauty of heart rate data with blood red and arterial orange, showcasing life vitality perfect for real-time heart rate monitoring</string>
+
+    <!-- AuroraFlow Theme -->
+    <string name="theme_aurora_flow_name">AuroraFlow</string>
+    <string name="theme_aurora_flow_description">Blends rPPG signal rhythms with aurora gradients, using dreamy purple and soft pink to create a tech-romantic, ethereal atmosphere</string>
+
+    <!-- ==================== Classic Theme Series ==================== -->
+
+    <!-- Warm Earth Theme -->
+    <string name="theme_warm_earth_name">Warm Earth</string>
+    <string name="theme_warm_earth_description">Natural earth tones that create a comfortable and serene atmosphere</string>
+
+    <!-- iOS Blue Theme -->
+    <string name="theme_ios_blue_name">iOS Blue</string>
+    <string name="theme_ios_blue_description">Classic iOS design style with fresh and clean blue color scheme</string>
+
+    <!-- Forest Green Theme -->
+    <string name="theme_forest_green_name">Forest Green</string>
+    <string name="theme_forest_green_description">Natural and fresh green tones that bring vibrant visual experience</string>
+
+    <!-- Ocean Blue Theme -->
+    <string name="theme_ocean_blue_name">Ocean Blue</string>
+    <string name="theme_ocean_blue_description">Deep and tranquil blue tones, as serene and elegant as the deep sea</string>
+
+    <!-- Violet Dream Theme -->
+    <string name="theme_violet_dream_name">Violet Dream</string>
+    <string name="theme_violet_dream_description">Mysterious and romantic purple tones full of creativity and imagination</string>
+
+    <!-- Sunset Orange Theme -->
+    <string name="theme_sunset_orange_name">Sunset Orange</string>
+    <string name="theme_sunset_orange_description">Warm and vibrant orange tones, as passionate and warm as a sunset</string>
+
+    <!-- ==================== Theme Categories ==================== -->
+
+    <string name="theme_category_biomedical">Biomedical</string>
+    <string name="theme_category_classic">Classic</string>
+    <string name="theme_series_rppg">rPPG Series</string>
+    <string name="theme_series_general">General Series</string>
+
+    <!-- ==================== Theme-related UI Labels ==================== -->
+
+    <string name="theme_selection_title">Choose Theme</string>
+    <string name="theme_preview">Preview</string>
+    <string name="theme_apply">Apply Theme</string>
+    <string name="theme_light_mode">Light Mode</string>
+    <string name="theme_dark_mode">Dark Mode</string>
+    <string name="theme_system_mode">System Mode</string>
+    <string name="theme_custom">Custom</string>
+    <string name="theme_built_in">Built-in</string>
+
+    <!-- Dark mode related -->
+    <string name="dark_mode_follow_system">Follow system</string>
+    <string name="dark_mode_light">Light mode</string>
+    <string name="dark_mode_dark">Dark mode</string>
+    <string name="dark_mode_changed">Dark mode has been switched to: %1$s</string>
+    <string name="dark_mode_change_failed">Failed to switch dark mode: %1$s</string>
+
+    <!-- Physnet Activity Strings -->
+    <string name="physnet_permission_title">Permission Required</string>
+    <string name="physnet_permission_description">rPPG heart rate monitoring requires the following permissions to work properly:</string>
+    <string name="physnet_camera_permission_title">Camera Permission</string>
+    <string name="physnet_camera_permission_desc">For capturing facial video for heart rate detection</string>
+    <string name="physnet_mic_permission_title">Microphone Permission</string>
+    <string name="physnet_mic_permission_desc">For audio synchronization and enhanced detection accuracy</string>
+    <string name="physnet_retry_permission">Retry Permission Request</string>
+    <string name="physnet_open_settings">Open Settings Manually</string>
+    <string name="physnet_initializing">Initializing...</string>
+    <string name="physnet_camera_icon_desc">Camera icon</string>
+    <string name="physnet_retry_icon_desc">Retry icon</string>
+
+    <!-- Log Messages -->
+    <string name="physnet_all_permissions_granted">All permissions granted</string>
+    <string name="physnet_permissions_denied">Permissions denied: camera=%1$b, audio=%2$b</string>
+    <string name="physnet_requesting_permissions">Requesting permissions: %1$s</string>
+    <string name="physnet_permission_status_updated">Permission status updated</string>
+    <string name="physnet_activity_destroyed">Activity destroyed</string>
+
+
+        <!-- Main interface titles -->
+        <string name="health_insights">Health Insights</string>
+        <string name="current_health_status">Current Status</string>
+        <string name="view_history">View History</string>
+        <string name="history_records">History</string>
+        <string name="ai_health_assistant">AI Tips</string>
+        <string name="activity_tracking">Activity Tracking</string>
+
+        <!-- Measurement units -->
+        <string name="unit_bpm">bpm</string>
+        <string name="unit_ms">ms</string>
+
+        <!-- Health metrics -->
+
+        <string name="heart_rate_variability">HRV</string>
+        <string name="blood_oxygen">Blood Oxygen</string>
+        <string name="signal">Signal</string>
+        <string name="battery">Battery</string>
+
+        <!-- Status values -->
+        <string name="status_low">Low</string>
+        <string name="status_high">High</string>
+        <string name="status_normal">Normal</string>
+        <string name="status_excellent">Excellent</string>
+        <string name="status_good">Good</string>
+        <string name="status_fair">Fair</string>
+        <string name="status_poor">Poor</string>
+
+        <!-- Time and date -->
+        <string name="last_update">Last update: %s</string>
+        <string name="today_measurements">Today\'s measurements: %d times</string>
+        <string name="hours_remaining">%d hours remaining</string>
+
+        <!-- Days of week -->
+        <string name="day_monday">Mon</string>
+        <string name="day_tuesday">Tue</string>
+        <string name="day_wednesday">Wed</string>
+        <string name="day_thursday">Thu</string>
+        <string name="day_friday">Fri</string>
+        <string name="day_saturday">Sat</string>
+        <string name="day_sunday">Sun</string>
+
+        <!-- Empty data states -->
+        <string name="no_measurement_data">No measurement data</string>
+        <string name="start_measurement_prompt">Start measuring to view your health status</string>
+
+        <!-- AI modes -->
+        <string name="mode_diagnostic">Diagnostic Advice</string>
+        <string name="mode_comprehensive">Comprehensive Advice</string>
+        <string name="mode_exercise">Exercise Advice</string>
+        <string name="mode_lifestyle">Lifestyle</string>
+        <string name="mode_prevention">Prevention Tips</string>
+
+        <!-- AI mode descriptions -->
+        <string name="mode_diagnostic_desc">Medical insights and analysis</string>
+        <string name="mode_comprehensive_desc">Comprehensive health guidance</string>
+        <string name="mode_exercise_desc">Fitness and exercise recommendations</string>
+        <string name="mode_lifestyle_desc">Daily health recommendations</string>
+        <string name="mode_prevention_desc">Preventive health tips</string>
+
+        <!-- Control buttons -->
+        <string name="select_mode">Select Mode</string>
+        <string name="selected">Selected</string>
+
+        <string name="new_suggestion">New</string>
+        <string name="chat">Chat</string>
+        <string name="chat_with_ai">Chat with AI</string>
+        <string name="ai_thinking">AI is thinking...</string>
+
+        <!-- Steps related -->
+        <string name="today_steps">Today\'s Steps</string>
+        <string name="target_steps">Target: 10,000</string>
+        <string name="completion_percentage">%d%% Complete</string>
+        <string name="estimated">(Estimated)</string>
+        <string name="week_total_steps">Week total: %d steps</string>
+        <string name="steps_k_format">%dk</string>
+
+        <!-- Permission related -->
+        <string name="permission_required">Permission Required</string>
+        <string name="step_counter_permission">Step Counter Permission</string>
+        <string name="step_counter_permission_description">To accurately track your daily steps, we need permission to access your activity data. This helps provide better health insights.</string>
+        <string name="later">Later</string>
+        <string name="grant_permission">Grant Permission</string>
+
 </resources>

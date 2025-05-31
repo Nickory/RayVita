@@ -233,7 +233,7 @@ private fun TopIndicator(
     screenWidth: androidx.compose.ui.unit.Dp,
     colorScheme: androidx.compose.material3.ColorScheme
 ) {
-    val indicatorPositions = listOf(0.125f, 0.375f, 0.625f, 0.875f)
+    val indicatorPositions = listOf((-0.0125f), 0.2225f, 0.7725f, 1.0125f)
     val targetPosition = if (selectedTab in 0..3) {
         indicatorPositions[selectedTab]
     } else {

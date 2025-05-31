@@ -14,9 +14,17 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
+// 深色模式选项
+enum class DarkModeOption {
+    FOLLOW_SYSTEM,  // 跟随系统
+    LIGHT,          // 强制浅色
+    DARK            // 强制深色
+}
+
 data class ThemeUiState(
     val allThemes: List<ThemeProfile> = emptyList(),
     val currentTheme: ThemeProfile? = null,
+    val darkModeOption: DarkModeOption = DarkModeOption.FOLLOW_SYSTEM,
     val isLoading: Boolean = false,
     val isGenerating: Boolean = false,
     val error: String? = null,
@@ -33,6 +41,7 @@ class ThemeViewModel(
 
     init {
         loadThemes()
+        loadDarkModePreference()
     }
 
     private fun loadThemes() {
@@ -58,6 +67,48 @@ class ThemeViewModel(
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = context.getString(R.string.loading_failed, e.message ?: context.getString(R.string.unknown_error))
+                )
+            }
+        }
+    }
+
+    private fun loadDarkModePreference() {
+        viewModelScope.launch {
+            try {
+                // 从SharedPreferences加载深色模式设置
+                val sharedPrefs = context.getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
+                val darkModeValue = sharedPrefs.getString("dark_mode", "FOLLOW_SYSTEM") ?: "FOLLOW_SYSTEM"
+                val darkModeOption = DarkModeOption.valueOf(darkModeValue)
+
+                _uiState.value = _uiState.value.copy(darkModeOption = darkModeOption)
+            } catch (e: Exception) {
+                // 如果加载失败，使用默认值
+                _uiState.value = _uiState.value.copy(darkModeOption = DarkModeOption.FOLLOW_SYSTEM)
+            }
+        }
+    }
+
+    fun setDarkModeOption(option: DarkModeOption) {
+        viewModelScope.launch {
+            try {
+                // 保存到SharedPreferences
+                val sharedPrefs = context.getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
+                sharedPrefs.edit().putString("dark_mode", option.name).apply()
+
+                _uiState.value = _uiState.value.copy(darkModeOption = option)
+
+                // 显示成功消息
+                val message = when (option) {
+                    DarkModeOption.FOLLOW_SYSTEM -> context.getString(R.string.dark_mode_follow_system)
+                    DarkModeOption.LIGHT -> context.getString(R.string.dark_mode_light)
+                    DarkModeOption.DARK -> context.getString(R.string.dark_mode_dark)
+                }
+                _uiState.value = _uiState.value.copy(
+                    successMessage = context.getString(R.string.dark_mode_changed, message)
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = context.getString(R.string.dark_mode_change_failed, e.message ?: context.getString(R.string.unknown_error))
                 )
             }
         }

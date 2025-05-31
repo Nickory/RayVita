@@ -34,3 +34,27 @@ package com.codelab.basiclayouts.ui.screen.home
 //└── BottomNavBar.kt        # 提供 onTabSelect 回调
 
 //数据api结构
+
+//
+//ui/
+//└── home/
+//├── HomeScreen.kt
+//├── components/
+//│   ├── BannerCarousel.kt
+//│   ├── HealthOverviewCard.kt
+//│   ├── BreathingTrainingCard.kt
+//│   ├── AiTipCard.kt
+//│   ├── AchievementCard.kt
+//│   ├── QuickActionGrid.kt
+//└── HomeViewModel.kt
+//
+//viewmodel/
+//└── home/
+//└── HomeUiState.kt
+//
+//data/
+//└── model/
+//├── HealthData.kt
+//├── AiTip.kt
+//├── Achievement.kt
+

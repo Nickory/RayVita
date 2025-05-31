@@ -24,11 +24,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Brightness4
+import androidx.compose.material.icons.filled.Brightness6
+import androidx.compose.material.icons.filled.Brightness7
+import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.SettingsBrightness
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -40,6 +47,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -66,12 +74,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.codelab.basiclayouts.R
 import com.codelab.basiclayouts.ui.screen.MainActivity
-import com.codelab.basiclayouts. viewModel.theme.ThemeViewModel
+import com.codelab.basiclayouts.viewModel.theme.DarkModeOption
+import com.codelab.basiclayouts.viewModel.theme.ThemeViewModel
 import kotlinx.coroutines.delay
 import kotlin.math.cos
 import kotlin.math.sin
@@ -88,6 +98,7 @@ fun ThemeSelectorScreen(
     val isDarkMode = isSystemInDarkTheme()
     val context = LocalContext.current
     var showCreateDialog by remember { mutableStateOf(false) }
+    var showDarkModeSelector by remember { mutableStateOf(false) }
 
     // 记录之前的生成状态，用于检测生成完成
     var wasGenerating by remember { mutableStateOf(false) }
@@ -150,6 +161,21 @@ fun ThemeSelectorScreen(
                     }
                 },
                 actions = {
+                    // 深色模式选择按钮
+                    IconButton(
+                        onClick = { showDarkModeSelector = !showDarkModeSelector }
+                    ) {
+                        Icon(
+                            imageVector = when (uiState.darkModeOption) {
+                                DarkModeOption.FOLLOW_SYSTEM -> Icons.Default.SettingsBrightness
+                                DarkModeOption.LIGHT -> Icons.Default.Brightness7
+                                DarkModeOption.DARK -> Icons.Default.Brightness4
+                            },
+                            contentDescription = "Dark Mode Settings",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
                     IconButton(
                         onClick = { viewModel.refresh() },
                         enabled = !uiState.isLoading
@@ -247,6 +273,20 @@ fun ThemeSelectorScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
+                        // 深色模式选择器
+                        if (showDarkModeSelector) {
+                            item {
+                                DarkModeSelector(
+                                    currentOption = uiState.darkModeOption,
+                                    onOptionSelected = { option ->
+                                        viewModel.setDarkModeOption(option)
+                                        showDarkModeSelector = false
+                                    },
+                                    onDismiss = { showDarkModeSelector = false }
+                                )
+                            }
+                        }
+
                         uiState.currentTheme?.let { currentTheme ->
                             item {
                                 ThemeColorExplanation(
@@ -255,6 +295,7 @@ fun ThemeSelectorScreen(
                                 )
                             }
                         }
+
                         item {
                             // 突出AI功能的提示卡片
                             Card(
@@ -326,6 +367,138 @@ fun ThemeSelectorScreen(
                 // 不再立即关闭对话框，等待生成完成
             }
         )
+    }
+}
+
+@Composable
+private fun DarkModeSelector(
+    currentOption: DarkModeOption,
+    onOptionSelected: (DarkModeOption) -> Unit,
+    onDismiss: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // 标题栏
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Brightness6,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "深色模式设置",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                IconButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ExpandLess,
+                        contentDescription = "收起",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 选项列表
+            Column(
+                modifier = Modifier.selectableGroup()
+            ) {
+                DarkModeOption.values().forEach { option ->
+                    val (icon, title, description) = when (option) {
+                        DarkModeOption.FOLLOW_SYSTEM -> Triple(
+                            Icons.Default.SettingsBrightness,
+                            "跟随系统",
+                            "使用系统的深色模式设置"
+                        )
+                        DarkModeOption.LIGHT -> Triple(
+                            Icons.Default.Brightness7,
+                            "浅色模式",
+                            "始终使用浅色主题"
+                        )
+                        DarkModeOption.DARK -> Triple(
+                            Icons.Default.Brightness4,
+                            "深色模式",
+                            "始终使用深色主题"
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .selectable(
+                                selected = currentOption == option,
+                                onClick = { onOptionSelected(option) },
+                                role = Role.RadioButton
+                            )
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = currentOption == option,
+                            onClick = null
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = if (currentOption == option) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            },
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = if (currentOption == option) FontWeight.Bold else FontWeight.Normal,
+                                color = if (currentOption == option) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                }
+                            )
+                            Text(
+                                text = description,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            )
+                        }
+                    }
+
+                    if (option != DarkModeOption.values().last()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+        }
     }
 }
 

@@ -12,10 +12,14 @@ import com.codelab.basiclayouts.ui.screen.wrapper.HomeScreenWrapper
 import com.codelab.basiclayouts.ui.screen.wrapper.InsightScreenWrapper
 import com.codelab.basiclayouts.ui.screen.wrapper.ProfileScreenWrapper
 import com.codelab.basiclayouts.ui.screen.wrapper.SocialScreenWrapper
+import com.codelab.basiclayouts.utils.StepCounterPermissionHelper
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppNavGraph(navController: NavHostController) {
+fun AppNavGraph(
+    navController: NavHostController,
+    stepCounterPermissionHelper: StepCounterPermissionHelper // 新增参数
+) {
     NavHost(
         navController = navController,
         startDestination = "home",
@@ -49,7 +53,7 @@ fun AppNavGraph(navController: NavHostController) {
         }
 
         composable("insight") {
-            InsightScreenWrapper()
+            InsightScreenWrapper(stepCounterPermissionHelper = stepCounterPermissionHelper) // 传递参数
         }
 
         composable("social") {

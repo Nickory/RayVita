@@ -1,6 +1,5 @@
 package com.codelab.basiclayouts.ui.screen
 
-
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
@@ -15,11 +14,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-
+import com.codelab.basiclayouts.utils.StepCounterPermissionHelper
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MainApp() {
+fun MainApp(
+    stepCounterPermissionHelper: StepCounterPermissionHelper // 新增参数
+) {
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry?.destination
@@ -47,7 +48,10 @@ fun MainApp() {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            AppNavGraph(navController = navController)
+            AppNavGraph(
+                navController = navController,
+                stepCounterPermissionHelper = stepCounterPermissionHelper // 传递参数
+            )
         }
     }
 }

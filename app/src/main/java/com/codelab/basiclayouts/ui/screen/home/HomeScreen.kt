@@ -52,7 +52,7 @@ fun RayVitaApp(viewModel: HomeViewModel) {
 //            )
 //        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer
+        containerColor = MaterialTheme.colorScheme.surface
     ) { paddingValues ->
         Column(
             modifier = Modifier

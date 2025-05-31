@@ -1,4 +1,3 @@
-
 package com.codelab.basiclayouts.ui.screen.physnet
 
 import android.Manifest
@@ -9,7 +8,9 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -51,6 +53,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.codelab.basiclayouts.R
 import com.codelab.basiclayouts.data.physnet.EnhancedRppgProcessor
 import com.codelab.basiclayouts.data.physnet.EnhancedRppgRepository
 import com.codelab.basiclayouts.data.physnet.VideoRecorder
@@ -59,6 +62,9 @@ import com.codelab.basiclayouts.data.theme.model.ThemeRepository
 import com.codelab.basiclayouts.ui.theme.DynamicRayVitaTheme
 import com.codelab.basiclayouts.viewModel.physnet.EnhancedRppgViewModel
 import com.codelab.basiclayouts.viewModel.physnet.MeasurementStorageViewModel
+import com.codelab.basiclayouts.viewModel.theme.DarkModeOption
+import com.codelab.basiclayouts.viewModel.theme.ThemeViewModel
+import com.codelab.basiclayouts.viewModel.theme.ThemeViewModelFactory
 
 class PhysnetActivity : ComponentActivity() {
 
@@ -72,6 +78,13 @@ class PhysnetActivity : ComponentActivity() {
 
     private var hasAllPermissions by mutableStateOf(false)
     private var permissionDenied by mutableStateOf(false)
+
+    private lateinit var themeRepository: ThemeRepository
+    private lateinit var themePreferences: ThemePreferences
+
+    private val themeViewModel: ThemeViewModel by viewModels {
+        ThemeViewModelFactory(themeRepository, this@PhysnetActivity)
+    }
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -94,8 +107,8 @@ class PhysnetActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // 初始化主题相关组件
-        var themePreferences = ThemePreferences(this)
-        var themeRepository = ThemeRepository(this, themePreferences)
+        themePreferences = ThemePreferences(this)
+        themeRepository = ThemeRepository(this, themePreferences)
 
         splashScreen.setKeepOnScreenCondition {
             !hasAllPermissions && !permissionDenied
@@ -104,31 +117,47 @@ class PhysnetActivity : ComponentActivity() {
         checkAndRequestPermissions()
 
         setContent {
-            // 获取当前主题
-            val currentTheme by themeRepository.getCurrentTheme().collectAsState(initial = null)
-
-            // 使用 DynamicRayVitaTheme
-            currentTheme?.let { themeProfile ->
-                DynamicRayVitaTheme(
-                    themeProfile = themeProfile,
-                    content = {
-                        Surface(
-                            modifier = Modifier.fillMaxSize(),
-                            color = MaterialTheme.colorScheme.background
-                        ) {
-                            AppContent()
-                        }
-                    }
-                )
-            } ?: run {
-                // 主题加载中时的回退 UI
+            DynamicThemeWrapper(
+                themeRepository = themeRepository,
+                themeViewModel = themeViewModel
+            ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LoadingScreen()
+                    AppContent()
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun DynamicThemeWrapper(
+        themeRepository: ThemeRepository,
+        themeViewModel: ThemeViewModel,
+        content: @Composable () -> Unit
+    ) {
+        val currentThemeFlow = themeRepository.getCurrentTheme()
+        val currentTheme by currentThemeFlow.collectAsState(initial = null)
+        val uiState by themeViewModel.uiState.collectAsState()
+
+        // 根据用户的深色模式选择确定是否使用深色主题
+        val isSystemInDarkTheme = isSystemInDarkTheme()
+        val shouldUseDarkTheme = when (uiState.darkModeOption) {
+            DarkModeOption.FOLLOW_SYSTEM -> isSystemInDarkTheme
+            DarkModeOption.LIGHT -> false
+            DarkModeOption.DARK -> true
+        }
+
+        currentTheme?.let { theme ->
+            DynamicRayVitaTheme(
+                themeProfile = theme,
+                darkTheme = shouldUseDarkTheme,
+                content = content
+            )
+        } ?: run {
+            // 如果主题还在加载中，使用默认主题
+            content()
         }
     }
 
@@ -174,20 +203,20 @@ class PhysnetActivity : ComponentActivity() {
         ) {
             Icon(
                 imageVector = Icons.Default.CameraAlt,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.physnet_camera_icon_desc),
                 modifier = Modifier.size(80.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "需要权限",
+                text = stringResource(R.string.physnet_permission_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "rPPG 心率监测需要以下权限才能正常工作：",
+                text = stringResource(R.string.physnet_permission_description),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
@@ -205,13 +234,13 @@ class PhysnetActivity : ComponentActivity() {
                 ) {
                     PermissionItem(
                         icon = Icons.Default.CameraAlt,
-                        title = "相机权限",
-                        description = "用于拍摄面部视频进行心率检测"
+                        title = stringResource(R.string.physnet_camera_permission_title),
+                        description = stringResource(R.string.physnet_camera_permission_desc)
                     )
                     PermissionItem(
                         icon = Icons.Default.Mic,
-                        title = "麦克风权限",
-                        description = "用于音频同步和增强检测精度"
+                        title = stringResource(R.string.physnet_mic_permission_title),
+                        description = stringResource(R.string.physnet_mic_permission_desc)
                     )
                 }
             }
@@ -222,11 +251,11 @@ class PhysnetActivity : ComponentActivity() {
             ) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.physnet_retry_icon_desc),
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("重新请求权限")
+                Text(stringResource(R.string.physnet_retry_permission))
             }
             Spacer(modifier = Modifier.height(16.dp))
             TextButton(
@@ -235,7 +264,7 @@ class PhysnetActivity : ComponentActivity() {
                 }
             ) {
                 Text(
-                    text = "在设置中手动开启权限",
+                    text = stringResource(R.string.physnet_open_settings),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -291,7 +320,7 @@ class PhysnetActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "初始化中...",
+                    text = stringResource(R.string.physnet_initializing),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -338,9 +367,6 @@ class PhysnetActivity : ComponentActivity() {
     }
 }
 
-/**
- * ViewModel 工厂，用于手动创建 EnhancedRppgViewModel
- */
 class RppgViewModelFactory(
     private val context: Context,
     private val videoRecorder: VideoRecorder,
@@ -355,16 +381,13 @@ class RppgViewModelFactory(
                 videoRecorder = videoRecorder,
                 rppgProcessor = rppgProcessor,
                 repository = repository,
-                storageViewModel = MeasurementStorageViewModel(context) // Instantiate MeasurementStorageViewModel
+                storageViewModel = MeasurementStorageViewModel(context)
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 
-/**
- * 权限管理器 - 可选的独立组件
- */
 object PermissionManager {
     fun hasAllPermissions(activity: ComponentActivity): Boolean {
         return PhysnetActivity.REQUIRED_PERMISSIONS.all { permission ->

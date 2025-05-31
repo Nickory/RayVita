@@ -30,7 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.codelab.basiclayouts.ui.screen.home.BottomNavBar
+//import com.codelab.basiclayouts.ui.screen.home.BottomNavBar
 import com.codelab.basiclayouts.ui.theme.RayVitaTheme
 import com.codelab.basiclayouts.viewmodel.social.SocialViewModel
 import com.codelab.basiclayouts.viewmodel.social.SocialViewModelFactory
@@ -162,11 +162,11 @@ class SocialActivity : ComponentActivity() {
                                 .fillMaxWidth()
                                 .align(Alignment.BottomCenter)
                         ) {
-                            BottomNavBar(
-                                selectedTab = 2,
-                                onTabSelect = { },
-                                context = this@SocialActivity
-                            )
+//                            BottomNavBar(
+//                                selectedTab = 2,
+//                                onTabSelect = { },
+//                                context = this@SocialActivity
+//                            )
                         }
                     }
                 }
