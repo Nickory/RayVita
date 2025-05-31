@@ -218,7 +218,7 @@ class InsightViewModel @Inject constructor(
         }
     }
 
-    override fun onCleared() {
+    public override fun onCleared() {
         super.onCleared()
         sensorManager.unregisterListener(this)
         saveStepCountingState()
@@ -421,7 +421,7 @@ class InsightViewModel @Inject constructor(
         saveStepCountingState()
     }
 
-    private fun loadMeasurements() {
+    fun loadMeasurements() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val dir = File(appContext.filesDir, "measurements")

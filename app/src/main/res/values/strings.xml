@@ -300,88 +300,174 @@
     <string name="physnet_activity_destroyed">Activity destroyed</string>
 
 
-        <!-- Main interface titles -->
-        <string name="health_insights">Health Insights</string>
-        <string name="current_health_status">Current Status</string>
-        <string name="view_history">View History</string>
-        <string name="history_records">History</string>
-        <string name="ai_health_assistant">AI Tips</string>
-        <string name="activity_tracking">Activity Tracking</string>
+    <!-- Main interface titles -->
+    <string name="health_insights">Health Insights</string>
+    <string name="current_health_status">Current Status</string>
+    <string name="view_history">View History</string>
+    <string name="history_records">History</string>
+    <string name="ai_health_assistant">AI Tips</string>
+    <string name="activity_tracking">Activity Tracking</string>
 
-        <!-- Measurement units -->
-        <string name="unit_bpm">bpm</string>
-        <string name="unit_ms">ms</string>
+    <!-- Measurement units -->
+    <string name="unit_bpm">bpm</string>
+    <string name="unit_ms">ms</string>
 
-        <!-- Health metrics -->
+    <!-- Health metrics -->
 
-        <string name="heart_rate_variability">HRV</string>
-        <string name="blood_oxygen">Blood Oxygen</string>
-        <string name="signal">Signal</string>
-        <string name="battery">Battery</string>
+    <string name="heart_rate_variability">HRV</string>
+    <string name="blood_oxygen">Blood Oxygen</string>
+    <string name="signal">Signal</string>
+    <string name="battery">Battery</string>
 
-        <!-- Status values -->
-        <string name="status_low">Low</string>
-        <string name="status_high">High</string>
-        <string name="status_normal">Normal</string>
-        <string name="status_excellent">Excellent</string>
-        <string name="status_good">Good</string>
-        <string name="status_fair">Fair</string>
-        <string name="status_poor">Poor</string>
+    <!-- Status values -->
+    <string name="status_low">Low</string>
+    <string name="status_high">High</string>
+    <string name="status_normal">Normal</string>
+    <string name="status_excellent">Excellent</string>
+    <string name="status_good">Good</string>
+    <string name="status_fair">Fair</string>
+    <string name="status_poor">Poor</string>
 
-        <!-- Time and date -->
-        <string name="last_update">Last update: %s</string>
-        <string name="today_measurements">Today\'s measurements: %d times</string>
-        <string name="hours_remaining">%d hours remaining</string>
+    <!-- Time and date -->
+    <string name="last_update">Last update: %s</string>
+    <string name="today_measurements">Today\'s measurements: %d times</string>
+    <string name="hours_remaining">%d hours remaining</string>
 
-        <!-- Days of week -->
-        <string name="day_monday">Mon</string>
-        <string name="day_tuesday">Tue</string>
-        <string name="day_wednesday">Wed</string>
-        <string name="day_thursday">Thu</string>
-        <string name="day_friday">Fri</string>
-        <string name="day_saturday">Sat</string>
-        <string name="day_sunday">Sun</string>
+    <!-- Days of week -->
+    <string name="day_monday">Mon</string>
+    <string name="day_tuesday">Tue</string>
+    <string name="day_wednesday">Wed</string>
+    <string name="day_thursday">Thu</string>
+    <string name="day_friday">Fri</string>
+    <string name="day_saturday">Sat</string>
+    <string name="day_sunday">Sun</string>
 
-        <!-- Empty data states -->
-        <string name="no_measurement_data">No measurement data</string>
-        <string name="start_measurement_prompt">Start measuring to view your health status</string>
+    <!-- Empty data states -->
+    <string name="no_measurement_data">No measurement data</string>
+    <string name="start_measurement_prompt">Start measuring to view your health status</string>
 
-        <!-- AI modes -->
-        <string name="mode_diagnostic">Diagnostic Advice</string>
-        <string name="mode_comprehensive">Comprehensive Advice</string>
-        <string name="mode_exercise">Exercise Advice</string>
-        <string name="mode_lifestyle">Lifestyle</string>
-        <string name="mode_prevention">Prevention Tips</string>
+    <!-- AI modes -->
+    <string name="mode_diagnostic">Diagnostic Advice</string>
+    <string name="mode_comprehensive">Comprehensive Advice</string>
+    <string name="mode_exercise">Exercise Advice</string>
+    <string name="mode_lifestyle">Lifestyle</string>
+    <string name="mode_prevention">Prevention Tips</string>
 
-        <!-- AI mode descriptions -->
-        <string name="mode_diagnostic_desc">Medical insights and analysis</string>
-        <string name="mode_comprehensive_desc">Comprehensive health guidance</string>
-        <string name="mode_exercise_desc">Fitness and exercise recommendations</string>
-        <string name="mode_lifestyle_desc">Daily health recommendations</string>
-        <string name="mode_prevention_desc">Preventive health tips</string>
+    <!-- AI mode descriptions -->
+    <string name="mode_diagnostic_desc">Medical insights and analysis</string>
+    <string name="mode_comprehensive_desc">Comprehensive health guidance</string>
+    <string name="mode_exercise_desc">Fitness and exercise recommendations</string>
+    <string name="mode_lifestyle_desc">Daily health recommendations</string>
+    <string name="mode_prevention_desc">Preventive health tips</string>
 
-        <!-- Control buttons -->
-        <string name="select_mode">Select Mode</string>
-        <string name="selected">Selected</string>
+    <!-- Control buttons -->
+    <string name="select_mode">Select Mode</string>
+    <string name="selected">Selected</string>
 
-        <string name="new_suggestion">New</string>
-        <string name="chat">Chat</string>
-        <string name="chat_with_ai">Chat with AI</string>
-        <string name="ai_thinking">AI is thinking...</string>
+    <string name="new_suggestion">New</string>
+    <string name="chat">Chat</string>
+    <string name="chat_with_ai">Chat with AI</string>
+    <string name="ai_thinking">AI is thinking...</string>
 
-        <!-- Steps related -->
-        <string name="today_steps">Today\'s Steps</string>
-        <string name="target_steps">Target: 10,000</string>
-        <string name="completion_percentage">%d%% Complete</string>
-        <string name="estimated">(Estimated)</string>
-        <string name="week_total_steps">Week total: %d steps</string>
-        <string name="steps_k_format">%dk</string>
+    <!-- Steps related -->
+    <string name="today_steps">Today\'s Steps</string>
+    <string name="target_steps">Target: 10,000</string>
+    <string name="completion_percentage">%d%% Complete</string>
+    <string name="estimated">(Estimated)</string>
+    <string name="week_total_steps">Week total: %d steps</string>
+    <string name="steps_k_format">%dk</string>
 
-        <!-- Permission related -->
-        <string name="permission_required">Permission Required</string>
-        <string name="step_counter_permission">Step Counter Permission</string>
-        <string name="step_counter_permission_description">To accurately track your daily steps, we need permission to access your activity data. This helps provide better health insights.</string>
-        <string name="later">Later</string>
-        <string name="grant_permission">Grant Permission</string>
+    <!-- Permission related -->
+    <string name="permission_required">Permission Required</string>
+    <string name="step_counter_permission">Step Counter Permission</string>
+    <string name="step_counter_permission_description">To accurately track your daily steps, we need permission to access your activity data. This helps provide better health insights.</string>
+    <string name="later">Later</string>
+    <string name="grant_permission">Grant Permission</string>
 
+    <!-- AI Assistant Card -->
+    <string name="home_ai_health_insights">AI Health Insights</string>
+    <string name="home_personalized_recommendations">Personalized recommendations</string>
+    <string name="home_generate">Generate</string>
+
+    <!-- Breathing Exercise Card -->
+    <string name="home_breathing_exercise">Breathing Exercise</string>
+    <string name="home_thirty_second_session">30-second session</string>
+    <string name="home_reset">Reset</string>
+    <string name="home_breathe_in">Breathe In</string>
+    <string name="home_hold">Hold</string>
+    <string name="home_breathe_out">Breathe Out</string>
+    <string name="home_cycle_format">Cycle %1$d of %2$d</string>
+    <string name="home_pause">Pause</string>
+    <string name="home_start_exercise">Start Exercise</string>
+    <string name="home_well_done">Well Done!</string>
+    <string name="home_breathing_completion_message">Great breathing session! Now let\'s measure your vital signs to see the impact.</string>
+    <string name="home_start_health_scan">Start Health Scan</string>
+
+    <!-- Measurement History -->
+    <string name="home_recent_measurements">Recent Measurements</string>
+    <string name="home_today">Today</string>
+    <string name="home_view_all_records">View All Records</string>
+    <string name="home_quality_format">Quality: %s</string>
+
+    <!-- Units -->
+    <string name="home_unit_bpm">BPM</string>
+    <string name="home_unit_percent">%</string>
+    <string name="home_unit_ms">ms</string>
+
+    <!-- Achievement Card -->
+    <string name="home_achievement_badges">Achievement Badges</string>
+    <string name="home_earned_format">Earned %1$d/%2$d</string>
+    <string name="home_view_all">View All</string>
+
+    <!-- Health Overview -->
+    <string name="home_health_overview">Health Overview</string>
+    <string name="home_updated_format">Updated %s</string>
+    <string name="home_refresh">Refresh</string>
+    <string name="home_heart_rate">Heart Rate</string>
+    <string name="home_spo2">SpO2</string>
+    <string name="home_hrv">HRV</string>
+    <string name="home_times_format">%d times</string>
+    <string name="home_accuracy">Accuracy</string>
+    <string name="home_percent_format">%d%%</string>
+    <string name="home_seven_day_trends">7-Day Trends</string>
+
+    <!-- Health Status -->
+    <string name="home_status_low">Low</string>
+    <string name="home_status_high">High</string>
+    <string name="home_status_normal">Normal</string>
+    <string name="home_status_good">Good</string>
+    <string name="home_status_excellent">Excellent</string>
+
+    <!-- Banner Content -->
+    <string name="home_banner_new_feature_title">New Feature Launch</string>
+    <string name="home_banner_new_feature_subtitle">AI intelligent health analysis with personalized recommendations</string>
+    <string name="home_banner_health_challenge_title">Health Challenge</string>
+    <string name="home_banner_health_challenge_subtitle">Take measurements for 7 consecutive days to earn exclusive badges</string>
+    <string name="home_banner_breathing_training_title">Breathing Training</string>
+    <string name="home_banner_breathing_training_subtitle">5 minutes daily to improve heart rate variability</string>
+
+    <!-- Achievement Names -->
+    <string name="home_achievement_first_measurement">First Measurement</string>
+    <string name="home_achievement_first_measurement_desc">Complete your first health measurement</string>
+    <string name="home_achievement_consistent_user">Consistency Champion</string>
+    <string name="home_achievement_consistent_user_desc">Take health measurements for 3 consecutive days</string>
+    <string name="home_achievement_health_expert">Health Expert</string>
+    <string name="home_achievement_health_expert_desc">Complete 10 health measurements</string>
+    <string name="home_achievement_data_collector">Data Collector</string>
+    <string name="home_achievement_data_collector_desc">Complete a total of 20 measurements</string>
+
+    <!-- Error Messages -->
+    <string name="home_error_load_data">Failed to load data: %s</string>
+    <string name="home_error_refresh_data">Failed to refresh: %s</string>
+    <string name="home_error_scan_failed">Scan failed: %s</string>
+
+    <!-- Trend Data -->
+    <string name="home_steps">Steps</string>
+    <string name="home_goal_achieved">Goal Achieved</string>
+    <string name="home_keep_going">Keep Going</string>
+    <string name="home_stable">Stable</string>
+
+    <!-- Format Strings -->
+    <string name="home_bpm_format">%d bpm</string>
+    <string name="home_ms_format">%d ms</string>
 </resources>

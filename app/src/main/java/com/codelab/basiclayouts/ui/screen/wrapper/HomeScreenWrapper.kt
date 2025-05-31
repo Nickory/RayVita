@@ -2,23 +2,25 @@ package com.codelab.basiclayouts.ui.screen.wrapper
 
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.codelab.basiclayouts.ui.screen.home.RayVitaApp
+import com.codelab.basiclayouts.ui.screen.home.ModernRayVitaApp
 import com.codelab.basiclayouts.ui.viewmodel.home.HomeViewModel
+import com.codelab.basiclayouts.ui.viewmodel.home.HomeViewModelFactory
 
 @Composable
 fun HomeScreenWrapper() {
-    val viewModel: HomeViewModel = viewModel()
+    val context = LocalContext.current
+    val viewModel: HomeViewModel = viewModel(factory = HomeViewModelFactory(context))
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFF4F4F4)
+        color = MaterialTheme.colorScheme.background
     ) {
-        // 调用原有的RayVitaApp，而不是移除Scaffold的版本
-        RayVitaApp(viewModel = viewModel)
+        ModernRayVitaApp(viewModel = viewModel)
     }
 }

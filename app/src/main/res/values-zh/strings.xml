@@ -346,4 +346,91 @@
     <string name="later">稍后</string>
     <string name="grant_permission">授予权限</string>
 
+    <!-- AI Assistant Card -->
+    <string name="home_ai_health_insights">AI健康洞察</string>
+    <string name="home_personalized_recommendations">个性化建议</string>
+    <string name="home_generate">生成</string>
+
+    <!-- Breathing Exercise Card -->
+    <string name="home_breathing_exercise">呼吸练习</string>
+    <string name="home_thirty_second_session">30秒训练</string>
+    <string name="home_reset">重置</string>
+    <string name="home_breathe_in">吸气</string>
+    <string name="home_hold">屏息</string>
+    <string name="home_breathe_out">呼气</string>
+    <string name="home_cycle_format">第%1$d轮，共%2$d轮</string>
+    <string name="home_pause">暂停</string>
+    <string name="home_start_exercise">开始练习</string>
+    <string name="home_well_done">太棒了！</string>
+    <string name="home_breathing_completion_message">呼吸练习完成得很好！现在让我们测量您的生命体征，看看练习的效果。</string>
+    <string name="home_start_health_scan">开始健康扫描</string>
+
+    <!-- Measurement History -->
+    <string name="home_recent_measurements">最近测量</string>
+    <string name="home_today">今日测量次数</string>
+    <string name="home_view_all_records">查看所有记录</string>
+    <string name="home_quality_format">质量：%s</string>
+
+    <!-- Units -->
+    <string name="home_unit_bpm">次/分</string>
+    <string name="home_unit_percent">%</string>
+    <string name="home_unit_ms">毫秒</string>
+
+    <!-- Achievement Card -->
+    <string name="home_achievement_badges">成就徽章</string>
+    <string name="home_earned_format">已获得 %1$d/%2$d</string>
+    <string name="home_view_all">查看全部</string>
+
+    <!-- Health Overview -->
+    <string name="home_health_overview">健康概览</string>
+    <string name="home_updated_format">更新于 %s</string>
+    <string name="home_refresh">刷新</string>
+    <string name="home_heart_rate">心率</string>
+    <string name="home_spo2">血氧</string>
+    <string name="home_hrv">心率变异性</string>
+    <string name="home_times_format">%d 次</string>
+    <string name="home_accuracy">准确率</string>
+    <string name="home_percent_format">%d%%</string>
+    <string name="home_seven_day_trends">7天趋势</string>
+
+    <!-- Health Status -->
+    <string name="home_status_low">偏低</string>
+    <string name="home_status_high">偏高</string>
+    <string name="home_status_normal">正常</string>
+    <string name="home_status_good">良好</string>
+    <string name="home_status_excellent">优秀</string>
+
+
+    <!-- Banner Content -->
+    <string name="home_banner_new_feature_title">新功能上线</string>
+    <string name="home_banner_new_feature_subtitle">AI智能健康分析，个性化建议</string>
+    <string name="home_banner_health_challenge_title">健康挑战</string>
+    <string name="home_banner_health_challenge_subtitle">连续7天测量，获得专属徽章</string>
+    <string name="home_banner_breathing_training_title">呼吸训练</string>
+    <string name="home_banner_breathing_training_subtitle">每日5分钟，改善心率变异性</string>
+
+    <!-- Achievement Names -->
+    <string name="home_achievement_first_measurement">初次测量</string>
+    <string name="home_achievement_first_measurement_desc">完成第一次健康测量</string>
+    <string name="home_achievement_consistent_user">坚持不懈</string>
+    <string name="home_achievement_consistent_user_desc">连续3天进行健康测量</string>
+    <string name="home_achievement_health_expert">健康专家</string>
+    <string name="home_achievement_health_expert_desc">完成10次健康测量</string>
+    <string name="home_achievement_data_collector">数据收集者</string>
+    <string name="home_achievement_data_collector_desc">累计测量20次</string>
+
+    <!-- Error Messages -->
+    <string name="home_error_load_data">加载数据失败：%s</string>
+    <string name="home_error_refresh_data">刷新失败：%s</string>
+    <string name="home_error_scan_failed">扫描失败：%s</string>
+
+    <!-- Trend Data -->
+    <string name="home_steps">步数</string>
+    <string name="home_goal_achieved">目标达成</string>
+    <string name="home_keep_going">继续加油</string>
+    <string name="home_stable">稳定</string>
+
+    <!-- Format Strings -->
+    <string name="home_bpm_format">%d 次/分</string>
+    <string name="home_ms_format">%d 毫秒</string>
 </resources>
