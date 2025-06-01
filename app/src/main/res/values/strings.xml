@@ -567,4 +567,198 @@
     <string name="theme">Theme</string>
     <string name="not_set">Not set</string>
     <string name="current">CURRENT</string>
+
+    <!-- About Screen -->
+    <string name="about_title">About</string>
+
+    <!-- App Introduction -->
+    <string name="about_app_name_full">RayVita®</string>
+    <string name="about_app_description">RayVita® is a cutting-edge non-contact health sensing app that integrates AI and rPPG technology. Users can detect heart rate, HRV, and respiratory rate through the front camera, and receive personalized AI suggestions with color-based health feedback. Features include theme switching, behavior tracking, health challenges, and cross-platform connectivity.</string>
+
+    <!-- RayVita-Synapse -->
+    <string name="about_synapse_name">RayVita-Synapse</string>
+    <string name="about_synapse_description">RayVita-Synapse is the lightweight web version of the RayVita series, positioned as a cross-platform health data visualization and interaction hub. It provides core interfaces including heart rate measurement display and analysis, and health social synchronization modules, allowing users to sync posts, comments, and friend relationships across devices.</string>
+    <string name="about_visit_synapse">Visit Synapse Web</string>
+
+    <!-- Tech Stack -->
+    <string name="about_tech_stack_title">Technology Stack</string>
+    <string name="about_tech_stack_subtitle">Cutting-edge technologies powering RayVita</string>
+    <string name="about_innovation_title">Industry First Innovation</string>
+    <string name="about_innovation_description">DeepSeek API-driven AI theme generation - world\'s first implementation</string>
+
+    <!-- Project Support -->
+    <string name="about_project_support_title">Project Background &amp; Support</string>
+    <string name="about_project_support_subtitle">Academic guidance and funding support</string>
+    <string name="about_project_guidance">The project has received funding support from the following foundations:</string>
+    <string name="about_funding_support">Funding Support:</string>
+    <string name="about_nuist_fund">NUIST Innovation Platform Fund (XJDC202410300297)</string>
+    <string name="about_jiangsu_fund">Jiangsu Provincial College Student Innovation and Entrepreneurship Program (ZR2022MF338)</string>
+    <string name="about_national_fund">National College Student Innovation and Entrepreneurship Training Program (202410300075Z)</string>
+
+    <!-- Acknowledgment -->
+    <string name="about_acknowledgment_title">Acknowledgments</string>
+    <string name="about_acknowledgment_subtitle">Special thanks to supporters and contributors</string>
+
+    <!-- Development Team -->
+    <string name="about_development_team">Development Team</string>
+    <string name="about_team_wangziheng">Wang Ziheng</string>
+    <string name="about_team_xiadongxu">Xia Dongxu</string>
+    <string name="about_team_wudi">Wu Di</string>
+    <string name="about_team_zhaorenzhe">Zhao Renzhe</string>
+    <string name="about_team_guidance">Associate Professor Jiang Weiwei - Thanks for project guidance</string>
+
+    <!-- Academic Support -->
+    <string name="about_academic_support">Support</string>
+    <string name="about_professor_wang">Professor Wang Baowei; Professor Cheng Xu; Dr. Sun Zhaodong; Professor Li Xiaobai; Dr.Su Rui; Associate Professor Wang Haibin</string>
+    <string name="about_professor_cheng"> - Thanks for assistance and help</string>
+    <string name="about_dr_sun"> - Thanks for research support</string>
+    <string name="about_researcher_li">Researcher  - Thanks for technical help</string>
+    <string name="about_lecturer_su">Lecturer Su Rui - Thanks for valuable assistance</string>
+    <string name="about_associate_professor_wang"> - Thanks for project support</string>
+
+    <!-- Student Support -->
+    <string name="about_student_support">Student Support</string>
+    <string name="about_student_huang">Huang Jiarui - Thanks for testing and feedback</string>
+    <string name="about_student_jin">Jin Kangfeng - Thanks for user experience support</string>
+
+    <!-- References -->
+    <string name="about_references">References</string>
+    <string name="about_reference_contrast_phys">Sun Z, Li X. Contrast-phys+: Unsupervised and weakly-supervised video-based remote physiological measurement via spatiotemporal contrast[J]. IEEE Transactions on Pattern Analysis and Machine Intelligence, 2024.</string>
+    <string name="about_reference_af_detection">Sun Z, Junttila J, Tulppo M, et al. Non-contact atrial fibrillation detection from face videos by learning systolic peaks[J]. IEEE Journal of Biomedical and Health Informatics, 2022, 26(9): 4587-4598.</string>
+
+    <!-- Roadmap -->
+    <string name="about_roadmap_title">Future Vision &amp; Roadmap</string>
+    <string name="about_roadmap_subtitle">Innovation continues with exciting new features</string>
+    <string name="about_roadmap_af_detection">Introduce Atrial Fibrillation (AF) Detection Model</string>
+    <string name="about_roadmap_breathing_emotion">Add Respiratory Pattern Recognition and Emotion Modeling</string>
+    <string name="about_roadmap_social_games">Expand Social Challenges and Health Mini-Games</string>
+    <string name="about_roadmap_ai_themes">Perfect AI-Generated Personalized Themes for Health Visual Feedback Loop</string>
+
+    <!-- Contact -->
+    <string name="about_contact_title">Get in Touch</string>
+    <string name="about_contact_subtitle">Connect with our team</string>
+    <string name="about_website_title">Official Website</string>
+    <string name="about_website_url">http://47.96.237.130/</string>
+    <string name="about_github_title">GitHub Repository</string>
+    <string name="about_github_url">https://github.com/Nickory/RayVita</string>
+    <string name="about_email_title">Contact Email</string>
+    <string name="about_email_address">zhwang@nuist.edu.cn</string>
+    <string name="about_email_subject">RayVita App Feedback</string>
+    <string name="about_version_info">Version %1$s</string>
+
+    <!-- Easter Egg -->
+    <string name="about_easter_egg_title">🎉 Amazing Discovery!</string>
+    <string name="about_easter_egg_message">Congratulations! You\'ve unlocked our secret! Thanks for being so curious and exploring every detail of RayVita. Your passion for discovery makes our app better! Keep exploring and stay healthy! 💖</string>
+    <string name="about_easter_egg_close">Awesome!</string>
+
+    <!-- Help Center -->
+
+    <string name="help_welcome">Welcome to RayVita Support</string>
+    <string name="help_description">Find answers to frequently asked questions</string>
+    <string name="faq_count">%d Questions</string>
+
+
+    <!-- FAQ Categories -->
+    <string name="faq_category_rppg">rPPG Measurement</string>
+    <string name="faq_category_data">Data Recording &amp; Trends</string>
+    <string name="faq_category_cloud">Cloud Sync &amp; Security</string>
+    <string name="faq_category_ai">AI &amp; Personalization</string>
+    <string name="faq_category_web">Web Platform Support</string>
+
+    <!-- rPPG FAQ -->
+    <string name="faq_rppg_what_is">What is rPPG?</string>
+    <string name="faq_rppg_what_is_answer">Remote Photoplethysmography (rPPG) is a contactless technology that analyzes facial color changes captured by your camera to extract physiological data like heart rate and breathing patterns.</string>
+
+    <string name="faq_rppg_contact">Does rPPG measurement require skin contact?</string>
+    <string name="faq_rppg_contact_answer">No, rPPG is completely contactless. It uses visual analysis of your face through the camera without any physical contact required.</string>
+
+    <string name="faq_rppg_equipment">What equipment do I need for measurement?</string>
+    <string name="faq_rppg_equipment_answer">You only need a front-facing camera and normal lighting conditions. No additional hardware is required.</string>
+
+    <string name="faq_rppg_metrics">What metrics can be measured?</string>
+    <string name="faq_rppg_metrics_answer">Currently supports heart rate, breathing frequency, and HRV (Heart Rate Variability) measurements.</string>
+
+    <string name="faq_rppg_future">What future features are planned?</string>
+    <string name="faq_rppg_future_answer">Atrial fibrillation detection, emotion recognition, and advanced breathing analysis features are already in development.</string>
+
+    <string name="faq_rppg_duration">How long should a measurement last?</string>
+    <string name="faq_rppg_duration_answer">We recommend at least 20 seconds for stable and accurate data collection.</string>
+
+    <string name="faq_rppg_tips">What should I pay attention to during measurement?</string>
+    <string name="faq_rppg_tips_answer">Stay still, keep your face centered in the frame, avoid sudden movements, and ensure adequate lighting conditions.</string>
+
+    <string name="faq_rppg_failure">Why does measurement fail?</string>
+    <string name="faq_rppg_failure_answer">Common causes include insufficient lighting, face obstruction, incomplete facial view, or poor camera positioning that affects analysis quality.</string>
+
+    <string name="faq_rppg_multitask">Can I do other things during measurement?</string>
+    <string name="faq_rppg_multitask_answer">We recommend focusing on the measurement and avoiding switching apps or leaving the camera view for best results.</string>
+
+    <string name="faq_rppg_accuracy">How accurate is the measurement data?</string>
+    <string name="faq_rppg_accuracy_answer">rPPG provides estimation-based measurements. Data is for reference only and should not be used for medical diagnosis.</string>
+
+    <!-- Data FAQ -->
+    <string name="faq_data_auto_save">Is measurement data automatically saved?</string>
+    <string name="faq_data_auto_save_answer">Yes, all completed measurements are automatically recorded in your local history.</string>
+
+    <string name="faq_data_history">Where can I view my history?</string>
+    <string name="faq_data_history_answer">Go to Insight → History page to view detailed charts and trends.</string>
+
+    <string name="faq_data_clear">How do I clear history data?</string>
+    <string name="faq_data_clear_answer">You can find the option to clear local data in the Settings page.</string>
+
+    <string name="faq_data_export">Does it support data export?</string>
+    <string name="faq_data_export_answer">Yes, you can export data in CSV/JSON formats for analysis purposes.</string>
+
+    <string name="faq_data_trends">Does it support trend viewing?</string>
+    <string name="faq_data_trends_answer">Yes, you can view heart rate and breathing frequency changes by day, week, or month.</string>
+
+    <!-- Cloud FAQ -->
+    <string name="faq_cloud_enable">How do I enable cloud sync?</string>
+    <string name="faq_cloud_enable_answer">After logging in, click the sync button in the top-right corner of Insight → History page to enable cloud sync.</string>
+
+    <string name="faq_cloud_realtime">Is data synced in real-time?</string>
+    <string name="faq_cloud_realtime_answer">Sync can be triggered manually or automatically after measurement completion.</string>
+
+    <string name="faq_cloud_device_change">Will I lose data when changing devices?</string>
+    <string name="faq_cloud_device_change_answer">With cloud sync enabled, you can restore your history data on any device.</string>
+
+    <string name="faq_cloud_sync_fail">What if sync fails?</string>
+    <string name="faq_cloud_sync_fail_answer">Check your network connection and try again later, or contact technical support if the issue persists.</string>
+
+    <string name="faq_cloud_security">Is my data secure?</string>
+    <string name="faq_cloud_security_answer">Data transmission and storage use encryption, and we follow strict privacy policies to protect your information.</string>
+
+    <!-- AI FAQ -->
+    <string name="faq_ai_theme">How do I generate personalized themes?</string>
+    <string name="faq_ai_theme_answer">In the Theme Settings page, enter a descriptive sentence and the system will automatically generate an AI-powered custom theme.</string>
+
+    <string name="faq_ai_suggestions">Where do AI suggestion cards come from?</string>
+    <string name="faq_ai_suggestions_answer">Daily health suggestions are automatically generated from your Insight data using AI analysis.</string>
+
+    <string name="faq_ai_network">Do AI features require internet?</string>
+    <string name="faq_ai_network_answer">Yes, AI features require connection to DeepSeek API for processing.</string>
+
+    <string name="faq_ai_edit">Can I edit AI-generated content?</string>
+    <string name="faq_ai_edit_answer">Currently system-generated only. We\'re considering adding favorites and feedback features in the future.</string>
+
+    <string name="faq_ai_theme_basis">What is theme generation based on?</string>
+    <string name="faq_ai_theme_basis_answer">Based on text understanding and color theory principles to output harmonious theme combinations.</string>
+
+    <!-- Web FAQ -->
+    <string name="faq_web_synapse">What is RayVita-Synapse?</string>
+    <string name="faq_web_synapse_answer">RayVita-Synapse is our web platform for viewing and exporting comprehensive health reports.</string>
+
+    <string name="faq_web_features">What features does the web version support?</string>
+    <string name="faq_web_features_answer">Health trend charts, measurement records, PDF/HTML report generation, and more.</string>
+
+    <string name="faq_web_usage">How do I use the web platform?</string>
+    <string name="faq_web_usage_answer">Enable cloud sync in the app, then log in to the web platform to view your complete data.</string>
+
+    <string name="faq_web_share">Can web reports be shared?</string>
+    <string name="faq_web_share_answer">Yes, you can export HTML reports and share them via links or email.</string>
+
+    <string name="faq_web_security">Is the web platform secure?</string>
+    <string name="faq_web_security_answer">Based on HTTPS and account authentication to ensure privacy and security.</string>
+
+
 </resources>

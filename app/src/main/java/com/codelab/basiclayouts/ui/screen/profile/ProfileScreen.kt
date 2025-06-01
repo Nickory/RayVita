@@ -90,6 +90,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.codelab.basiclayouts.model.UserInfo
 import com.codelab.basiclayouts.ui.screen.language.LanguageSelectActivity
+import com.codelab.basiclayouts.ui.screen.profile.AboutActivity
+import com.codelab.basiclayouts.ui.screen.profile.HelpCenterActivity
 import com.codelab.basiclayouts.ui.screen.themeChange.ThemeSelectorActivity
 import com.codelab.basiclayouts.viewmodel.profile.AuthUiState
 import com.codelab.basiclayouts.viewmodel.profile.AuthViewModel
@@ -697,6 +699,14 @@ fun SettingsCard() {
                                 // 跳转到语言选择Activity
                                 val intent = Intent(context, LanguageSelectActivity::class.java)
                                 context.startActivity(intent)
+                            }
+                            "About" -> {
+                                // 跳转到关于页面
+                                AboutActivity.start(context)
+                            }
+                            "Help Center" -> {
+                                // 跳转到帮助中心Activity
+                                HelpCenterActivity.start(context)
                             }
                             // 其他设置项的点击事件可以在这里添加
                             else -> {

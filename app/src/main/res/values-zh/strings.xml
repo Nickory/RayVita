@@ -449,7 +449,7 @@
     <string name="language_spanish">Español</string>
     <string name="language_russian">Русский</string>
     <string name="language_korean">한국어</string>
-    <string name="language_welcome_title">选择您的语言</string>
+    <string name="language_welcome">請選擇語言</string>
 
     <!-- 菜单和设置 -->
     <string name="menu_language">Language</string>
@@ -458,7 +458,7 @@
         <string name="app_name">BasicLayouts</string>
 
         <!-- 通用操作 -->
-        <string name="loading">加载中…</string>
+
         <string name="ok">确定</string>
         <string name="retry">重试</string>
         <string name="close">关闭</string>
@@ -529,4 +529,197 @@
         <string name="theme">主题</string>
         <string name="not_set">未设置</string>
         <string name="current">当前</string>
+
+    <string name="about_title">关于</string>
+
+    <!-- App Introduction -->
+    <string name="about_app_name_full">RayVita®</string>
+    <string name="about_app_description">RayVita® 是一款融合 AI 与 rPPG 技术的非接触式健康感知 App。用户可通过前置摄像头检测心率、HRV、呼吸频率，并获得 AI 个性化建议与配色反馈。支持主题切换、行为追踪、健康挑战，具备跨平台联动能力。</string>
+
+    <!-- RayVita-Synapse -->
+    <string name="about_synapse_name">RayVita-Synapse</string>
+    <string name="about_synapse_description">RayVita-Synapse 是 RayVita 系列的网页端轻量化版本，定位为跨平台健康数据可视化与交互中枢。提供核心功能接口，包括心率测量结果展示与分析，健康社交同步模块，允许用户跨设备同步帖子、评论与好友关系。</string>
+    <string name="about_visit_synapse">访问 Synapse 网页版</string>
+
+    <!-- Tech Stack -->
+    <string name="about_tech_stack_title">技术栈</string>
+    <string name="about_tech_stack_subtitle">驱动 RayVita 的前沿技术</string>
+    <string name="about_innovation_title">业内首创</string>
+    <string name="about_innovation_description">DeepSeek API 驱动的 AI 主题生成 - 全球首创实现</string>
+
+    <!-- Project Support -->
+    <string name="about_project_support_title">项目支持</string>
+    <string name="about_project_support_subtitle">资金支持</string>
+    <string name="about_project_guidance">本项目受到以下基金资助支持：</string>
+    <string name="about_funding_support">资金支持：</string>
+    <string name="about_nuist_fund">NUIST 大创平台基金（XJDC202410300297）</string>
+    <string name="about_jiangsu_fund">江苏省大学生创新创业计划（ZR2022MF338）</string>
+    <string name="about_national_fund">中国国家级大学生创新创业训练计划（202410300075Z）</string>
+
+    <!-- Acknowledgment -->
+    <string name="about_acknowledgment_title">致谢</string>
+    <string name="about_acknowledgment_subtitle">特别感谢支持者和贡献者</string>
+
+    <!-- Development Team -->
+    <string name="about_development_team">开发团队</string>
+    <string name="about_team_wangziheng">王子恒</string>
+    <string name="about_team_xiadongxu">夏东旭</string>
+    <string name="about_team_wudi">吴迪</string>
+    <string name="about_team_zhaorenzhe">赵任哲</string>
+    <string name="about_team_guidance">蒋玮炜副教授 - 感谢项目指导</string>
+
+    <!-- Academic Support -->
+    <string name="about_academic_support">感谢支持</string>
+    <string name="about_professor_wang">王保卫教授 程旭教授 孙照东博士 李晓白教授 苏芮博士 王海彬副教授 - 感谢指导和帮助</string>
+    <string name="about_professor_cheng"> - 感谢协助和支持</string>
+    <string name="about_dr_sun"> - 感谢研究支持</string>
+    <string name="about_researcher_li"> - 感谢技术帮助</string>
+    <string name="about_lecturer_su"> - 感谢宝贵协助</string>
+    <string name="about_associate_professor_wang"> - 感谢项目支持</string>
+
+    <!-- Student Support -->
+    <string name="about_student_support">学生支持</string>
+    <string name="about_student_huang">黄家睿同学 - 感谢测试和反馈</string>
+    <string name="about_student_jin">金垲峰同学 - 感谢用户体验支持</string>
+
+    <!-- References -->
+    <string name="about_references">参考文献</string>
+    <string name="about_reference_contrast_phys">Sun Z, Li X. Contrast-phys+: Unsupervised and weakly-supervised video-based remote physiological measurement via spatiotemporal contrast[J]. IEEE Transactions on Pattern Analysis and Machine Intelligence, 2024.</string>
+    <string name="about_reference_af_detection">Sun Z, Junttila J, Tulppo M, et al. Non-contact atrial fibrillation detection from face videos by learning systolic peaks[J]. IEEE Journal of Biomedical and Health Informatics, 2022, 26(9): 4587-4598.</string>
+
+    <!-- Roadmap -->
+    <string name="about_roadmap_title">展望与路线图</string>
+    <string name="about_roadmap_subtitle">持续创新，令人兴奋的新功能</string>
+    <string name="about_roadmap_af_detection">引入房颤（AF）检测模型</string>
+    <string name="about_roadmap_breathing_emotion">加入呼吸模态识别与情绪建模</string>
+    <string name="about_roadmap_social_games">扩展社交挑战、健康小游戏</string>
+    <string name="about_roadmap_ai_themes">完善 AI 生成个性化主题，形成健康视觉反馈闭环</string>
+
+    <!-- Contact -->
+    <string name="about_contact_title">联系我们</string>
+    <string name="about_contact_subtitle">与我们的团队联系</string>
+    <string name="about_website_title">官方网站</string>
+    <string name="about_website_url">http://47.96.237.130/</string>
+    <string name="about_github_title">GitHub 仓库</string>
+    <string name="about_github_url">https://github.com/Nickory/RayVita</string>
+    <string name="about_email_title">联系邮箱</string>
+    <string name="about_email_address">zhwang@nuist.edu.cn</string>
+    <string name="about_email_subject">RayVita 应用反馈</string>
+    <string name="about_version_info">版本 %1$s</string>
+
+    <!-- Easter Egg -->
+    <string name="about_easter_egg_title">🎉 惊喜发现！</string>
+    <string name="about_easter_egg_message">恭喜！你解锁了我们的秘密！感谢你如此好奇，探索 RayVita 的每一个细节。你对发现的热情让我们的应用变得更好！继续探索，保持健康！💖</string>
+    <string name="about_easter_egg_close">太棒了！</string>
+
+
+    <string name="loading">正在加载…</string>
+
+
+    <string name="help_welcome">欢迎使用 RayVita 支持</string>
+    <string name="help_description">在这里找到常见问题的答案</string>
+    <string name="faq_count">%d 个问题</string>
+
+
+    <!-- FAQ Categories -->
+    <string name="faq_category_rppg">rPPG 测量</string>
+    <string name="faq_category_data">数据记录与趋势</string>
+    <string name="faq_category_cloud">云端同步与安全</string>
+    <string name="faq_category_ai">AI 与个性化功能</string>
+    <string name="faq_category_web">网页端支持</string>
+
+    <!-- rPPG FAQ -->
+    <string name="faq_rppg_what_is">rPPG 是什么？</string>
+    <string name="faq_rppg_what_is_answer">远程光电容积描记技术，基于摄像头提取面部颜色变化分析生理数据。</string>
+
+    <string name="faq_rppg_contact">rPPG 测量需要接触皮肤吗？</string>
+    <string name="faq_rppg_contact_answer">不需要，是完全非接触的视觉测量方法。</string>
+
+    <string name="faq_rppg_equipment">测量时需要什么设备？</string>
+    <string name="faq_rppg_equipment_answer">前置摄像头、正常光照即可，无需额外硬件。</string>
+
+    <string name="faq_rppg_metrics">支持测量哪些指标？</string>
+    <string name="faq_rppg_metrics_answer">当前支持心率、呼吸频率、HRV（心率变异性）。</string>
+
+    <string name="faq_rppg_future">未来会扩展哪些功能？</string>
+    <string name="faq_rppg_future_answer">房颤检测、情绪识别、呼吸分析等功能已规划。</string>
+
+    <string name="faq_rppg_duration">测量建议持续多久？</string>
+    <string name="faq_rppg_duration_answer">建议至少 20 秒，以获得稳定数据。</string>
+
+    <string name="faq_rppg_tips">测量过程中需要注意什么？</string>
+    <string name="faq_rppg_tips_answer">保持安静、面部居中、避免剧烈移动与过暗环境。</string>
+
+    <string name="faq_rppg_failure">为什么测量失败？</string>
+    <string name="faq_rppg_failure_answer">光线不足、遮挡、面部不完整等会影响推理质量。</string>
+
+    <string name="faq_rppg_multitask">测量过程中可以做其他操作吗？</string>
+    <string name="faq_rppg_multitask_answer">建议专注测量，避免切换 App 或离开画面。</string>
+
+    <string name="faq_rppg_accuracy">测量数据准确吗？</string>
+    <string name="faq_rppg_accuracy_answer">rPPG 属于估算型方法，数据仅供参考，非医疗诊断。</string>
+
+    <!-- Data FAQ -->
+    <string name="faq_data_auto_save">测量数据是否自动保存？</string>
+    <string name="faq_data_auto_save_answer">是的，测量完成后将自动记录在本地历史中。</string>
+
+    <string name="faq_data_history">历史记录在哪查看？</string>
+    <string name="faq_data_history_answer">进入 Insight → History 页面查看详细图表与趋势。</string>
+
+    <string name="faq_data_clear">如何清除历史数据？</string>
+    <string name="faq_data_clear_answer">设置页面提供清除本地数据选项。</string>
+
+    <string name="faq_data_export">数据是否支持导出？</string>
+    <string name="faq_data_export_answer">支持，可导出 CSV/JSON 格式供分析使用。</string>
+
+    <string name="faq_data_trends">支持趋势查看吗？</string>
+    <string name="faq_data_trends_answer">支持按天、周、月查看心率、呼吸频率变化。</string>
+
+    <!-- Cloud FAQ -->
+    <string name="faq_cloud_enable">如何开启云同步？</string>
+    <string name="faq_cloud_enable_answer">登录后在 Insight → History 页右上角点击开启。</string>
+
+    <string name="faq_cloud_realtime">数据是否实时同步？</string>
+    <string name="faq_cloud_realtime_answer">需手动触发同步或在测量完成后自动上传。</string>
+
+    <string name="faq_cloud_device_change">换设备数据会丢失吗？</string>
+    <string name="faq_cloud_device_change_answer">开启云同步后，可在任意设备恢复历史数据。</string>
+
+    <string name="faq_cloud_sync_fail">同步失败怎么办？</string>
+    <string name="faq_cloud_sync_fail_answer">检查网络连接，稍后重试，或联系技术支持。</string>
+
+    <string name="faq_cloud_security">我的数据安全吗？</string>
+    <string name="faq_cloud_security_answer">数据传输与存储采用加密，遵循隐私政策。</string>
+
+    <!-- AI FAQ -->
+    <string name="faq_ai_theme">如何生成个性化主题？</string>
+    <string name="faq_ai_theme_answer">在"主题切换"页面输入一句话，自动生成 AI 主题。</string>
+
+    <string name="faq_ai_suggestions">AI 建议卡从哪里来？</string>
+    <string name="faq_ai_suggestions_answer">每日从 Insight 模块中自动提取精选健康建议。</string>
+
+    <string name="faq_ai_network">AI 功能需要联网吗？</string>
+    <string name="faq_ai_network_answer">是的，需连接 DeepSeek API 进行推理。</string>
+
+    <string name="faq_ai_edit">可以编辑 AI 推荐的内容吗？</string>
+    <string name="faq_ai_edit_answer">目前为系统生成，未来考虑支持收藏与反馈。</string>
+
+    <string name="faq_ai_theme_basis">主题生成依据是什么？</string>
+    <string name="faq_ai_theme_basis_answer">基于文本理解与调色原理输出和谐主题方案。</string>
+
+    <!-- Web FAQ -->
+    <string name="faq_web_synapse">RayVita-Synapse 是什么？</string>
+    <string name="faq_web_synapse_answer">RayVita 网页端平台，用于查看和导出健康报告。</string>
+
+    <string name="faq_web_features">网页版支持哪些功能？</string>
+    <string name="faq_web_features_answer">健康趋势图、测量记录、PDF/HTML 报告生成等。</string>
+
+    <string name="faq_web_usage">如何使用网页端？</string>
+    <string name="faq_web_usage_answer">在 App 中开启云同步，登录网页端查看完整数据。</string>
+
+    <string name="faq_web_share">网页报告是否可分享？</string>
+    <string name="faq_web_share_answer">支持导出 HTML 报告，可通过链接或邮箱分享。</string>
+
+    <string name="faq_web_security">网页是否安全？</string>
+    <string name="faq_web_security_answer">基于 HTTPS 与账户权限验证，保障隐私安全。</string>
 </resources>

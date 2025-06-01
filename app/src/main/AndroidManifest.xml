@@ -94,5 +94,15 @@
             android:theme="@style/Theme.MySoothe"
             android:configChanges="locale|layoutDirection"
             android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.screen.profile.AboutActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MySoothe" />
+
+        <activity
+            android:name=".ui.screen.profile.HelpCenterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MySoothe" />
     </application>
 </manifest>
