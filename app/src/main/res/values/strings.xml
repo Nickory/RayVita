@@ -470,4 +470,101 @@
     <!-- Format Strings -->
     <string name="home_bpm_format">%d bpm</string>
     <string name="home_ms_format">%d ms</string>
+
+    <!-- 语言相关字符串 -->
+    <string name="language_settings">Language Settings</string>
+    <string name="language_select_description">Choose your preferred language. Changes will take effect immediately.</string>
+
+
+    <!-- 语言选项 -->
+    <string name="language_follow_system">Follow System</string>
+    <string name="language_english">English</string>
+    <string name="language_chinese">简体中文</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_french">Français</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_korean">한국어</string>
+    <string name="language_welcome">Choose Your Language</string>
+
+    <!-- 菜单和设置 -->
+    <string name="menu_language">Language</string>
+    <string name="settings">Settings</string>
+
+    <!-- 通用操作 -->
+
+    <string name="loading">Loading…</string>
+
+    <string name="ok">OK</string>
+    <string name="retry">Retry</string>
+    <string name="close">Close</string>
+
+    <!-- 语言相关字符串 -->
+
+
+
+    <!-- Friend Search Activity 字符串 -->
+    <string name="find_friends_title">Find Friends</string>
+    <string name="search_placeholder">Search by name or email</string>
+    <string name="find_people_button">Find People</string>
+    <string name="no_users_found">No users found. Try searching for users.</string>
+    <string name="add_friend">Add Friend</string>
+
+    <!-- Profile Screen 字符串 -->
+    <string name="profile_title">Profile</string>
+    <string name="welcome_message">Welcome to RayVita</string>
+    <string name="sign_in_description">Sign in to access all features</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="change_avatar">Change Avatar</string>
+    <string name="choose_avatar">Choose Your Avatar</string>
+
+    <!-- Settings 字符串 -->
+    <string name="settings_support">Settings &amp; Support</string>
+    <string name="notifications">Notifications</string>
+    <string name="notifications_desc">Manage alerts and reminders</string>
+    <string name="privacy_security">Privacy &amp; Security</string>
+    <string name="privacy_security_desc">Account and data protection</string>
+    <string name="appearance">Appearance</string>
+    <string name="appearance_desc">Theme and display options</string>
+    <string name="language_desc">Choose your preferred language</string>
+    <string name="help_center">Help Center</string>
+    <string name="help_center_desc">FAQs and support</string>
+    <string name="about">About</string>
+    <string name="about_desc">App info and terms</string>
+
+    <!-- Developer Debug 字符串 -->
+    <string name="developer_debug">Developer Debug</string>
+    <string name="developer_access">Developer Access</string>
+    <string name="developer_password">Developer Password</string>
+    <string name="incorrect_password">Incorrect password</string>
+    <string name="access">Access</string>
+    <string name="all_users">All Users</string>
+    <string name="current_user">Current User</string>
+    <string name="clear_errors">Clear Errors</string>
+    <string name="refresh_users">Refresh Users</string>
+    <string name="force_logout">Force Logout</string>
+
+    <!-- Navigation 字符串 -->
+    <string name="home">Home</string>
+    <string name="insight">Insight</string>
+    <string name="social">Social</string>
+    <string name="profile">Profile</string>
+
+    <!-- 错误和状态消息 -->
+    <string name="error_generic">An error occurred</string>
+    <string name="error_network">Network error</string>
+    <string name="error_permission_denied">Permission denied</string>
+    <string name="success_generic">Operation completed successfully</string>
+
+    <!-- 其他通用字符串 -->
+    <string name="user">User</string>
+    <string name="email">Email</string>
+    <string name="nickname">Nickname</string>
+    <string name="theme">Theme</string>
+    <string name="not_set">Not set</string>
+    <string name="current">CURRENT</string>
 </resources>

@@ -54,6 +54,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.codelab.basiclayouts.R
+import com.codelab.basiclayouts.data.language.model.LanguagePreferences
+import com.codelab.basiclayouts.data.language.model.LanguageRepository
 import com.codelab.basiclayouts.data.physnet.EnhancedRppgProcessor
 import com.codelab.basiclayouts.data.physnet.EnhancedRppgRepository
 import com.codelab.basiclayouts.data.physnet.VideoRecorder
@@ -81,9 +83,23 @@ class PhysnetActivity : ComponentActivity() {
 
     private lateinit var themeRepository: ThemeRepository
     private lateinit var themePreferences: ThemePreferences
+    private lateinit var languageRepository: LanguageRepository
+    private lateinit var languagePreferences: LanguagePreferences
 
     private val themeViewModel: ThemeViewModel by viewModels {
         ThemeViewModelFactory(themeRepository, this@PhysnetActivity)
+    }
+
+    override fun attachBaseContext(newBase: Context?) {
+        if (newBase != null) {
+            // 在Activity启动时应用语言设置
+            val languagePrefs = LanguagePreferences(newBase)
+            val currentLanguage = languagePrefs.getCurrentLanguage()
+            LanguageRepository.updateAppLanguage(newBase, currentLanguage)
+            super.attachBaseContext(newBase)
+        } else {
+            super.attachBaseContext(newBase)
+        }
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -105,6 +121,14 @@ class PhysnetActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        // 初始化语言相关组件
+        languagePreferences = LanguagePreferences(this)
+        languageRepository = LanguageRepository(this, languagePreferences)
+
+        // 应用保存的语言设置
+        val currentLanguage = languagePreferences.getCurrentLanguage()
+        LanguageRepository.updateAppLanguage(this, currentLanguage)
 
         // 初始化主题相关组件
         themePreferences = ThemePreferences(this)

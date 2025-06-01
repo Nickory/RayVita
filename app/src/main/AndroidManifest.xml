@@ -50,7 +50,7 @@
 
         <activity android:name=".ui.scan.ScanActivity" />
         <activity android:name=".HeartRateRecordActivity" />
-        <activity android:name=".ui.insight.InsightActivity" />
+<!--        <activity android:name=".ui.insight.InsightActivity" />-->
         <activity android:name=".AboutActivity" />
         <activity android:name=".SocialActivity" />
 
@@ -86,5 +86,13 @@
             android:name=".ui.screen.themeChange.ThemeSelectorActivity"
             android:exported="false"
             android:theme="@style/Theme.MySoothe" />
+
+        <activity
+            android:name=".ui.screen.language.LanguageSelectActivity"
+            android:exported="false"
+            android:label="@string/language_settings"
+            android:theme="@style/Theme.MySoothe"
+            android:configChanges="locale|layoutDirection"
+            android:screenOrientation="portrait" />
     </application>
 </manifest>

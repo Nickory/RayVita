@@ -1,5 +1,6 @@
 package com.codelab.basiclayouts.ui.social
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -46,8 +47,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.codelab.basiclayouts.R
+import com.codelab.basiclayouts.data.language.model.LanguagePreferences
+import com.codelab.basiclayouts.data.language.model.LanguageRepository
 import com.codelab.basiclayouts.data.theme.model.ThemePreferences
 import com.codelab.basiclayouts.data.theme.model.ThemeRepository
 import com.codelab.basiclayouts.model.UserInfo
@@ -64,13 +69,35 @@ class FriendSearchActivity : ComponentActivity() {
 
     private lateinit var themeRepository: ThemeRepository
     private lateinit var themePreferences: ThemePreferences
+    private lateinit var languageRepository: LanguageRepository
+    private lateinit var languagePreferences: LanguagePreferences
 
     private val themeViewModel: ThemeViewModel by viewModels {
         ThemeViewModelFactory(themeRepository, this@FriendSearchActivity)
     }
 
+    override fun attachBaseContext(newBase: Context?) {
+        if (newBase != null) {
+            // 在Activity启动时应用语言设置
+            val languagePrefs = LanguagePreferences(newBase)
+            val currentLanguage = languagePrefs.getCurrentLanguage()
+            LanguageRepository.updateAppLanguage(newBase, currentLanguage)
+            super.attachBaseContext(newBase)
+        } else {
+            super.attachBaseContext(newBase)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 初始化语言相关组件
+        languagePreferences = LanguagePreferences(this)
+        languageRepository = LanguageRepository(this, languagePreferences)
+
+        // 应用保存的语言设置
+        val currentLanguage = languagePreferences.getCurrentLanguage()
+        LanguageRepository.updateAppLanguage(this, currentLanguage)
 
         // 初始化主题相关组件
         themePreferences = ThemePreferences(this)
@@ -130,10 +157,10 @@ class FriendSearchActivity : ComponentActivity() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Find Friends") },
+                    title = { Text(stringResource(R.string.find_friends_title)) },
                     navigationIcon = {
                         IconButton(onClick = { finish() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                         }
                     }
                 )
@@ -150,7 +177,7 @@ class FriendSearchActivity : ComponentActivity() {
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Search by name or email") },
+                    placeholder = { Text(stringResource(R.string.search_placeholder)) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -170,7 +197,7 @@ class FriendSearchActivity : ComponentActivity() {
                 ) {
                     Icon(Icons.Default.Person, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Find People")
+                    Text(stringResource(R.string.find_people_button))
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -182,7 +209,7 @@ class FriendSearchActivity : ComponentActivity() {
                     )
                 } else if (uiState.allUsers.isEmpty()) {
                     Text(
-                        text = "No users found. Try searching for users.",
+                        text = stringResource(R.string.no_users_found),
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                         style = MaterialTheme.typography.bodyLarge
                     )
@@ -230,7 +257,7 @@ class FriendSearchActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "Loading...",
+                    text = stringResource(R.string.loading),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -287,7 +314,7 @@ fun UserListItem(
             IconButton(onClick = onAddFriend) {
                 Icon(
                     imageVector = Icons.Default.PersonAdd,
-                    contentDescription = "Add Friend",
+                    contentDescription = stringResource(R.string.add_friend),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }

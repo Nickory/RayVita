@@ -19,13 +19,13 @@ import com.codelab.basiclayouts.utils.StepCounterPermissionHelper
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainApp(
-    stepCounterPermissionHelper: StepCounterPermissionHelper // 新增参数
+    stepCounterPermissionHelper: StepCounterPermissionHelper // 只保留原有参数
 ) {
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry?.destination
 
-    // 定义需要显示底部导航栏的页面
+    // 定义需要显示底部导航栏的页面（保持不变）
     val bottomNavRoutes = listOf("home", "insight", "social", "profile")
     val shouldShowBottomNav = currentDestination?.route in bottomNavRoutes
 
@@ -50,7 +50,7 @@ fun MainApp(
         ) {
             AppNavGraph(
                 navController = navController,
-                stepCounterPermissionHelper = stepCounterPermissionHelper // 传递参数
+                stepCounterPermissionHelper = stepCounterPermissionHelper // 只传递原有参数
             )
         }
     }

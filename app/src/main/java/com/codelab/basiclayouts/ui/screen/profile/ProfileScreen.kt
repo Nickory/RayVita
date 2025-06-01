@@ -1,5 +1,6 @@
 package com.codelab.basiclayouts.ui.profile
 
+import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
@@ -88,6 +89,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.codelab.basiclayouts.model.UserInfo
+import com.codelab.basiclayouts.ui.screen.language.LanguageSelectActivity
 import com.codelab.basiclayouts.ui.screen.themeChange.ThemeSelectorActivity
 import com.codelab.basiclayouts.viewmodel.profile.AuthUiState
 import com.codelab.basiclayouts.viewmodel.profile.AuthViewModel
@@ -690,6 +692,11 @@ fun SettingsCard() {
                         when (item.title) {
                             "Appearance" -> {
                                 ThemeSelectorActivity.start(context) // 跳转到 ThemeSelectorActivity
+                            }
+                            "Language" -> {
+                                // 跳转到语言选择Activity
+                                val intent = Intent(context, LanguageSelectActivity::class.java)
+                                context.startActivity(intent)
                             }
                             // 其他设置项的点击事件可以在这里添加
                             else -> {
