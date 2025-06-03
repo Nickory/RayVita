@@ -78,6 +78,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -88,10 +89,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.codelab.basiclayouts.R
 import com.codelab.basiclayouts.model.UserInfo
 import com.codelab.basiclayouts.ui.screen.language.LanguageSelectActivity
 import com.codelab.basiclayouts.ui.screen.profile.AboutActivity
 import com.codelab.basiclayouts.ui.screen.profile.HelpCenterActivity
+import com.codelab.basiclayouts.ui.screen.profile.NotificationSettingsActivity
+import com.codelab.basiclayouts.ui.screen.profile.PrivacySecurityActivity
 import com.codelab.basiclayouts.ui.screen.themeChange.ThemeSelectorActivity
 import com.codelab.basiclayouts.viewmodel.profile.AuthUiState
 import com.codelab.basiclayouts.viewmodel.profile.AuthViewModel
@@ -113,7 +117,7 @@ fun AllUsersContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "👥 All Users in Database",
+                text = stringResource(R.string.profile_all_users_in_database),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.error
@@ -137,7 +141,7 @@ fun AllUsersContent(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
-                        contentDescription = "Refresh all users",
+                        contentDescription = stringResource(R.string.profile_refresh_all_users),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
@@ -147,7 +151,7 @@ fun AllUsersContent(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Clear,
-                        contentDescription = "Clear users data",
+                        contentDescription = stringResource(R.string.profile_clear_users_data),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
@@ -171,17 +175,17 @@ fun AllUsersContent(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "📭",
+                            text = stringResource(R.string.profile_empty_mailbox_emoji),
                             fontSize = 48.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "No users loaded",
+                            text = stringResource(R.string.profile_no_users_loaded),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = "Click refresh to load all users",
+                            text = stringResource(R.string.profile_click_refresh_to_load),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                         )
@@ -233,7 +237,7 @@ fun UserInfoCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "User #${user.user_id}",
+                    text = stringResource(R.string.profile_user_number, user.user_id),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = if (isCurrentUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
@@ -245,7 +249,7 @@ fun UserInfoCard(
                         color = MaterialTheme.colorScheme.primary
                     ) {
                         Text(
-                            text = "CURRENT",
+                            text = stringResource(R.string.profile_current_user_label),
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onPrimary,
@@ -257,9 +261,17 @@ fun UserInfoCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            UserDetailRow("📧 Email", user.email)
-            user.nickname?.let { UserDetailRow("👤 Nickname", it.ifEmpty { "Not set" }) }
-            UserDetailRow("🎨 Theme", user.theme?.replaceFirstChar { it.titlecase() } ?: "Not set")
+            UserDetailRow(stringResource(R.string.profile_email_label), user.email)
+            user.nickname?.let {
+                UserDetailRow(
+                    stringResource(R.string.profile_nickname_label),
+                    it.ifEmpty { stringResource(R.string.profile_not_set) }
+                )
+            }
+            UserDetailRow(
+                stringResource(R.string.profile_theme_label),
+                user.theme?.replaceFirstChar { it.titlecase() } ?: stringResource(R.string.profile_not_set)
+            )
 
             // Additional info if available
             if (user.toString().contains("registration_dt")) {
@@ -345,7 +357,7 @@ fun ProfileScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        "Profile",
+                        stringResource(R.string.profile_title),
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp
                     )
@@ -496,7 +508,7 @@ fun LoggedInProfileHeader(
         ) {
             Icon(
                 imageVector = Icons.Default.Edit,
-                contentDescription = "Change Avatar",
+                contentDescription = stringResource(R.string.profile_change_avatar),
                 modifier = Modifier.size(16.dp)
             )
         }
@@ -507,11 +519,11 @@ fun LoggedInProfileHeader(
     // User info
     userInfo.nickname?.let {
         Text(
-        text = it.ifEmpty { "User" },
-        style = MaterialTheme.typography.headlineMedium,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurface
-    )
+            text = it.ifEmpty { stringResource(R.string.profile_default_user_name) },
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 
     Text(
@@ -537,7 +549,7 @@ fun LoggedInProfileHeader(
                 modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Edit Profile")
+            Text(stringResource(R.string.profile_edit_profile))
         }
 
         OutlinedButton(
@@ -553,7 +565,7 @@ fun LoggedInProfileHeader(
                 modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Sign Out")
+            Text(stringResource(R.string.profile_sign_out))
         }
     }
 }
@@ -585,14 +597,14 @@ fun NotLoggedInProfileHeader(
     Spacer(modifier = Modifier.height(16.dp))
 
     Text(
-        text = "Welcome to RayVita",
+        text = stringResource(R.string.profile_welcome_to_rayvita),
         style = MaterialTheme.typography.headlineMedium,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onSurface
     )
 
     Text(
-        text = "Sign in to access all features",
+        text = stringResource(R.string.profile_sign_in_to_access_features),
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center
@@ -609,14 +621,14 @@ fun NotLoggedInProfileHeader(
             onClick = onLoginClick,
             modifier = Modifier.weight(1f)
         ) {
-            Text("Sign In")
+            Text(stringResource(R.string.profile_sign_in))
         }
 
         OutlinedButton(
             onClick = onRegisterClick,
             modifier = Modifier.weight(1f)
         ) {
-            Text("Sign Up")
+            Text(stringResource(R.string.profile_sign_up))
         }
     }
 }
@@ -670,7 +682,7 @@ fun SettingsCard() {
             modifier = Modifier.padding(20.dp)
         ) {
             Text(
-                text = "Settings & Support",
+                text = stringResource(R.string.profile_settings_and_support),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -678,12 +690,36 @@ fun SettingsCard() {
             Spacer(modifier = Modifier.height(16.dp))
 
             val settingsItems = listOf(
-                SettingsItem(Icons.Outlined.Notifications, "Notifications", "Manage alerts and reminders"),
-                SettingsItem(Icons.Outlined.Security, "Privacy & Security", "Account and data protection"),
-                SettingsItem(Icons.Outlined.Palette, "Appearance", "Theme and display options"),
-                SettingsItem(Icons.Outlined.Language, "Language", "Choose your preferred language"),
-                SettingsItem(Icons.Outlined.Help, "Help Center", "FAQs and support"),
-                SettingsItem(Icons.Outlined.Info, "About", "App info and terms")
+                SettingsItem(
+                    Icons.Outlined.Notifications,
+                    stringResource(R.string.profile_notifications),
+                    stringResource(R.string.profile_manage_alerts_and_reminders)
+                ),
+                SettingsItem(
+                    Icons.Outlined.Security,
+                    stringResource(R.string.profile_privacy_and_security),
+                    stringResource(R.string.profile_account_and_data_protection)
+                ),
+                SettingsItem(
+                    Icons.Outlined.Palette,
+                    stringResource(R.string.profile_appearance),
+                    stringResource(R.string.profile_theme_and_display_options)
+                ),
+                SettingsItem(
+                    Icons.Outlined.Language,
+                    stringResource(R.string.profile_language),
+                    stringResource(R.string.profile_choose_preferred_language)
+                ),
+                SettingsItem(
+                    Icons.Outlined.Help,
+                    stringResource(R.string.profile_help_center),
+                    stringResource(R.string.profile_faqs_and_support)
+                ),
+                SettingsItem(
+                    Icons.Outlined.Info,
+                    stringResource(R.string.profile_about),
+                    stringResource(R.string.profile_app_info_and_terms)
+                )
             )
 
             settingsItems.forEachIndexed { index, item ->
@@ -692,21 +728,29 @@ fun SettingsCard() {
                     onClick = {
                         // 处理点击事件
                         when (item.title) {
-                            "Appearance" -> {
+                            context.getString(R.string.profile_appearance) -> {
                                 ThemeSelectorActivity.start(context) // 跳转到 ThemeSelectorActivity
                             }
-                            "Language" -> {
+                            context.getString(R.string.profile_language) -> {
                                 // 跳转到语言选择Activity
                                 val intent = Intent(context, LanguageSelectActivity::class.java)
                                 context.startActivity(intent)
                             }
-                            "About" -> {
+                            context.getString(R.string.profile_about) -> {
                                 // 跳转到关于页面
                                 AboutActivity.start(context)
                             }
-                            "Help Center" -> {
+                            context.getString(R.string.profile_help_center) -> {
                                 // 跳转到帮助中心Activity
                                 HelpCenterActivity.start(context)
+                            }
+                            context.getString(R.string.profile_notifications) -> {
+                                // 跳转到帮助中心Activity
+                                NotificationSettingsActivity.start(context)
+                            }
+                            context.getString(R.string.profile_privacy_and_security) -> {
+                                // 跳转到帮助中心Activity
+                                PrivacySecurityActivity.start(context)
                             }
                             // 其他设置项的点击事件可以在这里添加
                             else -> {
@@ -793,7 +837,7 @@ fun AvatarSelectionDialog(
                 modifier = Modifier.padding(24.dp)
             ) {
                 Text(
-                    text = "Choose Your Avatar",
+                    text = stringResource(R.string.profile_choose_your_avatar),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.fillMaxWidth(),
@@ -824,7 +868,7 @@ fun AvatarSelectionDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.profile_cancel))
                     }
                 }
             }
@@ -902,7 +946,7 @@ fun DeveloperDebugCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "🔧 Developer Debug",
+                    text = stringResource(R.string.profile_developer_debug),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.error
@@ -913,7 +957,7 @@ fun DeveloperDebugCard(
                 ) {
                     Icon(
                         imageVector = if (showDeveloperInfo) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                        contentDescription = "Toggle developer info",
+                        contentDescription = stringResource(R.string.profile_toggle_developer_info),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
@@ -929,13 +973,13 @@ fun DeveloperDebugCard(
                 ) {
                     FilterChip(
                         onClick = { showAllUsersTab = false },
-                        label = { Text("Current User") },
+                        label = { Text(stringResource(R.string.profile_current_user)) },
                         selected = !showAllUsersTab
                     )
                     FilterChip(
                         onClick = { showAllUsersTab = true },
                         label = {
-                            Text("All Users (${authUiState.allUsers.size})")
+                            Text(stringResource(R.string.profile_all_users_with_count, authUiState.allUsers.size))
                         },
                         selected = showAllUsersTab
                     )
@@ -952,7 +996,7 @@ fun DeveloperDebugCard(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Enter developer password to view debug information",
+                    text = stringResource(R.string.profile_enter_developer_password),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f)
                 )
@@ -1001,7 +1045,7 @@ fun DeveloperPasswordDialog(
                 modifier = Modifier.padding(24.dp)
             ) {
                 Text(
-                    text = "🔐 Developer Access",
+                    text = stringResource(R.string.profile_developer_access),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.fillMaxWidth(),
@@ -1017,7 +1061,7 @@ fun DeveloperPasswordDialog(
                         password = it
                         error = false
                     },
-                    label = { Text("Developer Password") },
+                    label = { Text(stringResource(R.string.profile_developer_password)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -1025,7 +1069,7 @@ fun DeveloperPasswordDialog(
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
                                 imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                                contentDescription = if (passwordVisible) stringResource(R.string.profile_hide_password) else stringResource(R.string.profile_show_password)
                             )
                         }
                     },
@@ -1038,7 +1082,7 @@ fun DeveloperPasswordDialog(
                     ),
                     isError = error,
                     supportingText = if (error) {
-                        { Text("Incorrect password", color = MaterialTheme.colorScheme.error) }
+                        { Text(stringResource(R.string.profile_incorrect_password), color = MaterialTheme.colorScheme.error) }
                     } else null
                 )
 
@@ -1049,7 +1093,7 @@ fun DeveloperPasswordDialog(
                     horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End)
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.profile_cancel))
                     }
 
                     Button(
@@ -1059,7 +1103,7 @@ fun DeveloperPasswordDialog(
                             containerColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text("Access")
+                        Text(stringResource(R.string.profile_access))
                     }
                 }
             }
@@ -1073,57 +1117,59 @@ fun DeveloperInfoContent(
     authViewModel: AuthViewModel,
     authUiState: AuthUiState
 ) {
+    val context = LocalContext.current
+
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // User Session Info
         DeveloperInfoSection(
-            title = "🧑 User Session",
+            title = stringResource(R.string.profile_user_session),
             items = listOf(
-                "Login Status" to if (authUiState.isLoggedIn) "✅ Logged In" else "❌ Not Logged In",
-                "User ID" to (authUiState.userInfo?.user_id?.toString() ?: "N/A"),
-                "Email" to (authUiState.userInfo?.email ?: "N/A"),
-                "Nickname" to (authUiState.userInfo?.nickname ?: "N/A"),
-                "Theme" to (authUiState.userInfo?.theme ?: "N/A"),
-                "Avatar Index" to authUiState.selectedAvatarIndex.toString(),
-                "Avatar Emoji" to authViewModel.getCurrentAvatar().emoji,
-                "Avatar Description" to authViewModel.getCurrentAvatar().description
+                stringResource(R.string.profile_login_status) to if (authUiState.isLoggedIn) stringResource(R.string.profile_logged_in) else stringResource(R.string.profile_not_logged_in),
+                stringResource(R.string.profile_user_id) to (authUiState.userInfo?.user_id?.toString() ?: stringResource(R.string.profile_not_available)),
+                stringResource(R.string.profile_email) to (authUiState.userInfo?.email ?: stringResource(R.string.profile_not_available)),
+                stringResource(R.string.profile_nickname) to (authUiState.userInfo?.nickname ?: stringResource(R.string.profile_not_available)),
+                stringResource(R.string.profile_theme) to (authUiState.userInfo?.theme ?: stringResource(R.string.profile_not_available)),
+                stringResource(R.string.profile_avatar_index) to authUiState.selectedAvatarIndex.toString(),
+                stringResource(R.string.profile_avatar_emoji) to authViewModel.getCurrentAvatar().emoji,
+                stringResource(R.string.profile_avatar_description) to authViewModel.getCurrentAvatar().description
             )
         )
 
         // Authentication State
         DeveloperInfoSection(
-            title = "🔐 Authentication State",
+            title = stringResource(R.string.profile_authentication_state),
             items = listOf(
-                "Loading" to authUiState.isLoading.toString(),
-                "Error Message" to (authUiState.errorMessage ?: "None"),
-                "Verification Sent" to authUiState.verificationSent.toString(),
-                "Verification Email" to (authUiState.verificationEmail ?: "N/A"),
-                "Verification Timestamp" to (authUiState.verificationTimestamp?.toString() ?: "N/A"),
-                "Code Expired" to if (authUiState.verificationTimestamp != null)
-                    authViewModel.isVerificationCodeExpired().toString() else "N/A"
+                stringResource(R.string.profile_loading) to authUiState.isLoading.toString(),
+                stringResource(R.string.profile_error_message) to (authUiState.errorMessage ?: stringResource(R.string.profile_none)),
+                stringResource(R.string.profile_verification_sent) to authUiState.verificationSent.toString(),
+                stringResource(R.string.profile_verification_email) to (authUiState.verificationEmail ?: stringResource(R.string.profile_not_available)),
+                stringResource(R.string.profile_verification_timestamp) to (authUiState.verificationTimestamp?.toString() ?: stringResource(R.string.profile_not_available)),
+                stringResource(R.string.profile_code_expired) to if (authUiState.verificationTimestamp != null)
+                    authViewModel.isVerificationCodeExpired().toString() else stringResource(R.string.profile_not_available)
             )
         )
 
         // Available Avatars
         DeveloperInfoSection(
-            title = "🎭 Available Avatars",
+            title = stringResource(R.string.profile_available_avatars),
             items = authViewModel.avatarOptions.map { avatar ->
-                "Avatar ${avatar.index}" to "${avatar.emoji} ${avatar.description}"
+                stringResource(R.string.profile_avatar_number, avatar.index) to "${avatar.emoji} ${avatar.description}"
             }
         )
 
         // App Information
         DeveloperInfoSection(
-            title = "📱 App Information",
+            title = stringResource(R.string.profile_app_information),
             items = listOf(
-                "App Name" to "RayVita",
-                "API Base URL" to "http://47.96.237.130:5000/api/",
-                "Session Expiry" to "7 days",
-                "Current Time" to java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+                stringResource(R.string.profile_app_name) to stringResource(R.string.profile_app_name_rayvita),
+                stringResource(R.string.profile_api_base_url) to stringResource(R.string.profile_api_url),
+                stringResource(R.string.profile_session_expiry) to stringResource(R.string.profile_seven_days),
+                stringResource(R.string.profile_current_time) to java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
                     .format(java.util.Date()),
-                "Theme Mode" to "System Default",
-                "Build Type" to "Debug"
+                stringResource(R.string.profile_theme_mode) to stringResource(R.string.profile_system_default),
+                stringResource(R.string.profile_build_type) to stringResource(R.string.profile_debug)
             )
         )
 
@@ -1138,7 +1184,7 @@ fun DeveloperInfoContent(
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text(
-                    text = "⚠️ Developer Actions",
+                    text = stringResource(R.string.profile_developer_actions),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.error
@@ -1157,7 +1203,7 @@ fun DeveloperInfoContent(
                             contentColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text("Clear Errors", fontSize = 12.sp)
+                        Text(stringResource(R.string.profile_clear_errors), fontSize = 12.sp)
                     }
 
                     OutlinedButton(
@@ -1167,7 +1213,7 @@ fun DeveloperInfoContent(
                             contentColor = MaterialTheme.colorScheme.tertiary
                         )
                     ) {
-                        Text("Refresh Users", fontSize = 12.sp)
+                        Text(stringResource(R.string.profile_refresh_users), fontSize = 12.sp)
                     }
 
                     Button(
@@ -1177,7 +1223,7 @@ fun DeveloperInfoContent(
                             containerColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text("Force Logout", fontSize = 12.sp)
+                        Text(stringResource(R.string.profile_force_logout), fontSize = 12.sp)
                     }
                 }
             }

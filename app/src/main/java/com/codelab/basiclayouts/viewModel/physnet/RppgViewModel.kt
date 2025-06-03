@@ -1,4 +1,3 @@
-
 package com.codelab.basiclayouts.viewModel.physnet
 
 import android.content.Context
@@ -6,6 +5,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.codelab.basiclayouts.R
 import com.codelab.basiclayouts.data.physnet.EnhancedRppgProcessor
 import com.codelab.basiclayouts.data.physnet.EnhancedRppgRepository
 import com.codelab.basiclayouts.data.physnet.HrvCalculator
@@ -117,7 +117,7 @@ class EnhancedRppgViewModel(
             isRecording = false,
             isProcessing = true,
             isLoading = true,
-            loadingMessage = "正在提取信号数据..."
+            loadingMessage = context.getString(R.string.physstate_extracting_signal_data)
         )
 
         viewModelScope.launch {
@@ -126,7 +126,7 @@ class EnhancedRppgViewModel(
 
                 // 1. Process rPPG
                 _uiState.value = _uiState.value.copy(
-                    loadingMessage = "正在分析心率..."
+                    loadingMessage = context.getString(R.string.physstate_analyzing_heart_rate)
                 )
                 val processingResult = withContext(Dispatchers.Default) {
                     rppgProcessor.processFramesWithRGB(frames)
@@ -134,7 +134,7 @@ class EnhancedRppgViewModel(
 
                 // 2. Calculate signal quality
                 _uiState.value = _uiState.value.copy(
-                    loadingMessage = "评估信号质量..."
+                    loadingMessage = context.getString(R.string.physstate_evaluating_signal_quality)
                 )
                 val signalQuality = calculateSignalQuality(processingResult.rppgSignal, processingResult.rgbData)
 
@@ -144,7 +144,7 @@ class EnhancedRppgViewModel(
                 // 3. HRV analysis
                 if (_uiState.value.analysisMode in listOf(AnalysisMode.HRV_ONLY, AnalysisMode.ALL)) {
                     _uiState.value = _uiState.value.copy(
-                        loadingMessage = "分析心率变异性..."
+                        loadingMessage = context.getString(R.string.physstate_analyzing_hrv)
                     )
                     val hrvCalculationResult = withContext(Dispatchers.Default) {
                         hrvCalculator.calculateHRV(processingResult.rppgSignal, SAMPLING_RATE)
@@ -166,7 +166,7 @@ class EnhancedRppgViewModel(
                 // 4. SpO2 analysis
                 if (_uiState.value.analysisMode in listOf(AnalysisMode.SPO2_ONLY, AnalysisMode.ALL)) {
                     _uiState.value = _uiState.value.copy(
-                        loadingMessage = "计算血氧饱和度..."
+                        loadingMessage = context.getString(R.string.physstate_calculating_spo2)
                     )
                     val spo2CalculationResult = withContext(Dispatchers.Default) {
                         spo2Calculator.calculateSpO2(
@@ -211,7 +211,7 @@ class EnhancedRppgViewModel(
 
                 // 6. Save to repository
                 _uiState.value = _uiState.value.copy(
-                    loadingMessage = "保存测量结果..."
+                    loadingMessage = context.getString(R.string.physstate_saving_results)
                 )
                 saveEnhancedResult(result)
 
@@ -220,7 +220,7 @@ class EnhancedRppgViewModel(
 
                 // 8. Upload to server
                 _uiState.value = _uiState.value.copy(
-                    loadingMessage = "同步到云端..."
+                    loadingMessage = context.getString(R.string.physstate_syncing_to_cloud)
                 )
                 uploadResultToServer(result)
 
@@ -241,7 +241,7 @@ class EnhancedRppgViewModel(
                 _uiState.value = _uiState.value.copy(
                     isProcessing = false,
                     isLoading = false,
-                    errorMessage = "处理失败: ${e.message}"
+                    errorMessage = context.getString(R.string.physstate_processing_failed, e.message ?: "")
                 )
             }
         }

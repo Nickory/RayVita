@@ -96,7 +96,8 @@ import com.codelab.basiclayouts.viewModel.physnet.EnhancedRppgViewModelFactory
 fun RppgScreen(
     modifier: Modifier = Modifier,
     viewModel: EnhancedRppgViewModel? = null,
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onHistoryClick: () -> Unit = {}  // 新增历史记录点击回调
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -163,10 +164,14 @@ fun RppgScreen(
                         }
                     },
                     navigationIcon = {
-                        IconButton(onClick = onBackClick) {
+                        IconButton(
+                            onClick = onBackClick,
+                            enabled = true // 确保返回键可用
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "Back"
+                                contentDescription = "Back",
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     },
@@ -174,16 +179,24 @@ fun RppgScreen(
                         containerColor = Color.Transparent
                     ),
                     actions = {
-                        IconButton(onClick = { showSettingsDialog = true }) {
+                        IconButton(
+                            onClick = { showSettingsDialog = true },
+                            enabled = true
+                        ) {
                             Icon(
                                 Icons.Default.Settings,
-                                contentDescription = "Settings"
+                                contentDescription = "Settings",
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
-                        IconButton(onClick = { /* TODO: Open history */ }) {
+                        IconButton(
+                            onClick = onHistoryClick, // 使用传入的历史记录回调
+                            enabled = true
+                        ) {
                             Icon(
                                 Icons.Default.History,
-                                contentDescription = "History"
+                                contentDescription = "History",
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
@@ -514,8 +527,6 @@ private fun RecordButton(
     }
 }
 
-// ... (Keep all other existing composables: RecordingIndicator, PulsingDot, AnalysisModeDialog, HealthRecommendationCard, RppgLoadingOverlay)
-
 /**
  * Recording Indicator
  */
@@ -739,7 +750,7 @@ private fun HealthRecommendationCard(
         }
     }
 }
-//
+
 ///**
 // * Enhanced Loading Overlay
 // */

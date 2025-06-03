@@ -5,8 +5,10 @@ import android.os.Build
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -229,8 +231,6 @@ fun EnhancedAIAssistantCard(
         }
     }
 }
-
-// Enhanced Breathing Card with premium animations
 @Composable
 fun PremiumBreathingCard(
     session: BreathingSession?,
@@ -274,24 +274,20 @@ fun PremiumBreathingCard(
         ), label = "pulse_scale"
     )
 
-    // Breathing circle animations
-    val breathingScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
+    // Breathing circle animation with smooth transitions
+    val breathingScale by animateFloatAsState(
         targetValue = when (phase) {
-            "inhale" -> 1.4f
-            "hold" -> 1.3f
-            else -> 0.9f
+            "inhale" -> 1.3f
+            "hold" -> 1.25f
+            else -> 1.0f
         },
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = when (phase) {
-                    "inhale" -> 4000
-                    "hold" -> 2000
-                    else -> 4000
-                },
-                easing = FastOutSlowInEasing
-            ),
-            repeatMode = RepeatMode.Reverse
+        animationSpec = tween(
+            durationMillis = when (phase) {
+                "inhale" -> 4000
+                "hold" -> 2000
+                else -> 4000
+            },
+            easing = LinearOutSlowInEasing
         ),
         label = "breathing_animation"
     )
@@ -388,12 +384,12 @@ fun PremiumBreathingCard(
         ), label = "color3"
     )
 
-    // Timer logic
     LaunchedEffect(isActive) {
         if (isActive && seconds > 0) {
+            var cycleStartTime = 30 - seconds
             while (seconds > 0 && isActive) {
-                delay(1000)
-                seconds--
+                delay(1000L) // Update every second
+                seconds-- // Decrement by 1
 
                 val cycleTime = (30 - seconds) % 10
                 when {
@@ -402,8 +398,9 @@ fun PremiumBreathingCard(
                     else -> phase = "exhale"
                 }
 
-                if (cycleTime == 0 && seconds != 30) {
+                if (cycleTime >= 9.9 && cycleStartTime < cycleTime) {
                     cycleCount++
+                    cycleStartTime += 10
                 }
             }
 
@@ -610,7 +607,7 @@ fun PremiumBreathingCard(
 
                             // Draw main breathing ring with gradient stroke
                             val strokeWidth = 8.dp.toPx()
-                            val mainRadius = radius * 0.6f * if (isActive) breathingScale else 1f
+                            val mainRadius = radius * 0.6f * breathingScale
 
                             drawCircle(
                                 brush = Brush.sweepGradient(
@@ -673,7 +670,7 @@ fun PremiumBreathingCard(
                         Box(
                             modifier = Modifier
                                 .size(100.dp)
-                                .scale(if (isActive) (breathingScale * 0.7f + 0.3f) else 1f)
+                                .scale(breathingScale * 0.7f + 0.3f)
                                 .background(
                                     brush = Brush.radialGradient(
                                         colors = listOf(
@@ -702,10 +699,6 @@ fun PremiumBreathingCard(
                                         }
                                     ),
                                     CircleShape
-                                )
-                                .shadow(
-                                    elevation = 8.dp,
-                                    shape = CircleShape
                                 ),
                             contentAlignment = Alignment.Center
                         ) {

@@ -42,10 +42,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-
+import com.codelab.basiclayouts.R
 import com.codelab.basiclayouts.data.theme.model.ColorSchemeData
 import com.codelab.basiclayouts.data.theme.model.ThemeProfile
 
@@ -100,7 +101,7 @@ fun ThemePreviewCard(
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(
                             imageVector = Icons.Default.Check,
-                            contentDescription = "已选中",
+                            contentDescription = stringResource(R.string.theme_explan_selected),
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp)
                         )
@@ -110,7 +111,7 @@ fun ThemePreviewCard(
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(
                             imageVector = Icons.Default.AutoAwesome,
-                            contentDescription = "AI生成",
+                            contentDescription = stringResource(R.string.theme_explan_ai_generated),
                             tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier.size(16.dp)
                         )
@@ -125,7 +126,11 @@ fun ThemePreviewCard(
                     ) {
                         Icon(
                             imageVector = if (showColorDetails) Icons.Default.ExpandLess else Icons.Default.Info,
-                            contentDescription = if (showColorDetails) "隐藏配色说明" else "查看配色说明",
+                            contentDescription = if (showColorDetails) {
+                                stringResource(R.string.theme_explan_hide_color_details)
+                            } else {
+                                stringResource(R.string.theme_explan_show_color_details)
+                            },
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp)
                         )
@@ -139,7 +144,7 @@ fun ThemePreviewCard(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = "删除主题",
+                                contentDescription = stringResource(R.string.theme_explan_delete_theme),
                                 tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.size(18.dp)
                             )
@@ -192,7 +197,7 @@ private fun QuickColorExplanation(
 ) {
     Column {
         Text(
-            text = "配色含义",
+            text = stringResource(R.string.theme_explan_color_meaning),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
@@ -212,12 +217,18 @@ private fun QuickColorExplanation(
         } else {
             // 如果没有设计理念，显示通用的配色说明
             val colorMeaning = when {
-                theme.name.contains("森林") || theme.name.contains("绿") -> "绿色系象征自然与生机，营造平静放松的使用体验"
-                theme.name.contains("海洋") || theme.name.contains("蓝") -> "蓝色系代表信任与专业，适合商务和效率应用"
-                theme.name.contains("紫") || theme.name.contains("梦") -> "紫色系体现创意与神秘，激发想象力和艺术感"
-                theme.name.contains("橙") || theme.name.contains("日落") -> "橙色系传达温暖与活力，增强用户的积极情绪"
-                theme.name.contains("iOS") -> "简洁清新的设计语言，注重功能性和易用性"
-                else -> "精心调配的色彩搭配，确保视觉和谐与使用舒适度"
+                theme.name.contains("森林") || theme.name.contains("绿") || theme.name.contains("Forest") || theme.name.contains("Green") ->
+                    stringResource(R.string.theme_explan_forest_meaning)
+                theme.name.contains("海洋") || theme.name.contains("蓝") || theme.name.contains("Ocean") || theme.name.contains("Blue") ->
+                    stringResource(R.string.theme_explan_ocean_meaning)
+                theme.name.contains("紫") || theme.name.contains("梦") || theme.name.contains("Purple") || theme.name.contains("Violet") || theme.name.contains("Dream") ->
+                    stringResource(R.string.theme_explan_purple_meaning)
+                theme.name.contains("橙") || theme.name.contains("日落") || theme.name.contains("Orange") || theme.name.contains("Sunset") ->
+                    stringResource(R.string.theme_explan_orange_meaning)
+                theme.name.contains("iOS") ->
+                    stringResource(R.string.theme_explan_ios_meaning)
+                else ->
+                    stringResource(R.string.theme_explan_default_meaning)
             }
 
             Text(
@@ -235,15 +246,15 @@ private fun QuickColorExplanation(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ColorDot(colors.primary, "主色")
-            ColorDot(colors.secondary, "辅色")
-            ColorDot(colors.tertiary, "强调")
+            ColorDot(colors.primary, stringResource(R.string.theme_explan_primary_short))
+            ColorDot(colors.secondary, stringResource(R.string.theme_explan_secondary_short))
+            ColorDot(colors.tertiary, stringResource(R.string.theme_explan_tertiary_short))
 
             Spacer(modifier = Modifier.weight(1f))
 
             if (!theme.isBuiltIn) {
                 Text(
-                    text = "AI 生成",
+                    text = stringResource(R.string.theme_explan_ai_generated_short),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier
@@ -296,17 +307,17 @@ private fun ColorPreview(colors: ColorSchemeData) {
         ) {
             ColorCircle(
                 color = Color(android.graphics.Color.parseColor(colors.primary)),
-                label = "Primary",
+                label = stringResource(R.string.theme_explan_primary_label),
                 modifier = Modifier.weight(1f)
             )
             ColorCircle(
                 color = Color(android.graphics.Color.parseColor(colors.secondary)),
-                label = "Secondary",
+                label = stringResource(R.string.theme_explan_secondary_label),
                 modifier = Modifier.weight(1f)
             )
             ColorCircle(
                 color = Color(android.graphics.Color.parseColor(colors.tertiary)),
-                label = "Tertiary",
+                label = stringResource(R.string.theme_explan_tertiary_label),
                 modifier = Modifier.weight(1f)
             )
         }
@@ -367,7 +378,7 @@ private fun SurfacePreview(colors: ColorSchemeData) {
                 .background(Color(android.graphics.Color.parseColor(colors.background)))
         ) {
             Text(
-                text = "Bg",
+                text = stringResource(R.string.theme_explan_background_label),
                 style = MaterialTheme.typography.labelSmall,
                 color = Color(android.graphics.Color.parseColor(colors.onBackground)),
                 modifier = Modifier.align(Alignment.Center)
@@ -382,7 +393,7 @@ private fun SurfacePreview(colors: ColorSchemeData) {
                 .background(Color(android.graphics.Color.parseColor(colors.surface)))
         ) {
             Text(
-                text = "Surface",
+                text = stringResource(R.string.theme_explan_surface_label),
                 style = MaterialTheme.typography.labelSmall,
                 color = Color(android.graphics.Color.parseColor(colors.onSurface)),
                 modifier = Modifier.align(Alignment.Center)
@@ -397,7 +408,7 @@ private fun SurfacePreview(colors: ColorSchemeData) {
                 .background(Color(android.graphics.Color.parseColor(colors.surfaceVariant)))
         ) {
             Text(
-                text = "Variant",
+                text = stringResource(R.string.theme_explan_surface_variant_label),
                 style = MaterialTheme.typography.labelSmall,
                 color = Color(android.graphics.Color.parseColor(colors.onSurfaceVariant)),
                 modifier = Modifier.align(Alignment.Center)

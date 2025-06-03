@@ -1,6 +1,7 @@
 package com.codelab.basiclayouts.data.theme.model
 
 import android.content.Context
+import com.codelab.basiclayouts.R
 import com.codelab.basiclayouts.network.RetrofitClient
 import com.codelab.basiclayouts.network.model.ChatRequest
 import com.codelab.basiclayouts.network.model.Message
@@ -36,7 +37,8 @@ class ThemeRepository(
      */
     fun getAllThemes(): Flow<List<ThemeProfile>> = flow {
         val customThemes = loadCachedThemes()
-        val allThemes = ColorSchemes.builtInThemes + customThemes
+        val builtInThemes = ColorSchemes.getBuiltInThemes(context)
+        val allThemes = builtInThemes + customThemes
         emit(allThemes)
     }
 
@@ -45,7 +47,7 @@ class ThemeRepository(
      */
     fun getCurrentTheme(): Flow<ThemeProfile> = flow {
         val currentThemeId = themePreferences.getCurrentThemeId()
-        val theme = findThemeById(currentThemeId) ?: ColorSchemes.builtInThemes.first()
+        val theme = findThemeById(currentThemeId) ?: ColorSchemes.getBuiltInThemes(context).first()
         emit(theme)
     }
 
@@ -110,7 +112,7 @@ class ThemeRepository(
             val themeProfile = ThemeProfile(
                 id = UUID.randomUUID().toString(),
                 name = colorResponse.themeName,
-                description = "${colorResponse.themeDescription}\n\n设计理念：${colorResponse.themeIntention}",
+                description = "${colorResponse.themeDescription}\n\nDesign Idea${colorResponse.themeIntention}",
                 lightColors = colorResponse.lightColors,
                 darkColors = colorResponse.darkColors,
                 isBuiltIn = false
@@ -141,16 +143,49 @@ class ThemeRepository(
         }
     }
 
-    private fun createThemeGenerationPrompt(userInput: String): String {
-        return """
-你是一个专业的UI/UX设计师和色彩专家。请根据用户的描述"$userInput"，为Android Material Design 3应用设计一套完整的主题配色方案。
+    /**
+     * 获取内置主题列表（使用Context获取本地化字符串）
+     */
+    fun getBuiltInThemes(): List<ThemeProfile> {
+        return ColorSchemes.getBuiltInThemes(context)
+    }
 
-请严格按照以下JSON格式返回，确保包含所有必需的颜色值：
+    /**
+     * 通过ID查找内置主题
+     */
+    fun findBuiltInThemeById(id: String): ThemeProfile? {
+        return ColorSchemes.findBuiltInThemeById(context, id)
+    }
+
+    /**
+     * 创建AI主题生成提示词（使用字符串资源，支持国际化）
+     */
+    private fun createThemeGenerationPrompt(userInput: String): String {
+        // 获取本地化字符串
+        val intro = context.getString(R.string.ai_prompt_intro, userInput)
+        val formatInstruction = context.getString(R.string.ai_prompt_format_instruction)
+        val themeNameDesc = context.getString(R.string.ai_prompt_theme_name_desc)
+        val themeDescriptionDesc = context.getString(R.string.ai_prompt_theme_description_desc)
+        val themeIntentionDesc = context.getString(R.string.ai_prompt_theme_intention_desc, userInput)
+        val darkColorsComment = context.getString(R.string.ai_prompt_dark_colors_comment)
+        val designRequirements = context.getString(R.string.ai_prompt_design_requirements)
+        val requirement1 = context.getString(R.string.ai_prompt_requirement_1)
+        val requirement2 = context.getString(R.string.ai_prompt_requirement_2)
+        val requirement3 = context.getString(R.string.ai_prompt_requirement_3)
+        val requirement4 = context.getString(R.string.ai_prompt_requirement_4)
+        val requirement5 = context.getString(R.string.ai_prompt_requirement_5)
+        val requirement6 = context.getString(R.string.ai_prompt_requirement_6)
+        val conclusion = context.getString(R.string.ai_prompt_conclusion, userInput)
+
+        return """
+$intro
+
+$formatInstruction
 
 {
-  "themeName": "主题名称（简洁有意义）",
-  "themeDescription": "主题描述（50字以内，描述视觉特点和适用场景）",
-  "themeIntention": "设计理念（100字以内，解释色彩选择的意义和情感表达，紧扣描述词"$userInput"）",
+  "themeName": "$themeNameDesc",
+  "themeDescription": "$themeDescriptionDesc",
+  "themeIntention": "$themeIntentionDesc",
   "lightColors": {
     "primary": "#RRGGBB",
     "onPrimary": "#RRGGBB",
@@ -184,7 +219,7 @@ class ThemeRepository(
     "scrim": "#000000"
   },
   "darkColors": {
-    // 相同结构，但适配暗色模式
+    // $darkColorsComment
     "primary": "#RRGGBB",
     "onPrimary": "#RRGGBB",
     "primaryContainer": "#RRGGBB",
@@ -218,15 +253,15 @@ class ThemeRepository(
   }
 }
 
-设计要求：
-1. 确保足够的对比度，符合WCAG无障碍标准
-2. 颜色搭配和谐，符合色彩理论
-3. 考虑用户情感和使用场景
-4. light和dark主题要相互呼应
-5. 所有颜色值必须是有效的十六进制格式
-6. 请直接返回JSON，不要包含其他文字
+$designRequirements
+$requirement1
+$requirement2
+$requirement3
+$requirement4
+$requirement5
+$requirement6
 
-请根据"$userInput"这个描述，生成一套专业的主题配色方案。
+$conclusion
         """.trimIndent()
     }
 
@@ -279,7 +314,7 @@ class ThemeRepository(
 
     private fun findThemeById(id: String): ThemeProfile? {
         // 先在内置主题中查找
-        ColorSchemes.builtInThemes.find { it.id == id }?.let { return it }
+        findBuiltInThemeById(id)?.let { return it }
 
         // 再在缓存主题中查找
         return loadCachedThemes().find { it.id == id }

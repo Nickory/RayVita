@@ -2,6 +2,7 @@ package com.codelab.basiclayouts.ui.screen.physnet
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -199,7 +200,19 @@ class PhysnetActivity : ComponentActivity() {
 
         when {
             hasAllPermissions -> {
-                RppgScreen(viewModel = viewModel)
+                RppgScreen(
+                    viewModel = viewModel,
+                    onBackClick = {
+                        // 处理返回逻辑
+                        Log.d(TAG, "返回按钮被点击")
+                        finish()
+                    },
+                    onHistoryClick = {
+                        // 跳转到 Insight History
+                        Log.d(TAG, "历史记录按钮被点击")
+                        navigateToInsightHistory()
+                    }
+                )
             }
             permissionDenied -> {
                 PermissionDeniedScreen(
@@ -212,6 +225,35 @@ class PhysnetActivity : ComponentActivity() {
             else -> {
                 LoadingScreen()
             }
+        }
+    }
+
+    /**
+     * 导航到 Insight History 页面
+     */
+    private fun navigateToInsightHistory() {
+        try {
+            // 专门的 InsightActivity
+            // val intent = Intent(this, InsightActivity::class.java)
+            // intent.putExtra("selected_tab", 1) // 直接跳转到 History tab
+            // intent.putExtra("show_history", true)
+            // startActivity(intent)
+
+            // MainActivity 中的 Tab 切换
+            val intent = Intent()
+            intent.setClassName(this, "com.codelab.basiclayouts.ui.screen.MainActivity")
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            intent.putExtra("navigate_to_insight", true)
+            intent.putExtra("insight_tab", "insight") //
+            startActivity(intent)
+
+            //添加过渡动画
+            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+
+        } catch (e: Exception) {
+            Log.e(TAG, "导航到 Insight History 失败", e)
+            // 如果导航失败，可以显示一个 Toast 或者回退方案
+            // Toast.makeText(this, "无法打开历史记录页面", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -285,6 +327,13 @@ class PhysnetActivity : ComponentActivity() {
             TextButton(
                 onClick = {
                     // TODO: 打开应用设置页面
+                    try {
+                        val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                        intent.data = android.net.Uri.fromParts("package", packageName, null)
+                        startActivity(intent)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "无法打开应用设置", e)
+                    }
                 }
             ) {
                 Text(
@@ -388,6 +437,12 @@ class PhysnetActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "Activity 销毁")
+    }
+
+    override fun onBackPressed() {
+        // 处理系统返回键
+        Log.d(TAG, "系统返回键被按下")
+        super.onBackPressed()
     }
 }
 

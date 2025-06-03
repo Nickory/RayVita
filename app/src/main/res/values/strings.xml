@@ -511,8 +511,6 @@
     <string name="no_users_found">No users found. Try searching for users.</string>
     <string name="add_friend">Add Friend</string>
 
-    <!-- Profile Screen 字符串 -->
-    <string name="profile_title">Profile</string>
     <string name="welcome_message">Welcome to RayVita</string>
     <string name="sign_in_description">Sign in to access all features</string>
     <string name="sign_in">Sign In</string>
@@ -760,5 +758,355 @@
     <string name="faq_web_security">Is the web platform secure?</string>
     <string name="faq_web_security_answer">Based on HTTPS and account authentication to ensure privacy and security.</string>
 
+    <!-- RPPG Loading Screen Related Strings -->
+    <string name="analyzing_physiological_signals">Analyzing physiological signals…</string>
+    <string name="keep_still_for_accuracy">Please stay still to ensure detection accuracy</string>
+    <string name="analyzing">Analyzing</string>
+    <string name="bpm_unit">BPM</string>
+    <string name="quality_label">Quality</string>
 
+    <!-- Processing Stages -->
+    <string name="stage_initializing">Initializing</string>
+    <string name="stage_signal_collection">Signal Collection</string>
+    <string name="stage_preprocessing">Preprocessing</string>
+    <string name="stage_noise_filtering">Noise Filtering</string>
+    <string name="stage_feature_extraction">Feature Extraction</string>
+    <string name="stage_data_analysis">Data Analysis</string>
+    <string name="stage_almost_complete">Almost Complete</string>
+
+
+    <!-- Physical State Processing Related Strings -->
+    <string name="physstate_extracting_signal_data">Extracting signal data…</string>
+    <string name="physstate_analyzing_heart_rate">Analyzing heart rate…</string>
+    <string name="physstate_evaluating_signal_quality">Evaluating signal quality…</string>
+    <string name="physstate_analyzing_hrv">Analyzing heart rate variability…</string>
+    <string name="physstate_calculating_spo2">Calculating blood oxygen saturation…</string>
+    <string name="physstate_saving_results">Saving measurement results…</string>
+    <string name="physstate_syncing_to_cloud">Syncing to cloud…</string>
+    <string name="physstate_processing_failed">Processing failed: %1$s</string>
+
+    <!-- Profile Screen Related Strings -->
+    <string name="profile_title">Profile</string>
+    <string name="profile_welcome_to_rayvita">Welcome to RayVita</string>
+    <string name="profile_sign_in_to_access_features">Sign in to access all features</string>
+    <string name="profile_sign_in">Sign In</string>
+    <string name="profile_sign_up">Sign Up</string>
+    <string name="profile_change_avatar">Change Avatar</string>
+    <string name="profile_default_user_name">User</string>
+    <string name="profile_edit_profile">Edit Profile</string>
+    <string name="profile_sign_out">Sign Out</string>
+
+    <!-- Settings Section -->
+    <string name="profile_settings_and_support">Settings &amp; Support</string>
+    <string name="profile_notifications">Notifications</string>
+    <string name="profile_manage_alerts_and_reminders">Manage alerts and reminders</string>
+    <string name="profile_privacy_and_security">Privacy &amp; Security</string>
+    <string name="profile_account_and_data_protection">Account and data protection</string>
+    <string name="profile_appearance">Appearance</string>
+    <string name="profile_theme_and_display_options">Theme and display options</string>
+    <string name="profile_language">Language</string>
+    <string name="profile_choose_preferred_language">Choose your preferred language</string>
+    <string name="profile_help_center">Help Center</string>
+    <string name="profile_faqs_and_support">FAQs and support</string>
+    <string name="profile_about">About</string>
+    <string name="profile_app_info_and_terms">App info and terms</string>
+
+    <!-- Avatar Selection -->
+    <string name="profile_choose_your_avatar">Choose Your Avatar</string>
+    <string name="profile_cancel">Cancel</string>
+
+    <!-- Developer Debug Section -->
+    <string name="profile_developer_debug">🔧 Developer Debug</string>
+    <string name="profile_toggle_developer_info">Toggle developer info</string>
+    <string name="profile_current_user">Current User</string>
+    <string name="profile_all_users_with_count">All Users (%1$d)</string>
+    <string name="profile_enter_developer_password">Enter developer password to view debug information</string>
+    <string name="profile_developer_access">🔐 Developer Access</string>
+    <string name="profile_developer_password">Developer Password</string>
+    <string name="profile_hide_password">Hide password</string>
+    <string name="profile_show_password">Show password</string>
+    <string name="profile_incorrect_password">Incorrect password</string>
+    <string name="profile_access">Access</string>
+
+    <!-- All Users Section -->
+    <string name="profile_all_users_in_database">👥 All Users in Database</string>
+    <string name="profile_refresh_all_users">Refresh all users</string>
+    <string name="profile_clear_users_data">Clear users data</string>
+    <string name="profile_empty_mailbox_emoji">📭</string>
+    <string name="profile_no_users_loaded">No users loaded</string>
+    <string name="profile_click_refresh_to_load">Click refresh to load all users</string>
+    <string name="profile_user_number">User #%1$d</string>
+    <string name="profile_current_user_label">CURRENT</string>
+    <string name="profile_email_label">📧 Email</string>
+    <string name="profile_nickname_label">👤 Nickname</string>
+    <string name="profile_theme_label">🎨 Theme</string>
+    <string name="profile_not_set">Not set</string>
+
+    <!-- Developer Info Content -->
+    <string name="profile_user_session">🧑 User Session</string>
+    <string name="profile_login_status">Login Status</string>
+    <string name="profile_logged_in">✅ Logged In</string>
+    <string name="profile_not_logged_in">❌ Not Logged In</string>
+    <string name="profile_user_id">User ID</string>
+    <string name="profile_email">Email</string>
+    <string name="profile_nickname">Nickname</string>
+    <string name="profile_theme">Theme</string>
+    <string name="profile_not_available">N/A</string>
+    <string name="profile_avatar_index">Avatar Index</string>
+    <string name="profile_avatar_emoji">Avatar Emoji</string>
+    <string name="profile_avatar_description">Avatar Description</string>
+
+    <string name="profile_authentication_state">🔐 Authentication State</string>
+    <string name="profile_loading">Loading</string>
+    <string name="profile_error_message">Error Message</string>
+    <string name="profile_none">None</string>
+    <string name="profile_verification_sent">Verification Sent</string>
+    <string name="profile_verification_email">Verification Email</string>
+    <string name="profile_verification_timestamp">Verification Timestamp</string>
+    <string name="profile_code_expired">Code Expired</string>
+
+    <string name="profile_available_avatars">🎭 Available Avatars</string>
+    <string name="profile_avatar_number">Avatar %1$d</string>
+
+    <string name="profile_app_information">📱 App Information</string>
+    <string name="profile_app_name">App Name</string>
+    <string name="profile_app_name_rayvita">RayVita</string>
+    <string name="profile_api_base_url">API Base URL</string>
+    <string name="profile_api_url">http://47.96.237.130:5000/api/</string>
+    <string name="profile_session_expiry">Session Expiry</string>
+    <string name="profile_seven_days">7 days</string>
+    <string name="profile_current_time">Current Time</string>
+    <string name="profile_theme_mode">Theme Mode</string>
+    <string name="profile_system_default">System Default</string>
+    <string name="profile_build_type">Build Type</string>
+    <string name="profile_debug">Debug</string>
+
+    <string name="profile_developer_actions">⚠️ Developer Actions</string>
+    <string name="profile_clear_errors">Clear Errors</string>
+    <string name="profile_refresh_users">Refresh Users</string>
+    <string name="profile_force_logout">Force Logout</string>
+
+    <!-- Login Screen Related Strings -->
+    <string name="login_title">Login</string>
+    <string name="login_back">Back</string>
+    <string name="login_welcome_back">Welcome Back</string>
+    <string name="login_enter_account_info">Please enter your account information</string>
+    <string name="login_email">Email</string>
+    <string name="login_password">Password</string>
+    <string name="login_hide_password">Hide password</string>
+    <string name="login_show_password">Show password</string>
+    <string name="login_forgot_password">Forgot password?</string>
+    <string name="login_button">Login</string>
+    <string name="login_no_account">Don\'t have an account?</string>
+    <string name="login_register_now">Register now</string>
+
+    <!-- Login Welcome Screen Related Strings -->
+    <string name="login_welcome_profile_center">Profile Center</string>
+    <string name="login_welcome_back_back">Back</string>
+    <string name="login_welcome_title">Welcome to RayVita</string>
+    <string name="login_welcome_description">Login to your account for more health services\nEnjoy personalized health management</string>
+    <string name="login_welcome_login_button">Login</string>
+    <string name="login_welcome_register_button">Create New Account</string>
+    <string name="login_welcome_privacy_notice">By logging in or registering, you agree to the Terms of Service and Privacy Policy</string>
+
+    <!-- Notification Settings -->
+    <string name="notification_title">Notifications</string>
+    <string name="notification_back">Back</string>
+    <string name="notification_menu">Menu</string>
+    <string name="notification_test_notification">Test Notification</string>
+    <string name="notification_system_settings">System Settings</string>
+
+    <!-- Main Toggle -->
+    <string name="notification_enable_notifications">Enable Notifications</string>
+    <string name="notification_enable_notifications_desc">Receive heart rate measurement reminders</string>
+
+    <!-- Timed Reminder -->
+    <string name="notification_timed_reminder">Timed Reminders</string>
+    <string name="notification_timed_reminder_desc">Set regular measurement reminders</string>
+    <string name="notification_reminder_frequency">Reminder Frequency</string>
+    <string name="notification_custom_time">Custom Time: %1$s</string>
+
+    <!-- Frequency Options -->
+    <string name="notification_frequency_3_hours">Every 3 Hours</string>
+    <string name="notification_frequency_6_hours">Every 6 Hours</string>
+    <string name="notification_frequency_once_daily">Once Daily</string>
+    <string name="notification_frequency_twice_daily">Twice Daily</string>
+
+    <!-- Reminder Types -->
+    <string name="notification_reminder_type">Reminder Type</string>
+    <string name="notification_reminder_type_desc">Choose notification style</string>
+    <string name="notification_type_notification_bar">Notification Bar</string>
+    <string name="notification_type_popup">Popup Alert</string>
+    <string name="notification_type_silent">Silent Badge</string>
+
+    <!-- Preview -->
+    <string name="notification_preview">Preview</string>
+    <string name="notification_preview_desc">See how notifications will appear</string>
+    <string name="notification_ai_health_tips">AI Health Tips</string>
+    <string name="notification_preview_disabled">Notifications are disabled</string>
+    <string name="notification_preview_message">Time to measure your heart rate! Tap to start measuring.</string>
+    <string name="notification_ai_tip_example">Regular heart rate monitoring helps detect health issues early.</string>
+
+    <!-- Actions -->
+    <string name="notification_actions">Actions</string>
+    <string name="notification_save_settings">Save Settings</string>
+    <string name="notification_restore_defaults">Restore Defaults</string>
+
+    <!-- Time Picker -->
+    <string name="notification_select_time">Select Time</string>
+    <string name="notification_cancel">Cancel</string>
+    <string name="notification_confirm">Confirm</string>
+
+    <!-- Notification Actions -->
+    <string name="notification_measure_now">Measure Now</string>
+
+    <!-- Permission Messages -->
+    <string name="notification_permission_required">Notification permission required</string>
+    <string name="notification_permission_denied">Please enable notifications in system settings</string>
+
+
+    <!-- Privacy & Security Page -->
+    <string name="privacy_title">Privacy &amp; Security</string>
+    <string name="privacy_back">Back</string>
+
+    <!-- Introduction Card -->
+    <string name="privacy_intro_title">Your Privacy Matters</string>
+    <string name="privacy_intro_subtitle">Transparency &amp; Trust</string>
+    <string name="privacy_intro_desc">RayVita is committed to protecting your personal health data with industry-leading security standards and transparent privacy practices. We believe your health information belongs to you.</string>
+
+    <!-- Password Security -->
+    <string name="privacy_password_security_title">Password Security</string>
+    <string name="privacy_password_security_desc">All user passwords are securely stored using irreversible hash algorithms. We never save any sensitive information in plain text, ensuring your account security.</string>
+
+    <!-- Local First Data Design -->
+    <string name="privacy_local_first_title">Local-First Design</string>
+    <string name="privacy_local_first_desc">All health measurement data (heart rate, HRV, etc.) is stored locally on your device by default. Data is only uploaded to servers when you manually tap the \"Cloud Sync\" button.</string>
+
+    <!-- Cloud Sync Behavior -->
+    <string name="privacy_cloud_sync_title">Controlled Cloud Sync</string>
+    <string name="privacy_cloud_sync_desc">Cloud synchronization is user-initiated and secured through JWT authentication during data transmission, ensuring a safe and controlled sync process.</string>
+
+    <!-- User Data Usage -->
+    <string name="privacy_data_usage_title">Data Self-Management</string>
+    <string name="privacy_data_usage_desc">We will never use your data for any unauthorized commercial purposes. You can delete local data or disable sync features at any time. We respect your digital health rights.</string>
+
+    <!-- Easter Egg -->
+    <string name="privacy_easter_egg_hint">Powered by adaptive AI and privacy-first design.</string>
+    <string name="privacy_easter_egg_title">Easter Egg Unlocked!</string>
+    <string name="privacy_easter_egg_desc">Thank you for caring about privacy! We are developing a local AI model-based heart rate analysis system that will support completely offline analysis without any data upload.</string>
+    <string name="privacy_easter_egg_signature">—— RayVita Team</string>
+    <string name="privacy_easter_egg_close">Amazing!</string>
+
+    <!-- 提醒类型提示 -->
+    <string name="notification_popup_hint">%1$s</string>
+    <string name="notification_silent_hint">%1$s</string>
+
+    <!-- Built-in Theme Names -->
+    <string name="builtin_theme_warm_earth_name">Warm Earth</string>
+    <string name="builtin_theme_ios_blue_name">iOS Blue</string>
+    <string name="builtin_theme_forest_green_name">Forest Green</string>
+    <string name="builtin_theme_ocean_blue_name">Ocean Blue</string>
+    <string name="builtin_theme_violet_dream_name">Violet Dream</string>
+    <string name="builtin_theme_sunset_orange_name">Sunset Orange</string>
+    <string name="builtin_theme_bio_serenity_name">Bio Serenity</string>
+    <string name="builtin_theme_cardio_sync_name">Cardio Sync</string>
+    <string name="builtin_theme_aurora_flow_name">Aurora Flow</string>
+
+    <!-- Built-in Theme Descriptions -->
+    <string name="builtin_theme_warm_earth_description">Warm and natural earth tones that create a comfortable and serene atmosphere</string>
+    <string name="builtin_theme_ios_blue_description">Classic iOS design style with fresh and clean blue tones</string>
+    <string name="builtin_theme_forest_green_description">Natural and refreshing green tones that bring a vibrant visual experience</string>
+    <string name="builtin_theme_ocean_blue_description">Deep and serene blue tones, as calm and elegant as the deep sea</string>
+    <string name="builtin_theme_violet_dream_description">Mysterious and romantic purple tones, full of creativity and imagination</string>
+    <string name="builtin_theme_sunset_orange_description">Warm and energetic orange tones, as passionate and warm as sunset</string>
+    <string name="builtin_theme_bio_serenity_description">Synchronized with stable blood flow light signals and natural breathing, green and ivory white evoke organic life perception, designed for health monitoring</string>
+    <string name="builtin_theme_cardio_sync_description">The rhythmic beauty of heart rate data, blood red and arterial orange showcase life vitality, perfect for real-time heart rate monitoring interfaces</string>
+    <string name="builtin_theme_aurora_flow_description">Combining rPPG signal rhythm with aurora gradients, dreamy blue-purple and soft pink create a romantic tech atmosphere</string>
+
+    <!-- AI Theme Generation Prompts -->
+    <string name="ai_prompt_intro">You are a professional UI/UX designer and color expert. Based on the user\'s description "%1$s", please design a complete theme color scheme for Android Material Design 3 applications.</string>
+    <string name="ai_prompt_format_instruction">Please return strictly according to the following JSON format, ensuring all required color values are included:</string>
+    <string name="ai_prompt_theme_name_desc">Theme name (concise and meaningful)</string>
+    <string name="ai_prompt_theme_description_desc">Theme description (within 50 words, describing visual characteristics and applicable scenarios)</string>
+    <string name="ai_prompt_theme_intention_desc">Design philosophy (within 100 words, explaining the meaning and emotional expression of color choices, closely related to the description "%1$s")</string>
+    <string name="ai_prompt_dark_colors_comment">Same structure, but adapted for dark mode</string>
+
+    <string name="ai_prompt_design_requirements">Design Requirements:</string>
+    <string name="ai_prompt_requirement_1">1. Ensure sufficient contrast, complying with WCAG accessibility standards</string>
+    <string name="ai_prompt_requirement_2">2. Harmonious color combinations following color theory</string>
+    <string name="ai_prompt_requirement_3">3. Consider user emotions and usage scenarios</string>
+    <string name="ai_prompt_requirement_4">4. Light and dark themes should complement each other</string>
+    <string name="ai_prompt_requirement_5">5. All color values must be valid hexadecimal format</string>
+    <string name="ai_prompt_requirement_6">6. Please return JSON directly without other text</string>
+
+    <string name="ai_prompt_conclusion">Please generate a professional theme color scheme based on this description "%1$s".</string>
+
+    <!-- Theme Color Explanation Related -->
+    <string name="theme_explan_color_analysis_title">%1$s Color Analysis</string>
+    <string name="theme_explan_click_to_view">Click to view detailed color meanings</string>
+    <string name="theme_explan_collapse">Collapse</string>
+    <string name="theme_explan_expand">Expand</string>
+    <string name="theme_explan_theme_concept">Theme Concept</string>
+
+    <!-- Primary Colors Section -->
+    <string name="theme_explan_primary_colors">Primary Colors</string>
+    <string name="theme_explan_primary_colors_desc">Core colors of the app, used for important buttons, navigation and key elements</string>
+    <string name="theme_explan_primary_color">Primary</string>
+    <string name="theme_explan_primary_color_desc">Brand color, creates overall atmosphere</string>
+    <string name="theme_explan_secondary_color">Secondary</string>
+    <string name="theme_explan_secondary_color_desc">Balances primary color, adds hierarchy</string>
+    <string name="theme_explan_tertiary_color">Accent</string>
+    <string name="theme_explan_tertiary_color_desc">Highlights key points, guides attention</string>
+
+    <!-- Functional Colors Section -->
+    <string name="theme_explan_functional_colors">Functional Colors</string>
+    <string name="theme_explan_functional_colors_desc">Colors used for status indication and user feedback</string>
+    <string name="theme_explan_error_color">Error</string>
+    <string name="theme_explan_error_color_desc">Warnings and error alerts</string>
+    <string name="theme_explan_outline_color">Outline</string>
+    <string name="theme_explan_outline_color_desc">Dividers and borders</string>
+
+    <!-- Surface Colors Section -->
+    <string name="theme_explan_surface_colors">Surface Colors</string>
+    <string name="theme_explan_surface_colors_desc">Background and card surface color combinations</string>
+    <string name="theme_explan_background_color">Background</string>
+    <string name="theme_explan_background_color_desc">Main background, creates spatial sense</string>
+    <string name="theme_explan_surface_color">Surface</string>
+    <string name="theme_explan_surface_color_desc">Card and component backgrounds</string>
+    <string name="theme_explan_surface_variant_color">Variant</string>
+    <string name="theme_explan_surface_variant_color_desc">Secondary surface, adds hierarchy</string>
+
+    <!-- AI Generation Note -->
+    <string name="theme_explan_ai_generation_title">✨ AI Smart Colors</string>
+    <string name="theme_explan_ai_generation_desc">This color scheme is intelligently generated by DeepSeek AI based on your description, ensuring color harmony and accessibility compliance.</string>
+
+    <!-- Theme Preview Card Related -->
+    <string name="theme_explan_selected">Selected</string>
+    <string name="theme_explan_ai_generated">AI Generated</string>
+    <string name="theme_explan_hide_color_details">Hide color details</string>
+    <string name="theme_explan_show_color_details">Show color details</string>
+    <string name="theme_explan_delete_theme">Delete theme</string>
+    <string name="theme_explan_color_meaning">Color Meaning</string>
+
+    <!-- Color Labels -->
+    <string name="theme_explan_primary_short">Primary</string>
+    <string name="theme_explan_secondary_short">Secondary</string>
+    <string name="theme_explan_tertiary_short">Accent</string>
+    <string name="theme_explan_ai_generated_short">AI Generated</string>
+
+    <!-- Color Preview Labels -->
+    <string name="theme_explan_primary_label">Primary</string>
+    <string name="theme_explan_secondary_label">Secondary</string>
+    <string name="theme_explan_tertiary_label">Tertiary</string>
+    <string name="theme_explan_background_label">Bg</string>
+    <string name="theme_explan_surface_label">Surface</string>
+    <string name="theme_explan_surface_variant_label">Variant</string>
+
+    <!-- Theme Feature Descriptions -->
+    <string name="theme_explan_forest_meaning">Green tones symbolize nature and vitality, creating a calm and relaxing user experience</string>
+    <string name="theme_explan_ocean_meaning">Blue tones represent trust and professionalism, suitable for business and productivity apps</string>
+    <string name="theme_explan_purple_meaning">Purple tones embody creativity and mystery, inspiring imagination and artistic sense</string>
+    <string name="theme_explan_orange_meaning">Orange tones convey warmth and energy, enhancing users\' positive emotions</string>
+    <string name="theme_explan_ios_meaning">Clean and fresh design language, focusing on functionality and usability</string>
+    <string name="theme_explan_default_meaning">Carefully crafted color combinations ensuring visual harmony and usage comfort</string>
 </resources>

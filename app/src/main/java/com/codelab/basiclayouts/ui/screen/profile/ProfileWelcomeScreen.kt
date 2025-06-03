@@ -32,9 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.codelab.basiclayouts.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,10 +48,10 @@ fun ProfileWelcomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("个人中心") },
+                title = { Text(stringResource(R.string.login_welcome_profile_center)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.login_welcome_back_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -114,7 +116,7 @@ fun ProfileWelcomeScreen(
 
                     // 欢迎文字
                     Text(
-                        text = "欢迎使用 RayVita",
+                        text = stringResource(R.string.login_welcome_title),
                         style = MaterialTheme.typography.headlineMedium,
                         color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.Bold
@@ -123,7 +125,7 @@ fun ProfileWelcomeScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "登录账号体验更多健康服务\n享受个性化的健康管理",
+                        text = stringResource(R.string.login_welcome_description),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                         textAlign = TextAlign.Center,
@@ -148,7 +150,7 @@ fun ProfileWelcomeScreen(
                         )
                     ) {
                         Text(
-                            text = "登录",
+                            text = stringResource(R.string.login_welcome_login_button),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -168,7 +170,7 @@ fun ProfileWelcomeScreen(
                         )
                     ) {
                         Text(
-                            text = "注册新账号",
+                            text = stringResource(R.string.login_welcome_register_button),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium
                         )
@@ -178,7 +180,7 @@ fun ProfileWelcomeScreen(
 
                     // 隐私政策提示
                     Text(
-                        text = "登录或注册即表示同意《用户协议》和《隐私政策》",
+                        text = stringResource(R.string.login_welcome_privacy_notice),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                         textAlign = TextAlign.Center,

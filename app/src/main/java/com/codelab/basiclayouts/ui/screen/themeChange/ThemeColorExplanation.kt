@@ -1,6 +1,5 @@
 package com.codelab.basiclayouts.ui.screen.themeChange
 
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -41,9 +40,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.codelab.basiclayouts.R
 import com.codelab.basiclayouts.data.theme.model.ColorSchemeData
 import com.codelab.basiclayouts.data.theme.model.ThemeProfile
 
@@ -60,7 +61,7 @@ fun ThemeColorExplanation(
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.95f)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -89,7 +90,7 @@ fun ThemeColorExplanation(
 
                     Column {
                         Text(
-                            text = "${theme.name} 配色解析",
+                            text = stringResource(R.string.theme_explan_color_analysis_title, theme.name),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -97,7 +98,7 @@ fun ThemeColorExplanation(
 
                         if (!isExpanded) {
                             Text(
-                                text = "点击查看详细配色含义",
+                                text = stringResource(R.string.theme_explan_click_to_view),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                             )
@@ -108,7 +109,11 @@ fun ThemeColorExplanation(
                 IconButton(onClick = { isExpanded = !isExpanded }) {
                     Icon(
                         imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = if (isExpanded) "收起" else "展开",
+                        contentDescription = if (isExpanded) {
+                            stringResource(R.string.theme_explan_collapse)
+                        } else {
+                            stringResource(R.string.theme_explan_expand)
+                        },
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -176,7 +181,7 @@ private fun ThemeDescriptionSection(theme: ThemeProfile) {
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
-                    text = "主题理念",
+                    text = stringResource(R.string.theme_explan_theme_concept),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.primary
@@ -199,8 +204,8 @@ private fun ThemeDescriptionSection(theme: ThemeProfile) {
 @Composable
 private fun PrimaryColorsSection(colors: ColorSchemeData) {
     ColorSection(
-        title = "主要配色",
-        description = "应用的核心色彩，用于重要按钮、导航等关键元素"
+        title = stringResource(R.string.theme_explan_primary_colors),
+        description = stringResource(R.string.theme_explan_primary_colors_desc)
     ) {
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -208,18 +213,18 @@ private fun PrimaryColorsSection(colors: ColorSchemeData) {
         ) {
             ColorItem(
                 color = colors.primary,
-                name = "主色调",
-                description = "品牌色彩，营造整体氛围"
+                name = stringResource(R.string.theme_explan_primary_color),
+                description = stringResource(R.string.theme_explan_primary_color_desc)
             )
             ColorItem(
                 color = colors.secondary,
-                name = "辅助色",
-                description = "平衡主色，增加层次感"
+                name = stringResource(R.string.theme_explan_secondary_color),
+                description = stringResource(R.string.theme_explan_secondary_color_desc)
             )
             ColorItem(
                 color = colors.tertiary,
-                name = "强调色",
-                description = "突出重点，引导注意力"
+                name = stringResource(R.string.theme_explan_tertiary_color),
+                description = stringResource(R.string.theme_explan_tertiary_color_desc)
             )
         }
     }
@@ -229,8 +234,8 @@ private fun PrimaryColorsSection(colors: ColorSchemeData) {
 @Composable
 private fun SupportingColorsSection(colors: ColorSchemeData) {
     ColorSection(
-        title = "功能配色",
-        description = "用于状态提示和用户反馈的颜色"
+        title = stringResource(R.string.theme_explan_functional_colors),
+        description = stringResource(R.string.theme_explan_functional_colors_desc)
     ) {
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -238,13 +243,13 @@ private fun SupportingColorsSection(colors: ColorSchemeData) {
         ) {
             ColorItem(
                 color = colors.error,
-                name = "错误色",
-                description = "警告和错误提示"
+                name = stringResource(R.string.theme_explan_error_color),
+                description = stringResource(R.string.theme_explan_error_color_desc)
             )
             ColorItem(
                 color = colors.outline,
-                name = "边框色",
-                description = "分割线和边框"
+                name = stringResource(R.string.theme_explan_outline_color),
+                description = stringResource(R.string.theme_explan_outline_color_desc)
             )
         }
     }
@@ -254,8 +259,8 @@ private fun SupportingColorsSection(colors: ColorSchemeData) {
 @Composable
 private fun SurfaceColorsSection(colors: ColorSchemeData) {
     ColorSection(
-        title = "背景配色",
-        description = "页面背景和卡片表面的颜色搭配"
+        title = stringResource(R.string.theme_explan_surface_colors),
+        description = stringResource(R.string.theme_explan_surface_colors_desc)
     ) {
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -263,18 +268,18 @@ private fun SurfaceColorsSection(colors: ColorSchemeData) {
         ) {
             ColorItem(
                 color = colors.background,
-                name = "背景色",
-                description = "主要背景，营造空间感"
+                name = stringResource(R.string.theme_explan_background_color),
+                description = stringResource(R.string.theme_explan_background_color_desc)
             )
             ColorItem(
                 color = colors.surface,
-                name = "表面色",
-                description = "卡片和组件背景"
+                name = stringResource(R.string.theme_explan_surface_color),
+                description = stringResource(R.string.theme_explan_surface_color_desc)
             )
             ColorItem(
                 color = colors.surfaceVariant,
-                name = "变体色",
-                description = "次级表面，增加层次"
+                name = stringResource(R.string.theme_explan_surface_variant_color),
+                description = stringResource(R.string.theme_explan_surface_variant_color_desc)
             )
         }
     }
@@ -362,7 +367,7 @@ private fun AiGenerationNote() {
             modifier = Modifier.padding(12.dp)
         ) {
             Text(
-                text = "✨ AI 智能配色",
+                text = stringResource(R.string.theme_explan_ai_generation_title),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.tertiary
@@ -371,7 +376,7 @@ private fun AiGenerationNote() {
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "这套配色方案由 DeepSeek AI 根据您的描述智能生成，确保色彩和谐且符合无障碍标准。",
+                text = stringResource(R.string.theme_explan_ai_generation_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 textAlign = TextAlign.Start

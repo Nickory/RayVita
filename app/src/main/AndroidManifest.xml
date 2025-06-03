@@ -9,6 +9,12 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <!-- 添加必要权限 -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- 手机震动，铃声所需权限 -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- 通知权限 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- 传感器权限 -->
     <uses-permission android:name="android.permission.SENSORS" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
@@ -102,6 +108,17 @@
 
         <activity
             android:name=".ui.screen.profile.HelpCenterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MySoothe" />
+
+
+        <activity
+            android:name=".ui.screen.profile.NotificationSettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MySoothe" />
+
+        <activity
+            android:name=".ui.screen.profile.PrivacySecurityActivity"
             android:exported="false"
             android:theme="@style/Theme.MySoothe" />
     </application>

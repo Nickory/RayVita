@@ -1,5 +1,7 @@
 package com.codelab.basiclayouts.ui.theme
 
+import android.content.Context
+import com.codelab.basiclayouts.R
 import com.codelab.basiclayouts.data.theme.model.ColorSchemeData
 import com.codelab.basiclayouts.data.theme.model.ThemeProfile
 
@@ -613,96 +615,124 @@ object ColorSchemes {
         outline = "#997766",
         inverseOnSurface = "#3A2A1F"
     )
-    val builtInThemes = listOf(
 
-        // 经典主题系列
-        ThemeProfile(
+    // ==================== 主题数据类，存储资源ID ====================
+
+    /**
+     * 内置主题数据类，存储资源ID而非字符串
+     */
+    data class BuiltInThemeData(
+        val id: String,
+        val nameResId: Int,
+        val descriptionResId: Int,
+        val lightColors: ColorSchemeData,
+        val darkColors: ColorSchemeData,
+        val isBuiltIn: Boolean = true
+    )
+
+    /**
+     * 内置主题资源ID列表（不需要Context）
+     */
+    val builtInThemeResources = listOf(
+        BuiltInThemeData(
             id = "warm_earth",
-            name = "暖色大地",
-            description = "温暖自然的大地色调，营造舒适宁静的氛围",
+            nameResId = R.string.builtin_theme_warm_earth_name,
+            descriptionResId = R.string.builtin_theme_warm_earth_description,
             lightColors = warmEarthLight,
-            darkColors = warmEarthDark,
-            isBuiltIn = true
+            darkColors = warmEarthDark
         ),
-        ThemeProfile(
+        BuiltInThemeData(
             id = "ios_blue",
-            name = "iOS 蓝",
-            description = "经典的iOS设计风格，清新简洁的蓝色系",
+            nameResId = R.string.builtin_theme_ios_blue_name,
+            descriptionResId = R.string.builtin_theme_ios_blue_description,
             lightColors = iosBlueLight,
-            darkColors = iosBlueDark,
-            isBuiltIn = true
+            darkColors = iosBlueDark
         ),
-        ThemeProfile(
+        BuiltInThemeData(
             id = "forest_green",
-            name = "森林绿",
-            description = "自然清新的绿色系，带来生机盎然的视觉体验",
+            nameResId = R.string.builtin_theme_forest_green_name,
+            descriptionResId = R.string.builtin_theme_forest_green_description,
             lightColors = forestGreenLight,
-            darkColors = forestGreenDark,
-            isBuiltIn = true
+            darkColors = forestGreenDark
         ),
-        ThemeProfile(
+        BuiltInThemeData(
             id = "ocean_blue",
-            name = "深海蓝",
-            description = "深邃宁静的蓝色系，如深海般的沉静优雅",
+            nameResId = R.string.builtin_theme_ocean_blue_name,
+            descriptionResId = R.string.builtin_theme_ocean_blue_description,
             lightColors = oceanBlueLight,
-            darkColors = oceanBlueDark,
-            isBuiltIn = true
+            darkColors = oceanBlueDark
         ),
-        ThemeProfile(
+        BuiltInThemeData(
             id = "violet_dream",
-            name = "紫罗兰梦境",
-            description = "神秘浪漫的紫色系，充满创意与想象力",
+            nameResId = R.string.builtin_theme_violet_dream_name,
+            descriptionResId = R.string.builtin_theme_violet_dream_description,
             lightColors = violetDreamLight,
-            darkColors = violetDreamDark,
-            isBuiltIn = true
+            darkColors = violetDreamDark
         ),
-        ThemeProfile(
+        BuiltInThemeData(
             id = "sunset_orange",
-            name = "日落橙",
-            description = "温暖活力的橙色系，如夕阳般的热情与温暖",
+            nameResId = R.string.builtin_theme_sunset_orange_name,
+            descriptionResId = R.string.builtin_theme_sunset_orange_description,
             lightColors = sunsetOrangeLight,
-            darkColors = sunsetOrangeDark,
-            isBuiltIn = true
+            darkColors = sunsetOrangeDark
         ),
-//        ThemeProfile(
-//            id = "neuro_pulse",
-//            name = "神经脉冲",
-//            description = "模拟大脑神经元电信号脉冲，深紫与电光蓝营造神秘张力氛围，适用于神经反馈与数据分析",
-//            lightColors = neuroPulseLight,
-//            darkColors = neuroPulseDark,
-//            isBuiltIn = true
-//        ),
-        ThemeProfile(
+        BuiltInThemeData(
             id = "bio_serenity",
-            name = "生物静息态",
-            description = "血流稳定光信号与自然呼吸同步，绿色与象牙白唤起有机生命感知，专为健康监测设计",
+            nameResId = R.string.builtin_theme_bio_serenity_name,
+            descriptionResId = R.string.builtin_theme_bio_serenity_description,
             lightColors = bioSerenityLight,
-            darkColors = bioSerenityDark,
-            isBuiltIn = true
+            darkColors = bioSerenityDark
         ),
-//        ThemeProfile(
-//            id = "opti_wave",
-//            name = "光波干涉",
-//            description = "rPPG反射光与皮肤交互的周期波动，科技银白与深青色体现精准医疗的冷静专业感",
-//            lightColors = optiWaveLight,
-//            darkColors = optiWaveDark,
-//            isBuiltIn = true
-//        ),
-        ThemeProfile(
+        BuiltInThemeData(
             id = "cardio_sync",
-            name = "心律同步",
-            description = "心率数据的律动之美，血红与动脉橙展现生命活力，最适合实时心率监测界面",
+            nameResId = R.string.builtin_theme_cardio_sync_name,
+            descriptionResId = R.string.builtin_theme_cardio_sync_description,
             lightColors = cardioSyncLight,
-            darkColors = cardioSyncDark,
-            isBuiltIn = true
+            darkColors = cardioSyncDark
         ),
-        ThemeProfile(
+        BuiltInThemeData(
             id = "aurora_flow",
-            name = "极光流动",
-            description = "融合rPPG信号律动感与极光渐变，梦幻蓝紫与柔粉营造科技浪漫的轻盈氛围",
+            nameResId = R.string.builtin_theme_aurora_flow_name,
+            descriptionResId = R.string.builtin_theme_aurora_flow_description,
             lightColors = auroraFlowLight,
-            darkColors = auroraFlowDark,
-            isBuiltIn = true
+            darkColors = auroraFlowDark
         )
+    )
+
+    // ==================== 转换函数 ====================
+
+    /**
+     * 将资源ID数据转换为ThemeProfile（需要Context）
+     */
+    fun BuiltInThemeData.toThemeProfile(context: Context): ThemeProfile {
+        return ThemeProfile(
+            id = this.id,
+            name = context.getString(this.nameResId),
+            description = context.getString(this.descriptionResId),
+            lightColors = this.lightColors,
+            darkColors = this.darkColors,
+            isBuiltIn = this.isBuiltIn
         )
+    }
+
+    /**
+     * 将资源ID列表转换为ThemeProfile列表
+     */
+    fun getBuiltInThemes(context: Context): List<ThemeProfile> {
+        return builtInThemeResources.map { it.toThemeProfile(context) }
+    }
+
+    /**
+     * 通过ID查找内置主题资源数据
+     */
+    fun findBuiltInThemeDataById(id: String): BuiltInThemeData? {
+        return builtInThemeResources.find { it.id == id }
+    }
+
+    /**
+     * 通过ID查找并转换为ThemeProfile
+     */
+    fun findBuiltInThemeById(context: Context, id: String): ThemeProfile? {
+        return findBuiltInThemeDataById(id)?.toThemeProfile(context)
+    }
 }

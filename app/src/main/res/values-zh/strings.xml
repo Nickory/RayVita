@@ -455,7 +455,7 @@
     <string name="menu_language">Language</string>
     <string name="settings">Settings</string>
         <!-- App基础信息 -->
-        <string name="app_name">BasicLayouts</string>
+        <string name="app_name">RayVita</string>
 
         <!-- 通用操作 -->
 
@@ -473,8 +473,7 @@
         <string name="no_users_found">未找到用户。尝试搜索用户。</string>
         <string name="add_friend">添加好友</string>
 
-        <!-- Profile Screen 字符串 -->
-        <string name="profile_title">个人资料</string>
+
         <string name="welcome_message">欢迎使用 RayVita</string>
         <string name="sign_in_description">登录以访问所有功能</string>
         <string name="sign_in">登录</string>
@@ -722,4 +721,356 @@
 
     <string name="faq_web_security">网页是否安全？</string>
     <string name="faq_web_security_answer">基于 HTTPS 与账户权限验证，保障隐私安全。</string>
+
+    <!-- RPPG 加载界面相关字符串 -->
+    <string name="analyzing_physiological_signals">正在分析生理信号…</string>
+    <string name="keep_still_for_accuracy">请保持静止，确保检测准确性</string>
+    <string name="analyzing">分析中</string>
+    <string name="bpm_unit">BPM</string>
+    <string name="quality_label">质量</string>
+
+    <!-- 处理阶段 -->
+    <string name="stage_initializing">初始化</string>
+    <string name="stage_signal_collection">信号采集</string>
+    <string name="stage_preprocessing">预处理</string>
+    <string name="stage_noise_filtering">噪声过滤</string>
+    <string name="stage_feature_extraction">特征提取</string>
+    <string name="stage_data_analysis">数据分析</string>
+    <string name="stage_almost_complete">即将完成</string>
+
+    <!-- 物理状态处理相关字符串 -->
+    <string name="physstate_extracting_signal_data">正在提取信号数据…</string>
+    <string name="physstate_analyzing_heart_rate">正在分析心率…</string>
+    <string name="physstate_evaluating_signal_quality">评估信号质量…</string>
+    <string name="physstate_analyzing_hrv">分析心率变异性…</string>
+    <string name="physstate_calculating_spo2">计算血氧饱和度…</string>
+    <string name="physstate_saving_results">保存测量结果…</string>
+    <string name="physstate_syncing_to_cloud">同步到云端…</string>
+    <string name="physstate_processing_failed">处理失败：%1$s</string>
+
+
+
+    <!-- Profile Screen Related Strings -->
+    <string name="profile_title">个人资料</string>
+    <string name="profile_welcome_to_rayvita">欢迎使用 RayVita</string>
+    <string name="profile_sign_in_to_access_features">登录以使用全部功能</string>
+    <string name="profile_sign_in">登录</string>
+    <string name="profile_sign_up">注册</string>
+    <string name="profile_change_avatar">更换头像</string>
+    <string name="profile_default_user_name">用户</string>
+    <string name="profile_edit_profile">编辑资料</string>
+    <string name="profile_sign_out">退出登录</string>
+
+    <!-- Settings Section -->
+    <string name="profile_settings_and_support">设置与支持</string>
+    <string name="profile_notifications">通知</string>
+    <string name="profile_manage_alerts_and_reminders">管理提醒和通知</string>
+    <string name="profile_privacy_and_security">隐私与安全</string>
+    <string name="profile_account_and_data_protection">账户和数据保护</string>
+    <string name="profile_appearance">外观</string>
+    <string name="profile_theme_and_display_options">主题和显示选项</string>
+    <string name="profile_language">语言</string>
+    <string name="profile_choose_preferred_language">选择您的首选语言</string>
+    <string name="profile_help_center">帮助中心</string>
+    <string name="profile_faqs_and_support">常见问题和支持</string>
+    <string name="profile_about">关于</string>
+    <string name="profile_app_info_and_terms">应用信息和条款</string>
+
+    <!-- Avatar Selection -->
+    <string name="profile_choose_your_avatar">选择您的头像</string>
+    <string name="profile_cancel">取消</string>
+
+    <!-- Developer Debug Section -->
+    <string name="profile_developer_debug">🔧 开发者调试</string>
+    <string name="profile_toggle_developer_info">切换开发者信息</string>
+    <string name="profile_current_user">当前用户</string>
+    <string name="profile_all_users_with_count">所有用户 (%1$d)</string>
+    <string name="profile_enter_developer_password">输入开发者密码以查看调试信息</string>
+    <string name="profile_developer_access">🔐 开发者访问</string>
+    <string name="profile_developer_password">开发者密码</string>
+    <string name="profile_hide_password">隐藏密码</string>
+    <string name="profile_show_password">显示密码</string>
+    <string name="profile_incorrect_password">密码错误</string>
+    <string name="profile_access">访问</string>
+
+    <!-- All Users Section -->
+    <string name="profile_all_users_in_database">👥 数据库中的所有用户</string>
+    <string name="profile_refresh_all_users">刷新所有用户</string>
+    <string name="profile_clear_users_data">清除用户数据</string>
+    <string name="profile_empty_mailbox_emoji">📭</string>
+    <string name="profile_no_users_loaded">没有加载用户</string>
+    <string name="profile_click_refresh_to_load">点击刷新以加载所有用户</string>
+    <string name="profile_user_number">用户 #%1$d</string>
+    <string name="profile_current_user_label">当前用户</string>
+    <string name="profile_email_label">📧 邮箱</string>
+    <string name="profile_nickname_label">👤 昵称</string>
+    <string name="profile_theme_label">🎨 主题</string>
+    <string name="profile_not_set">未设置</string>
+
+    <!-- Developer Info Content -->
+    <string name="profile_user_session">🧑 用户会话</string>
+    <string name="profile_login_status">登录状态</string>
+    <string name="profile_logged_in">✅ 已登录</string>
+    <string name="profile_not_logged_in">❌ 未登录</string>
+    <string name="profile_user_id">用户ID</string>
+    <string name="profile_email">邮箱</string>
+    <string name="profile_nickname">昵称</string>
+    <string name="profile_theme">主题</string>
+    <string name="profile_not_available">不可用</string>
+    <string name="profile_avatar_index">头像索引</string>
+    <string name="profile_avatar_emoji">头像表情</string>
+    <string name="profile_avatar_description">头像描述</string>
+
+    <string name="profile_authentication_state">🔐 身份验证状态</string>
+    <string name="profile_loading">加载中</string>
+    <string name="profile_error_message">错误信息</string>
+    <string name="profile_none">无</string>
+    <string name="profile_verification_sent">验证已发送</string>
+    <string name="profile_verification_email">验证邮箱</string>
+    <string name="profile_verification_timestamp">验证时间戳</string>
+    <string name="profile_code_expired">验证码已过期</string>
+
+    <string name="profile_available_avatars">🎭 可用头像</string>
+    <string name="profile_avatar_number">头像 %1$d</string>
+
+    <string name="profile_app_information">📱 应用信息</string>
+    <string name="profile_app_name">应用名称</string>
+    <string name="profile_app_name_rayvita">RayVita</string>
+    <string name="profile_api_base_url">API基础URL</string>
+    <string name="profile_api_url">http://47.96.237.130:5000/api/</string>
+    <string name="profile_session_expiry">会话过期时间</string>
+    <string name="profile_seven_days">7天</string>
+    <string name="profile_current_time">当前时间</string>
+    <string name="profile_theme_mode">主题模式</string>
+    <string name="profile_system_default">系统默认</string>
+    <string name="profile_build_type">构建类型</string>
+    <string name="profile_debug">调试</string>
+
+    <string name="profile_developer_actions">⚠️ 开发者操作</string>
+    <string name="profile_clear_errors">清除错误</string>
+    <string name="profile_refresh_users">刷新用户</string>
+    <string name="profile_force_logout">强制登出</string>
+
+    <!-- Login Screen Related Strings -->
+    <string name="login_title">登录</string>
+    <string name="login_back">返回</string>
+    <string name="login_welcome_back">欢迎回来</string>
+    <string name="login_enter_account_info">请输入您的账号信息</string>
+    <string name="login_email">邮箱</string>
+    <string name="login_password">密码</string>
+    <string name="login_hide_password">隐藏密码</string>
+    <string name="login_show_password">显示密码</string>
+    <string name="login_forgot_password">忘记密码?</string>
+    <string name="login_button">登录</string>
+    <string name="login_no_account">还没有账号?</string>
+    <string name="login_register_now">立即注册</string>
+
+    <!-- Login Welcome Screen Related Strings -->
+    <string name="login_welcome_profile_center">个人中心</string>
+    <string name="login_welcome_back_back">返回</string>
+    <string name="login_welcome_title">欢迎使用 RayVita</string>
+    <string name="login_welcome_description">登录账号体验更多健康服务\n享受个性化的健康管理</string>
+    <string name="login_welcome_login_button">登录</string>
+    <string name="login_welcome_register_button">注册新账号</string>
+    <string name="login_welcome_privacy_notice">登录或注册即表示同意《用户协议》和《隐私政策》</string>
+
+    <!-- 通知设置 -->
+    <string name="notification_title">通知设置</string>
+    <string name="notification_back">返回</string>
+    <string name="notification_menu">菜单</string>
+    <string name="notification_test_notification">测试通知</string>
+    <string name="notification_system_settings">系统设置</string>
+
+    <!-- 主开关 -->
+    <string name="notification_enable_notifications">启用通知</string>
+    <string name="notification_enable_notifications_desc">接收心率测量提醒</string>
+
+    <!-- 定时提醒 -->
+    <string name="notification_timed_reminder">定时提醒</string>
+    <string name="notification_timed_reminder_desc">设置定期测量提醒</string>
+    <string name="notification_reminder_frequency">提醒频率</string>
+    <string name="notification_custom_time">自定义时间：%1$s</string>
+
+    <!-- 频率选项 -->
+    <string name="notification_frequency_3_hours">每3小时</string>
+    <string name="notification_frequency_6_hours">每6小时</string>
+    <string name="notification_frequency_once_daily">每天一次</string>
+    <string name="notification_frequency_twice_daily">每天两次</string>
+
+    <!-- 提醒类型 -->
+    <string name="notification_reminder_type">提醒类型</string>
+    <string name="notification_reminder_type_desc">选择通知样式</string>
+    <string name="notification_type_notification_bar">通知栏</string>
+    <string name="notification_type_popup">弹窗提醒</string>
+    <string name="notification_type_silent">静默标记</string>
+
+    <!-- 预览 -->
+    <string name="notification_preview">预览</string>
+    <string name="notification_preview_desc">查看通知显示效果</string>
+    <string name="notification_ai_health_tips">AI健康提示</string>
+    <string name="notification_preview_disabled">通知已禁用</string>
+    <string name="notification_preview_message">该测量您的心率啦，点击立即测量！</string>
+    <string name="notification_ai_tip_example">保持规律的心率监测有助于及时发现健康问题。</string>
+
+    <!-- 操作 -->
+    <string name="notification_actions">操作</string>
+    <string name="notification_save_settings">保存设置</string>
+    <string name="notification_restore_defaults">恢复默认</string>
+
+    <!-- 时间选择器 -->
+    <string name="notification_select_time">选择时间</string>
+    <string name="notification_cancel">取消</string>
+    <string name="notification_confirm">确认</string>
+
+    <!-- 通知操作 -->
+    <string name="notification_measure_now">立即测量</string>
+
+    <!-- 权限消息 -->
+    <string name="notification_permission_required">需要通知权限</string>
+    <string name="notification_permission_denied">请在系统设置中启用通知权限</string>
+
+    <!-- Privacy & Security Page -->
+    <string name="privacy_title">隐私与安全</string>
+    <string name="privacy_back">返回</string>
+
+    <!-- Introduction Card -->
+    <string name="privacy_intro_title">您的隐私至关重要</string>
+    <string name="privacy_intro_subtitle">透明与信任</string>
+    <string name="privacy_intro_desc">RayVita 致力于以行业领先的安全标准和透明的隐私政策保护您的个人健康数据。我们坚信您的健康信息属于您自己。</string>
+
+    <!-- Password Security -->
+    <string name="privacy_password_security_title">密码安全存储</string>
+    <string name="privacy_password_security_desc">所有用户密码均采用不可逆哈希（hash）算法安全存储，我们不会以明文保存任何敏感信息，保障您的账号安全。</string>
+
+    <!-- Local First Data Design -->
+    <string name="privacy_local_first_title">本地优先设计</string>
+    <string name="privacy_local_first_desc">所有健康测量数据（心率、HRV 等）默认保存在本地设备，仅在用户手动点击"云同步"按钮时上传备份至服务器。</string>
+
+    <!-- Cloud Sync Behavior -->
+    <string name="privacy_cloud_sync_title">可控的云同步</string>
+    <string name="privacy_cloud_sync_desc">云端同步为用户主动触发，并通过 JWT 鉴权进行数据传输，保障同步过程安全可控。</string>
+
+    <!-- User Data Usage -->
+    <string name="privacy_data_usage_title">用户数据自主管理</string>
+    <string name="privacy_data_usage_desc">我们不会将您的数据用于任何未经授权的商业用途。您可随时删除本地数据或关闭同步功能，我们尊重您的数字健康权利。</string>
+
+    <!-- Easter Egg -->
+    <string name="privacy_easter_egg_hint">由自适应AI和隐私优先设计驱动。</string>
+    <string name="privacy_easter_egg_title">彩蛋已解锁！</string>
+    <string name="privacy_easter_egg_desc">感谢关注隐私，我们在研发基于本地 AI 模型的心率分析系统，同时将支持云端分析和计算推理。</string>
+    <string name="privacy_easter_egg_signature">—— RayVita 团队</string>
+    <string name="privacy_easter_egg_close">太棒了！</string>
+
+    <!-- 提醒类型提示 -->
+    <string name="notification_popup_hint">%1$s</string>
+    <string name="notification_silent_hint">%1$s</string>
+
+    <!-- 内置主题名称 -->
+    <string name="builtin_theme_warm_earth_name">暖色大地</string>
+    <string name="builtin_theme_ios_blue_name">iOS 蓝</string>
+    <string name="builtin_theme_forest_green_name">森林绿</string>
+    <string name="builtin_theme_ocean_blue_name">深海蓝</string>
+    <string name="builtin_theme_violet_dream_name">紫罗兰梦境</string>
+    <string name="builtin_theme_sunset_orange_name">日落橙</string>
+    <string name="builtin_theme_bio_serenity_name">生物静息态</string>
+    <string name="builtin_theme_cardio_sync_name">心律同步</string>
+    <string name="builtin_theme_aurora_flow_name">极光流动</string>
+
+    <!-- 内置主题描述 -->
+    <string name="builtin_theme_warm_earth_description">温暖自然的大地色调，营造舒适宁静的氛围</string>
+    <string name="builtin_theme_ios_blue_description">经典的iOS设计风格，清新简洁的蓝色系</string>
+    <string name="builtin_theme_forest_green_description">自然清新的绿色系，带来生机盎然的视觉体验</string>
+    <string name="builtin_theme_ocean_blue_description">深邃宁静的蓝色系，如深海般的沉静优雅</string>
+    <string name="builtin_theme_violet_dream_description">神秘浪漫的紫色系，充满创意与想象力</string>
+    <string name="builtin_theme_sunset_orange_description">温暖活力的橙色系，如夕阳般的热情与温暖</string>
+    <string name="builtin_theme_bio_serenity_description">血流稳定光信号与自然呼吸同步，绿色与象牙白唤起有机生命感知，专为健康监测设计</string>
+    <string name="builtin_theme_cardio_sync_description">心率数据的律动之美，血红与动脉橙展现生命活力，最适合实时心率监测界面</string>
+    <string name="builtin_theme_aurora_flow_description">融合rPPG信号律动感与极光渐变，梦幻蓝紫与柔粉营造科技浪漫的轻盈氛围</string>
+
+    <!-- AI主题生成提示词 -->
+    <string name="ai_prompt_intro">你是一个专业的UI/UX设计师和色彩专家。请根据用户的描述"%1$s"，为Android Material Design 3应用设计一套完整的主题配色方案。</string>
+    <string name="ai_prompt_format_instruction">请严格按照以下JSON格式返回，确保包含所有必需的颜色值：</string>
+    <string name="ai_prompt_theme_name_desc">主题名称（简洁有意义）</string>
+    <string name="ai_prompt_theme_description_desc">主题描述（50字以内，描述视觉特点和适用场景）</string>
+    <string name="ai_prompt_theme_intention_desc">设计理念（100字以内，解释色彩选择的意义和情感表达，紧扣描述词"%1$s"）</string>
+    <string name="ai_prompt_dark_colors_comment">相同结构，但适配暗色模式</string>
+
+    <string name="ai_prompt_design_requirements">设计要求：</string>
+    <string name="ai_prompt_requirement_1">1. 确保足够的对比度，符合WCAG无障碍标准</string>
+    <string name="ai_prompt_requirement_2">2. 颜色搭配和谐，符合色彩理论</string>
+    <string name="ai_prompt_requirement_3">3. 考虑用户情感和使用场景</string>
+    <string name="ai_prompt_requirement_4">4. light和dark主题要相互呼应</string>
+    <string name="ai_prompt_requirement_5">5. 所有颜色值必须是有效的十六进制格式</string>
+    <string name="ai_prompt_requirement_6">6. 请直接返回JSON，不要包含其他文字</string>
+
+    <string name="ai_prompt_conclusion">请根据"%1$s"这个描述，生成一套专业的主题配色方案。</string>
+
+    <!-- 主题颜色解释相关 -->
+    <string name="theme_explan_color_analysis_title">%1$s 配色解析</string>
+    <string name="theme_explan_click_to_view">点击查看详细配色含义</string>
+    <string name="theme_explan_collapse">收起</string>
+    <string name="theme_explan_expand">展开</string>
+    <string name="theme_explan_theme_concept">主题理念</string>
+
+    <!-- 主要配色区域 -->
+    <string name="theme_explan_primary_colors">主要配色</string>
+    <string name="theme_explan_primary_colors_desc">应用的核心色彩，用于重要按钮、导航等关键元素</string>
+    <string name="theme_explan_primary_color">主色调</string>
+    <string name="theme_explan_primary_color_desc">品牌色彩，营造整体氛围</string>
+    <string name="theme_explan_secondary_color">辅助色</string>
+    <string name="theme_explan_secondary_color_desc">平衡主色，增加层次感</string>
+    <string name="theme_explan_tertiary_color">强调色</string>
+    <string name="theme_explan_tertiary_color_desc">突出重点，引导注意力</string>
+
+    <!-- 功能配色区域 -->
+    <string name="theme_explan_functional_colors">功能配色</string>
+    <string name="theme_explan_functional_colors_desc">用于状态提示和用户反馈的颜色</string>
+    <string name="theme_explan_error_color">错误色</string>
+    <string name="theme_explan_error_color_desc">警告和错误提示</string>
+    <string name="theme_explan_outline_color">边框色</string>
+    <string name="theme_explan_outline_color_desc">分割线和边框</string>
+
+    <!-- 背景配色区域 -->
+    <string name="theme_explan_surface_colors">背景配色</string>
+    <string name="theme_explan_surface_colors_desc">页面背景和卡片表面的颜色搭配</string>
+    <string name="theme_explan_background_color">背景色</string>
+    <string name="theme_explan_background_color_desc">主要背景，营造空间感</string>
+    <string name="theme_explan_surface_color">表面色</string>
+    <string name="theme_explan_surface_color_desc">卡片和组件背景</string>
+    <string name="theme_explan_surface_variant_color">变体色</string>
+    <string name="theme_explan_surface_variant_color_desc">次级表面，增加层次</string>
+
+    <!-- AI生成说明 -->
+    <string name="theme_explan_ai_generation_title">✨ AI 智能配色</string>
+    <string name="theme_explan_ai_generation_desc">这套配色方案由 DeepSeek AI 根据您的描述智能生成，确保色彩和谐且符合无障碍标准。</string>
+
+    <!-- 主题预览卡片相关 -->
+    <string name="theme_explan_selected">已选中</string>
+    <string name="theme_explan_ai_generated">AI生成</string>
+    <string name="theme_explan_hide_color_details">隐藏配色说明</string>
+    <string name="theme_explan_show_color_details">查看配色说明</string>
+    <string name="theme_explan_delete_theme">删除主题</string>
+    <string name="theme_explan_color_meaning">配色含义</string>
+
+    <!-- 颜色标签 -->
+    <string name="theme_explan_primary_short">主色</string>
+    <string name="theme_explan_secondary_short">辅色</string>
+    <string name="theme_explan_tertiary_short">强调</string>
+    <string name="theme_explan_ai_generated_short">AI 生成</string>
+
+    <!-- 颜色预览标签 -->
+    <string name="theme_explan_primary_label">Primary</string>
+    <string name="theme_explan_secondary_label">Secondary</string>
+    <string name="theme_explan_tertiary_label">Tertiary</string>
+    <string name="theme_explan_background_label">Bg</string>
+    <string name="theme_explan_surface_label">Surface</string>
+    <string name="theme_explan_surface_variant_label">Variant</string>
+
+    <!-- 主题特色描述 -->
+    <string name="theme_explan_forest_meaning">绿色系象征自然与生机，营造平静放松的使用体验</string>
+    <string name="theme_explan_ocean_meaning">蓝色系代表信任与专业，适合商务和效率应用</string>
+    <string name="theme_explan_purple_meaning">紫色系体现创意与神秘，激发想象力和艺术感</string>
+    <string name="theme_explan_orange_meaning">橙色系传达温暖与活力，增强用户的积极情绪</string>
+    <string name="theme_explan_ios_meaning">简洁清新的设计语言，注重功能性和易用性</string>
+    <string name="theme_explan_default_meaning">精心调配的色彩搭配，确保视觉和谐与使用舒适度</string>
 </resources>
