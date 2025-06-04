@@ -1073,4 +1073,12 @@
     <string name="theme_explan_orange_meaning">橙色系传达温暖与活力，增强用户的积极情绪</string>
     <string name="theme_explan_ios_meaning">简洁清新的设计语言，注重功能性和易用性</string>
     <string name="theme_explan_default_meaning">精心调配的色彩搭配，确保视觉和谐与使用舒适度</string>
+
+    <!-- Banner 4: AI Theme Generator -->
+    <string name="home_banner_ai_theme_title">AI主题定制</string>
+    <string name="home_banner_ai_theme_subtitle">开放体验</string>
+
+    <!-- Banner 5: RayVita-Synapse -->
+    <string name="home_banner_rayvita_synapse_title">RayVita-Synapse</string>
+    <string name="home_banner_rayvita_synapse_subtitle">跨平台健康数据可视化中枢</string>
 </resources>

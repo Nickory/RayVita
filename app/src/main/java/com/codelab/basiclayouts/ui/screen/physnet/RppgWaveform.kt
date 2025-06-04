@@ -98,7 +98,7 @@ fun RppgWaveform(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "rPPG 信号波形",
+                    text = "rPPG Signal Waveform",
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -348,18 +348,17 @@ private fun DrawScope.drawLabels(
         )
     }
 }
-
 /**
- * 信号质量指示器
+ * Signal Quality Indicator
  */
 @Composable
 private fun SignalQualityIndicator(signal: FloatArray) {
     val quality = calculateSignalQuality(signal)
     val (text, color) = when {
-        quality > 0.8f -> "优秀" to MaterialTheme.colorScheme.primary
-        quality > 0.6f -> "良好" to MaterialTheme.colorScheme.secondary
-        quality > 0.4f -> "一般" to MaterialTheme.colorScheme.tertiary
-        else -> "较差" to MaterialTheme.colorScheme.error
+        quality > 0.8f -> "Excellent" to MaterialTheme.colorScheme.primary
+        quality > 0.6f -> "Good" to MaterialTheme.colorScheme.secondary
+        quality > 0.4f -> "Fair" to MaterialTheme.colorScheme.tertiary
+        else -> "Poor" to MaterialTheme.colorScheme.error
     }
 
     Surface(
@@ -376,7 +375,7 @@ private fun SignalQualityIndicator(signal: FloatArray) {
 }
 
 /**
- * 波形统计信息
+ * Waveform Statistics
  */
 @Composable
 private fun WaveformStats(signal: FloatArray) {
@@ -384,10 +383,10 @@ private fun WaveformStats(signal: FloatArray) {
 
     val stats = remember(signal) {
         mapOf(
-            "采样点" to signal.size.toString(),
-            "最大值" to "%.3f".format(signal.maxOrNull() ?: 0f),
-            "最小值" to "%.3f".format(signal.minOrNull() ?: 0f),
-            "平均值" to "%.3f".format(signal.average())
+            "Sample Points" to signal.size.toString(),
+            "Maximum" to "%.3f".format(signal.maxOrNull() ?: 0f),
+            "Minimum" to "%.3f".format(signal.minOrNull() ?: 0f),
+            "Average" to "%.3f".format(signal.average())
         )
     }
 

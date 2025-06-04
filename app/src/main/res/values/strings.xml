@@ -1109,4 +1109,12 @@
     <string name="theme_explan_orange_meaning">Orange tones convey warmth and energy, enhancing users\' positive emotions</string>
     <string name="theme_explan_ios_meaning">Clean and fresh design language, focusing on functionality and usability</string>
     <string name="theme_explan_default_meaning">Carefully crafted color combinations ensuring visual harmony and usage comfort</string>
+
+    <!-- Banner 4: AI Theme Generator -->
+    <string name="home_banner_ai_theme_title">AI Theme Generator</string>
+    <string name="home_banner_ai_theme_subtitle">Personalized Your Way</string>
+
+    <!-- Banner 5: RayVita-Synapse -->
+    <string name="home_banner_rayvita_synapse_title">RayVita-Synapse</string>
+    <string name="home_banner_rayvita_synapse_subtitle">Cross-platform health data visualization hub</string>
 </resources>

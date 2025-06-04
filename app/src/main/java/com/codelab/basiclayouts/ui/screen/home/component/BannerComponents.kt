@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Web
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -161,6 +162,8 @@ fun EnhancedBannerCard(
                 "feature" -> colorScheme.tertiary
                 "activity" -> colorScheme.secondary
                 "recommendation" -> colorScheme.primary
+                "web" -> colorScheme.primary
+
                 else -> colorScheme.primaryContainer
             }
         ),
@@ -190,6 +193,8 @@ fun EnhancedBannerCard(
                     "banner_health.png" -> R.drawable.ab1_inversions
                     "banner_wellness.png" -> R.drawable.ab3_stretching
                     "banner_ai.png" -> R.drawable.fc3_stress_and_anxiety
+                    "theme.jpg"->R.drawable.theme
+                    "banner_synapse.png"->R.drawable.web
                     else -> banner.imageUrl // 支持远程 URL
                 },
                 contentDescription = banner.title,
@@ -213,6 +218,7 @@ fun EnhancedBannerCard(
                         "feature" -> Icons.Default.AutoAwesome
                         "activity" -> Icons.Default.EmojiEvents
                         "recommendation" -> Icons.Default.Favorite
+                        "web"-> Icons.Default.Web
                         else -> Icons.Default.Info
                     },
                     contentDescription = null,

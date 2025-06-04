@@ -165,21 +165,40 @@ class HomeViewModel(private val context: Context) : ViewModel(), IHomeViewModel 
             ),
             BannerItem(
                 id = "banner_2",
+                title = context.getString(R.string.home_banner_ai_theme_title),
+                subtitle = context.getString(R.string.home_banner_ai_theme_subtitle),
+                actionType = "feature",
+                actionData = "ai_theme_generator",
+                imageUrl = "theme.jpg"
+            ),
+            BannerItem(
+                id = "banner_3",
+                title = context.getString(R.string.home_banner_rayvita_synapse_title),
+                subtitle = context.getString(R.string.home_banner_rayvita_synapse_subtitle),
+                actionType = "web",
+                actionData = "rayvita_synapse",
+                imageUrl = "banner_synapse.png"
+            ),
+            BannerItem(
+                id = "banner_4",
                 title = context.getString(R.string.home_banner_health_challenge_title),
                 subtitle = context.getString(R.string.home_banner_health_challenge_subtitle),
                 actionType = "activity", // 保持不变 - 逻辑标识符
                 actionData = "weekly_challenge",
-                imageUrl ="banner_wellness.png"
+                imageUrl ="banner_wellnes s.png"
 
         ),
             BannerItem(
-                id = "banner_3",
+                id = "banner_5",
                 title = context.getString(R.string.home_banner_breathing_training_title),
                 subtitle = context.getString(R.string.home_banner_breathing_training_subtitle),
                 actionType = "recommendation", // 保持不变 - 逻辑标识符
                 actionData = "breathing_training",
                 imageUrl = "banner_ai.png"
-            )
+        )
+
+
+
         )
         _uiState.value = _uiState.value.copy(banners = banners)
     }
