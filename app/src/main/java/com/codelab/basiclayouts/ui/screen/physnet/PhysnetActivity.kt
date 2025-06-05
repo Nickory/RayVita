@@ -57,13 +57,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.codelab.basiclayouts.R
 import com.codelab.basiclayouts.data.language.model.LanguagePreferences
 import com.codelab.basiclayouts.data.language.model.LanguageRepository
-import com.codelab.basiclayouts.data.physnet.EnhancedRppgProcessor
-import com.codelab.basiclayouts.data.physnet.EnhancedRppgRepository
-import com.codelab.basiclayouts.data.physnet.VideoRecorder
+import com.codelab.basiclayouts.data.physnet.RppgDependencyManager
 import com.codelab.basiclayouts.data.theme.model.ThemePreferences
 import com.codelab.basiclayouts.data.theme.model.ThemeRepository
 import com.codelab.basiclayouts.ui.theme.DynamicRayVitaTheme
 import com.codelab.basiclayouts.viewModel.physnet.EnhancedRppgViewModel
+import com.codelab.basiclayouts.viewModel.physnet.EnhancedRppgViewModelFactory
 import com.codelab.basiclayouts.viewModel.physnet.MeasurementStorageViewModel
 import com.codelab.basiclayouts.viewModel.theme.DarkModeOption
 import com.codelab.basiclayouts.viewModel.theme.ThemeViewModel
@@ -89,6 +88,11 @@ class PhysnetActivity : ComponentActivity() {
 
     private val themeViewModel: ThemeViewModel by viewModels {
         ThemeViewModelFactory(themeRepository, this@PhysnetActivity)
+    }
+
+    // 使用新的ViewModel工厂，避免重复创建依赖项
+    private val enhancedRppgViewModel: EnhancedRppgViewModel by viewModels {
+        EnhancedRppgViewModelFactory(this@PhysnetActivity)
     }
 
     override fun attachBaseContext(newBase: Context?) {
@@ -123,6 +127,8 @@ class PhysnetActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        Log.d(TAG, "开始创建PhysnetActivity")
+
         // 初始化语言相关组件
         languagePreferences = LanguagePreferences(this)
         languageRepository = LanguageRepository(this, languagePreferences)
@@ -154,6 +160,8 @@ class PhysnetActivity : ComponentActivity() {
                 }
             }
         }
+
+        Log.d(TAG, "PhysnetActivity创建完成")
     }
 
     @Composable
@@ -188,30 +196,19 @@ class PhysnetActivity : ComponentActivity() {
 
     @Composable
     private fun AppContent() {
-        val context = LocalContext.current
-        val viewModel: EnhancedRppgViewModel = viewModel(
-            factory = RppgViewModelFactory(
-                context = context,
-                videoRecorder = VideoRecorder(context),
-                rppgProcessor = EnhancedRppgProcessor(context),
-                repository = EnhancedRppgRepository(context)
-            )
-        )
-
         when {
             hasAllPermissions -> {
+                // 直接使用Activity级别的ViewModel，避免重复创建
                 RppgScreen(
-                    viewModel = viewModel,
+                    viewModel = enhancedRppgViewModel,
                     onBackClick = {
-                        // 处理返回逻辑
                         Log.d(TAG, "返回按钮被点击")
                         finish()
                     },
-                    onHistoryClick = {
-                        // 跳转到 Insight History
-                        Log.d(TAG, "历史记录按钮被点击")
-                        navigateToInsightHistory()
-                    }
+//                    onHistoryClick = {
+//                        Log.d(TAG, "历史记录按钮被点击")
+//                        navigateToInsightHistory()
+//                    }
                 )
             }
             permissionDenied -> {
@@ -233,18 +230,11 @@ class PhysnetActivity : ComponentActivity() {
      */
     private fun navigateToInsightHistory() {
         try {
-            // 专门的 InsightActivity
-            // val intent = Intent(this, InsightActivity::class.java)
-            // intent.putExtra("selected_tab", 1) // 直接跳转到 History tab
-            // intent.putExtra("show_history", true)
-            // startActivity(intent)
-
-            // MainActivity 中的 Tab 切换
             val intent = Intent()
             intent.setClassName(this, "com.codelab.basiclayouts.ui.screen.MainActivity")
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             intent.putExtra("navigate_to_insight", true)
-            intent.putExtra("insight_tab", "insight") //
+            intent.putExtra("insight_tab", "insight")
             startActivity(intent)
 
             //添加过渡动画
@@ -252,8 +242,6 @@ class PhysnetActivity : ComponentActivity() {
 
         } catch (e: Exception) {
             Log.e(TAG, "导航到 Insight History 失败", e)
-            // 如果导航失败，可以显示一个 Toast 或者回退方案
-            // Toast.makeText(this, "无法打开历史记录页面", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -326,7 +314,6 @@ class PhysnetActivity : ComponentActivity() {
             Spacer(modifier = Modifier.height(16.dp))
             TextButton(
                 onClick = {
-                    // TODO: 打开应用设置页面
                     try {
                         val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                         intent.data = android.net.Uri.fromParts("package", packageName, null)
@@ -437,35 +424,19 @@ class PhysnetActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "Activity 销毁")
+
+        // 注意：不要在这里释放单例依赖项，因为可能被其他地方使用
+        // 只有在应用完全退出时才应该清理
+        // RppgDependencyManager.clearInstance() // 不要在这里调用
     }
 
     override fun onBackPressed() {
-        // 处理系统返回键
         Log.d(TAG, "系统返回键被按下")
         super.onBackPressed()
     }
 }
 
-class RppgViewModelFactory(
-    private val context: Context,
-    private val videoRecorder: VideoRecorder,
-    private val rppgProcessor: EnhancedRppgProcessor,
-    private val repository: EnhancedRppgRepository
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(EnhancedRppgViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return EnhancedRppgViewModel(
-                context = context,
-                videoRecorder = videoRecorder,
-                rppgProcessor = rppgProcessor,
-                repository = repository,
-                storageViewModel = MeasurementStorageViewModel(context)
-            ) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-}
+// 移除旧的RppgViewModelFactory类，使用新的EnhancedRppgViewModelFactory
 
 object PermissionManager {
     fun hasAllPermissions(activity: ComponentActivity): Boolean {

@@ -78,52 +78,37 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.codelab.basiclayouts.data.physnet.EnhancedRppgProcessor
-import com.codelab.basiclayouts.data.physnet.EnhancedRppgRepository
-import com.codelab.basiclayouts.data.physnet.VideoRecorder
 import com.codelab.basiclayouts.viewModel.physnet.AccelerometerViewModel
 import com.codelab.basiclayouts.viewModel.physnet.AccelerometerViewModelFactory
 import com.codelab.basiclayouts.viewModel.physnet.EnhancedRppgViewModel
-import com.codelab.basiclayouts.viewModel.physnet.EnhancedRppgViewModelFactory
 
 /**
  * Enhanced rPPG Screen with HRV, SpO2 support and Motion Detection
+ * 修改：移除重复的依赖项创建，使用传入的ViewModel
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun RppgScreen(
     modifier: Modifier = Modifier,
-    viewModel: EnhancedRppgViewModel? = null,
+    viewModel: EnhancedRppgViewModel, // 强制要求传入 ViewModel，避免重复创建
     onBackClick: () -> Unit = {},
-    onHistoryClick: () -> Unit = {}  // 新增历史记录点击回调
+    onHistoryClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Create dependencies
-    val videoRecorder = VideoRecorder(context)
-    val rppgProcessor = EnhancedRppgProcessor(context)
-    val repository = EnhancedRppgRepository(context)
+    // 移除重复的依赖项创建！
+    // 不再创建 videoRecorder, rppgProcessor, repository
+    // 直接使用ViewModel中的依赖项
 
-    // Create ViewModels
-    val actualViewModel: EnhancedRppgViewModel = viewModel ?: viewModel(
-        factory = EnhancedRppgViewModelFactory(
-            context = context.applicationContext,
-            videoRecorder = videoRecorder,
-            rppgProcessor = rppgProcessor,
-            repository = repository
-        )
-    )
-
-    // Create Accelerometer ViewModel
+    // Create Accelerometer ViewModel (这个是独立的，不会导致重复初始化问题)
     val accelerometerViewModel: AccelerometerViewModel = viewModel(
-        factory = AccelerometerViewModelFactory(context)
+        factory = AccelerometerViewModelFactory(context.applicationContext)
     )
 
     // Collect states
-    val uiState by actualViewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsState()
     val motionState by accelerometerViewModel.motionState.collectAsState()
 
     // State for settings dialog
@@ -133,7 +118,7 @@ fun RppgScreen(
     val backgroundGradient = Brush.verticalGradient(
         colors = listOf(
             MaterialTheme.colorScheme.surface,
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
         )
     )
 
@@ -166,7 +151,7 @@ fun RppgScreen(
                     navigationIcon = {
                         IconButton(
                             onClick = onBackClick,
-                            enabled = true // 确保返回键可用
+                            enabled = true
                         ) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
@@ -190,7 +175,7 @@ fun RppgScreen(
                             )
                         }
                         IconButton(
-                            onClick = onHistoryClick, // 使用传入的历史记录回调
+                            onClick = onHistoryClick,
                             enabled = true
                         ) {
                             Icon(
@@ -224,11 +209,12 @@ fun RppgScreen(
                     )
                 ) {
                     Box {
-                        // Enhanced camera preview with motion detection
+                        // 使用ViewModel中的videoRecorder，而不是重新创建
+                        // 这是关键修改：直接使用viewModel.getVideoRecorder()
                         RppgCameraPreview(
-                            videoRecorder = actualViewModel.getVideoRecorder(),
+                            videoRecorder = viewModel.getVideoRecorder(),
                             lifecycleOwner = lifecycleOwner,
-                            onFaceAlignmentChanged = actualViewModel::updateFaceAlignment,
+                            onFaceAlignmentChanged = viewModel::updateFaceAlignment,
                             accelerometerViewModel = accelerometerViewModel
                         )
 
@@ -288,18 +274,18 @@ fun RppgScreen(
                         RecordingIndicator(
                             progress = uiState.recordingProgress,
                             timeSeconds = uiState.recordingTimeSeconds,
-                            onStop = actualViewModel::stopRecording,
+                            onStop = viewModel::stopRecording,
                             analysisMode = uiState.analysisMode
                         )
                     } else {
                         RecordButton(
                             enabled = !uiState.isProcessing &&
                                     uiState.isFaceAligned &&
-                                    motionState.isStationary && // Use accelerometer state
+                                    motionState.isStationary &&
                                     motionState.isDetectionActive,
                             onClick = {
                                 if (accelerometerViewModel.isReadyForMeasurement()) {
-                                    actualViewModel.startRecording()
+                                    viewModel.startRecording()
                                 }
                             },
                             motionReady = accelerometerViewModel.isReadyForMeasurement()
@@ -339,8 +325,8 @@ fun RppgScreen(
                                 result = result,
                                 showHrvDetails = uiState.showHrvDetails,
                                 showSpO2Details = uiState.showSpO2Details,
-                                onToggleHrvDetails = actualViewModel::toggleHrvDetails,
-                                onToggleSpO2Details = actualViewModel::toggleSpO2Details,
+                                onToggleHrvDetails = viewModel::toggleHrvDetails,
+                                onToggleSpO2Details = viewModel::toggleSpO2Details,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp)
@@ -404,7 +390,7 @@ fun RppgScreen(
             AnalysisModeDialog(
                 currentMode = uiState.analysisMode,
                 onModeSelected = { mode ->
-                    actualViewModel.setAnalysisMode(mode)
+                    viewModel.setAnalysisMode(mode)
                     showSettingsDialog = false
                 },
                 onDismiss = { showSettingsDialog = false }

@@ -12,6 +12,7 @@ import java.nio.FloatBuffer
 /**
  * rPPG推理引擎 - 升级版
  * 支持更好的错误处理、性能监控和内存管理
+ * 增加了重复初始化检测机制
  */
 class RppgInference(context: Context) {
 
@@ -20,13 +21,56 @@ class RppgInference(context: Context) {
         private const val MODEL_NAME = "physnet_rppg.ort"
         private const val INPUT_NAME = "input"
         private val EXPECTED_INPUT_SHAPE = longArrayOf(1, 3, 500, 128, 128)
+
+        // 添加初始化状态跟踪
+        @Volatile
+        private var initializationCount = 0
+        private val instanceTracker = mutableMapOf<Int, String>()
+
+        /**
+         * 获取当前活跃实例数
+         */
+        fun getActiveInstanceCount(): Int = initializationCount
+
+        /**
+         * 获取实例追踪信息
+         */
+        fun getInstanceTracker(): Map<Int, String> = instanceTracker.toMap()
     }
 
     private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
     private var session: OrtSession? = null
     private var isInitialized = false
+    private val instanceId = System.identityHashCode(this)
+    private val creationTime = System.currentTimeMillis()
 
     init {
+        synchronized(RppgInference::class.java) {
+            initializationCount++
+            val creationInfo = "Created at ${java.text.SimpleDateFormat("HH:mm:ss.SSS", java.util.Locale.getDefault()).format(java.util.Date(creationTime))} by ${Thread.currentThread().name}"
+            instanceTracker[instanceId] = creationInfo
+
+            Log.d(TAG, "第 $initializationCount 次初始化rPPG推理引擎 (实例ID: $instanceId)")
+            Log.d(TAG, "创建信息: $creationInfo")
+
+            if (initializationCount > 1) {
+                Log.w(TAG, "检测到重复初始化！这可能导致性能问题")
+                Log.w(TAG, "当前活跃实例数: $initializationCount")
+
+                // 打印所有实例的创建信息
+                instanceTracker.forEach { (id, info) ->
+                    Log.w(TAG, "实例 $id: $info")
+                }
+
+                // 打印当前堆栈跟踪以便调试
+                val stackTrace = Thread.currentThread().stackTrace
+                Log.w(TAG, "当前初始化调用栈:")
+                stackTrace.take(15).forEach { element ->
+                    Log.w(TAG, "  at $element")
+                }
+            }
+        }
+
         initializeModel(context)
     }
 
@@ -35,7 +79,7 @@ class RppgInference(context: Context) {
      */
     private fun initializeModel(context: Context) {
         try {
-            Log.d(TAG, "开始初始化rPPG模型...")
+            Log.d(TAG, "开始初始化rPPG模型... (实例ID: $instanceId)")
             val startTime = System.currentTimeMillis()
 
             // 检查模型文件是否存在
@@ -77,12 +121,12 @@ class RppgInference(context: Context) {
             validateModelSchema()
 
             val initTime = System.currentTimeMillis() - startTime
-            Log.d(TAG, "模型初始化完成，耗时: ${initTime}ms")
+            Log.d(TAG, "模型初始化完成，耗时: ${initTime}ms (实例ID: $instanceId)")
 
             isInitialized = true
 
         } catch (e: Exception) {
-            Log.e(TAG, "模型初始化失败", e)
+            Log.e(TAG, "模型初始化失败 (实例ID: $instanceId)", e)
             isInitialized = false
             throw IllegalStateException("无法初始化rPPG模型", e)
         }
@@ -124,13 +168,13 @@ class RppgInference(context: Context) {
      */
     suspend fun runInference(inputArray: FloatArray): FloatArray = withContext(Dispatchers.Default) {
         if (!isInitialized) {
-            throw IllegalStateException("推理引擎未初始化")
+            throw IllegalStateException("推理引擎未初始化 (实例ID: $instanceId)")
         }
 
-        val currentSession = session ?: throw IllegalStateException("会话已释放")
+        val currentSession = session ?: throw IllegalStateException("会话已释放 (实例ID: $instanceId)")
 
         try {
-            Log.d(TAG, "开始推理...")
+            Log.d(TAG, "开始推理... (实例ID: $instanceId)")
             val inferenceStart = System.currentTimeMillis()
 
             // 验证输入数据
@@ -148,7 +192,7 @@ class RppgInference(context: Context) {
                     val output = processOutput(results)
 
                     val inferenceTime = System.currentTimeMillis() - inferenceStart
-                    Log.d(TAG, "推理完成，耗时: ${inferenceTime}ms")
+                    Log.d(TAG, "推理完成，耗时: ${inferenceTime}ms (实例ID: $instanceId)")
 
                     return@withContext output
 
@@ -163,7 +207,7 @@ class RppgInference(context: Context) {
             }
 
         } catch (e: Exception) {
-            Log.e(TAG, "推理失败", e)
+            Log.e(TAG, "推理失败 (实例ID: $instanceId)", e)
             throw RuntimeException("rPPG推理失败", e)
         }
     }
@@ -416,12 +460,19 @@ class RppgInference(context: Context) {
         return if (currentSession != null && isInitialized) {
             mapOf(
                 "initialized" to true,
+                "instanceId" to instanceId,
+                "creationTime" to creationTime,
+                "activeInstances" to initializationCount,
                 "inputShape" to EXPECTED_INPUT_SHAPE.contentToString(),
                 "inputNames" to currentSession.inputInfo.keys.toList(),
                 "outputNames" to currentSession.outputInfo.keys.toList()
             )
         } else {
-            mapOf("initialized" to false)
+            mapOf(
+                "initialized" to false,
+                "instanceId" to instanceId,
+                "activeInstances" to initializationCount
+            )
         }
     }
 
@@ -430,19 +481,32 @@ class RppgInference(context: Context) {
      */
     fun release() {
         try {
-            Log.d(TAG, "开始释放推理引擎资源...")
+            Log.d(TAG, "开始释放推理引擎资源... (实例ID: $instanceId)")
 
             session?.close()
             session = null
+
+            synchronized(RppgInference::class.java) {
+                initializationCount = maxOf(0, initializationCount - 1)
+                instanceTracker.remove(instanceId)
+                Log.d(TAG, "剩余活跃实例数: $initializationCount")
+
+                if (instanceTracker.isNotEmpty()) {
+                    Log.d(TAG, "剩余实例:")
+                    instanceTracker.forEach { (id, info) ->
+                        Log.d(TAG, "  实例 $id: $info")
+                    }
+                }
+            }
 
             // 注意：不要关闭全局的 OrtEnvironment，因为可能被其他地方使用
 
             isInitialized = false
 
-            Log.d(TAG, "推理引擎资源释放完成")
+            Log.d(TAG, "推理引擎资源释放完成 (实例ID: $instanceId)")
 
         } catch (e: Exception) {
-            Log.e(TAG, "释放资源失败", e)
+            Log.e(TAG, "释放资源失败 (实例ID: $instanceId)", e)
         }
     }
 
@@ -450,4 +514,15 @@ class RppgInference(context: Context) {
      * 检查是否已初始化
      */
     fun isReady(): Boolean = isInitialized && session != null
+
+    /**
+     * 获取实例信息
+     */
+    fun getInstanceInfo(): String {
+        return "RppgInference(id=$instanceId, initialized=$isInitialized, created=${java.text.SimpleDateFormat("HH:mm:ss.SSS", java.util.Locale.getDefault()).format(java.util.Date(creationTime))})"
+    }
+
+    override fun toString(): String {
+        return getInstanceInfo()
+    }
 }
