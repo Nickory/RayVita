@@ -15,6 +15,11 @@
   <a href="mailto:zhwang@nuist.edu.cn"><img src="https://img.shields.io/badge/Contact-zhwang@nuist.edu.cn-00C4B4?style=flat-square" alt="Contact"/></a>
 </p>
 
+<p align="center">
+  <a href="http://47.96.237.130/assets/vedio/MAIN%20COMP_20250602_23182440_20250602_23243208_20250602_23255819.mp4" target="_blank">
+    <img src="https://img.shields.io/badge/Watch-Promo-Video-00C4B4?style=flat-square" alt="Watch Promo Video"/>
+  </a>
+</p>
 ---
 
 ## 🌟 Key Features
