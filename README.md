@@ -6,14 +6,13 @@
 </p>
 
 <p align="center">
-  <video width="600" autoplay loop muted>
-    <source src="http://47.96.237.130/assets/vedio/MAIN%20COMP_20250602_23182440_20250602_23243208_20250602_23255819.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
+  <a href="http://47.96.237.130/assets/vedio/MAIN%20COMP_20250602_23182440_20250602_23243208_20250602_23255819.mp4" target="_blank">
+    <img src="https://img.shields.io/badge/Watch-Promo-Video-00C4B4?style=for-the-badge" alt="Watch Promo Video"/>
+  </a>
 </p>
 
 <p align="center">
-  <a href="http://47.96.237.130/apk/RayVita.apk" target="_blank"><img src="https://img.shields.io/badge/Download-App-00C4B4?style=flat-square&logo=android" alt="Download App"/></a>
+  <a href="http://47.96.237.130/" target="_blank"><img src="https://img.shields.io/badge/Download-App-00C4B4?style=flat-square&logo=android" alt="Download App"/></a>
   <a href="https://github.com/Nickory/rayvita_api" target="_blank"><img src="https://img.shields.io/badge/API%20Repository-rayvita_api-00C4B4?style=flat-square&logo=github" alt="API Repository"/></a>
   <a href="mailto:zhwang@nuist.edu.cn"><img src="https://img.shields.io/badge/Contact-zhwang@nuist.edu.cn-00C4B4?style=flat-square" alt="Contact"/></a>
 </p>
@@ -46,17 +45,64 @@
 
 ---
 
-## 📱 App Preview
+## 📱 App Screenshots
 
 <div align="center">
-  <img src="https://github.com/Nickory/RayVita/blob/master/github_figure/AI%20TIPS.jpg" alt="AI Tips Interface" width="300"/>
-  <img src="https://github.com/Nickory/RayVita/blob/master/github_figure/RPPG%E7%95%8C%E9%9D%A2.jpg" alt="RPPG Interface" width="300"/>
+  <table>
+    <tr>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/4F8ADB5726D.jpg" alt="Screenshot 1" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/5FB75515E76.jpg" alt="Screenshot 2" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/4DCB1EA5082.jpg" alt="Screenshot 3" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/RPPG界面.jpg" alt="Screenshot 4" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/55D118D239B5.jpg" alt="Screenshot 5" width="150"/></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/6AB982C2C82.jpg" alt="Screenshot 6" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/19BFD9C260D.jpg" alt="Screenshot 7" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/4AB41E88F9.jpg" alt="Screenshot 8" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/7F8CE3AF11D.jpg" alt="Screenshot 9" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/0D065460375.jpg" alt="Screenshot 10" width="150"/></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/05C25B0675E6.jpg" alt="Screenshot 11" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/6FBFA1DCFA8E.jpg" alt="Screenshot 12" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/趋势.jpg" alt="Screenshot 13" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/809D2F1A.jpg" alt="Screenshot 14" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/A678163A.jpg" alt="Screenshot 15" width="150"/></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/9F7795A9.jpg" alt="Screenshot 16" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/A70B89B2.jpg" alt="Screenshot 17" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/5FE61564.jpg" alt="Screenshot 18" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/21B58611.jpg" alt="Screenshot 19" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/C51D8CB9.jpg" alt="Screenshot 20" width="150"/></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/C9146E1A.jpg" alt="Screenshot 21" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/EE4460ED.jpg" alt="Screenshot 22" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/FFBAEDA3.jpg" alt="Screenshot 23" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/15C3E2E.jpg" alt="Screenshot 24" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/0F047F8A543.jpg" alt="Screenshot 25" width="150"/></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/3C92233DA32.jpg" alt="Screenshot 26" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/3CF8D9806EC.jpg" alt="Screenshot 27" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/e71ca6cbdd.jpg" alt="Screenshot 28" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/5A5C6D785.jpg" alt="Screenshot 29" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/D60B80B3CA09.jpg" alt="Screenshot 30" width="150"/></td>
+    </tr>
+    <tr>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/AI TIPS.jpg" alt="Screenshot 31" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/214915519E27.jpg" alt="Screenshot 32" width="150"/></td>
+      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/4CF9D30B.jpg" alt="Screenshot 33" width="150"/></td>
+    </tr>
+  </table>
 </div>
 
 - **Home Page**: Quick access to health data, breathing exercises, daily tips, and dynamic banners.
 - **Health History**: Track HR/HRV trends with intuitive charts and secure cloud sync.
 - **RayVita-Synapse**: A lightweight web hub for cross-platform health data visualization and social syncing.  
-  <a href="http://47.96.237.130/apk/RayVita.apk" target="_blank">Download the App</a>
+  <a href="http://47.96.237.130/" target="_blank">Download the App</a>
 - **Settings**: Customize language, notifications, and themes for a tailored experience.
 
 ---
@@ -191,5 +237,5 @@ Please review our [Code of Conduct](CODE_OF_CONDUCT.md) and [Contributing Guidel
 </p>
 
 <p align="center">
-  <a href="http://47.96.237.130/apk/RayVita.apk" target="_blank"><img src="https://img.shields.io/badge/Download-RayVita-00C4B4?style=for-the-badge&logo=android" alt="Download RayVita"/></a>
+  <a href="http://47.96.237.130/" target="_blank"><img src="https://img.shields.io/badge/Download-RayVita-00C4B4?style=for-the-badge&logo=android" alt="Download RayVita"/></a>
 </p>
