@@ -1,12 +1,15 @@
 # RayVita: Contactless Health Monitoring & AI-Powered Wellness App (Beta) 🌿
 
 <p align="center">
-  <img src="https://via.placeholder.com/150/00C4B4/FFFFFF?text=RayVita" alt="RayVita Logo" width="150"/>
+  <strong>Revolutionizing health monitoring with remote photoplethysmography (rPPG)</strong><br>
+  The world’s first smartphone-based app to measure heart rate (HR) and heart rate variability (HRV) using only your phone’s camera. Powered by AI, RayVita offers personalized insights, stunning themes, and a vibrant community for collaborative wellness.
 </p>
 
 <p align="center">
-  <strong>Revolutionizing health monitoring with remote photoplethysmography (rPPG)</strong><br>
-  The world’s first smartphone-based app to measure heart rate (HR) and heart rate variability (HRV) using only your phone’s camera. Powered by AI, RayVita offers personalized insights, stunning themes, and a vibrant community for collaborative wellness.
+  <video width="600" autoplay loop muted>
+    <source src="http://47.96.237.130/assets/vedio/MAIN%20COMP_20250602_23182440_20250602_23243208_20250602_23255819.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
 </p>
 
 <p align="center">
@@ -27,7 +30,7 @@
   Meet *Little R*, your interactive AI agent delivering daily personalized health tips tailored to your habits.
 
 - **Dynamic Visual Themes**  
-  Choose from 10+ Material Design-based themes (e.g., Warm Earth, Ocean Blue, Violet Dream) or create custom themes with DeepSeek AI.  
+  Choose from 10+ Material Design-based themes (e.g., Warm Earth, Ocean Blue, Violet Dream) or create custom themes with DeepSeek AI.
 
 - **Health History & Trends**  
   Visualize physiological changes with smooth charts, weekly/monthly summaries, and secure cloud sync via JWT authentication.
@@ -44,12 +47,6 @@
 ---
 
 ## 📱 App Preview
-
-<div align="center">
-  <img src="https://via.placeholder.com/300x150/00C4B4/FFFFFF?text=Home+Page" alt="Home Page" width="200"/>
-  <img src="https://via.placeholder.com/300x150/00C4B4/FFFFFF?text=Health+Trends" alt="Health Trends" width="200"/>
-  <img src="https://via.placeholder.com/300x150/00C4B4/FFFFFF?text=AI+Assistant" alt="AI Assistant" width="200"/>
-</div>
 
 - **Home Page**: Quick access to health data, breathing exercises, daily tips, and dynamic banners.
 - **Health History**: Track HR/HRV trends with intuitive charts and secure cloud sync.
@@ -74,7 +71,7 @@
 - **AI Integration**: DeepSeek API for theme generation and health tips
 
 ### rPPG Technology
-- **Contrast-Phys+**: Unsupervised/weakly-supervised 3DCNN model for robust HR/HRV extraction from facial videos.  
+- **Contrast-Phys+**: Unsupervised/weakly-supervised 3DCNN model for robust HR/HRV extraction from facial videos.
 - **Reference**: Sun, Z., & Li, X. (2023). *Contrast-Phys+: Unsupervised and Weakly-supervised Video-based Remote Physiological Measurement via Spatiotemporal Contrast*. IEEE T-PAMI.
 
 ---
@@ -85,9 +82,9 @@
   Enhanced Android model with federated learning for multi-user collaboration and personalized model fine-tuning using hardware-collected ground truth.
 
 - **VITA Vision**  
-  - **V**itality: Atrial fibrillation detection from facial videos.  
-  - **I**nsight: Real-time health data processing with advanced algorithms.  
-  - **T**echnology: HRV-based AI themes and personalized exercise plans.  
+  - **V**itality: Atrial fibrillation detection from facial videos.
+  - **I**nsight: Real-time health data processing with advanced algorithms.
+  - **T**echnology: HRV-based AI themes and personalized exercise plans.
   - **A**ction: Emotion and stress tracking via video and computer vision.
 
 - **Community Features**  
