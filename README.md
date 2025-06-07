@@ -82,10 +82,7 @@
       <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/AI%20TIPS.jpg" alt="Screenshot 19" width="150" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"/></td>
       <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/RPPG%E7%95%8C%E9%9D%A2.jpg" alt="Screenshot 20" width="150" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"/></td>
     </tr>
-    <tr>
-      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/%E8%B6%8B%E5%8A%BF.jpg" alt="Screenshot 21" width="150" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"/></td>
-      <td><img src="https://github.com/Nickory/RayVita/blob/master/github_figure/%E9%A6%96%E9%A1%B5.jpg" alt="Screenshot 22" width="150" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"/></td>
-    </tr>
+  
   </table>
 </div>
 
