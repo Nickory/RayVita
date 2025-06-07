@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <a href="http://47.96.237.130/" target="_blank"><img src="https://img.shields.io/badge/Download-App-00C4B4?style=flat-square&logo=android" alt="Download App"/></a>
+  <a href="http://47.96.237.130/apk/RayVita.apk" target="_blank"><img src="https://img.shields.io/badge/Download-App-00C4B4?style=flat-square&logo=android" alt="Download App"/></a>
   <a href="https://github.com/Nickory/rayvita_api" target="_blank"><img src="https://img.shields.io/badge/API%20Repository-rayvita_api-00C4B4?style=flat-square&logo=github" alt="API Repository"/></a>
   <a href="mailto:zhwang@nuist.edu.cn"><img src="https://img.shields.io/badge/Contact-zhwang@nuist.edu.cn-00C4B4?style=flat-square" alt="Contact"/></a>
 </p>
@@ -48,10 +48,15 @@
 
 ## 📱 App Preview
 
+<div align="center">
+  <img src="https://github.com/Nickory/RayVita/blob/master/github_figure/AI%20TIPS.jpg" alt="AI Tips Interface" width="300"/>
+  <img src="https://github.com/Nickory/RayVita/blob/master/github_figure/RPPG%E7%95%8C%E9%9D%A2.jpg" alt="RPPG Interface" width="300"/>
+</div>
+
 - **Home Page**: Quick access to health data, breathing exercises, daily tips, and dynamic banners.
 - **Health History**: Track HR/HRV trends with intuitive charts and secure cloud sync.
 - **RayVita-Synapse**: A lightweight web hub for cross-platform health data visualization and social syncing.  
-  <a href="http://47.96.237.130/" target="_blank">Download the App</a>
+  <a href="http://47.96.237.130/apk/RayVita.apk" target="_blank">Download the App</a>
 - **Settings**: Customize language, notifications, and themes for a tailored experience.
 
 ---
@@ -186,5 +191,5 @@ Please review our [Code of Conduct](CODE_OF_CONDUCT.md) and [Contributing Guidel
 </p>
 
 <p align="center">
-  <a href="http://47.96.237.130/" target="_blank"><img src="https://img.shields.io/badge/Download-RayVita-00C4B4?style=for-the-badge&logo=android" alt="Download RayVita"/></a>
+  <a href="http://47.96.237.130/apk/RayVita.apk" target="_blank"><img src="https://img.shields.io/badge/Download-RayVita-00C4B4?style=for-the-badge&logo=android" alt="Download RayVita"/></a>
 </p>
