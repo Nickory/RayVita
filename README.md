@@ -1,4 +1,4 @@
-# RayVita: Contactless Health Monitoring & AI-Powered Wellness App (Beta) 🌿
+  # RayVita: Contactless Health Monitoring & AI-Powered Wellness App (Beta) 🌿
 
 <p align="center">
   <img src="https://github.com/Nickory/RayVita/blob/master/github_figure/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-06-02%20171925.png" alt="RayVita Logo" width="200" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"/>
@@ -197,14 +197,15 @@ Please review our [Code of Conduct](CODE_OF_CONDUCT.md) and [Contributing Guidel
 ## 🙌 Acknowledgments
 
 - **Team**: Ziheng Wang, Dongxu Xia, Di Wu, Renzhe Zhao
-- **Instructors**: 
+-  **Instructor**: Associate Professor Weiwei Jiang
+- **Acknowledgement**: 
   - Professor Baowei Wang
   - Professor Xu Cheng
   - Associate Professor Haibin Wang
   - Dr. Rui Su
   - Dr. Zhaodong Sun
   - Professor Xiaobai Li
-- **Instructor**: Associate Professor Weiwei Jiang
+
 - **Technology**: DeepSeek, ONNX Runtime, Alibaba Cloud
 
 ---
