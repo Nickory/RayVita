@@ -195,6 +195,7 @@ fun EnhancedBannerCard(
                     "banner_ai.png" -> R.drawable.fc3_stress_and_anxiety
                     "theme.jpg"->R.drawable.theme
                     "banner_synapse.png"->R.drawable.web
+                    "banner_plan.png"->R.drawable.p6_plan
                     else -> banner.imageUrl // 支持远程 URL
                 },
                 contentDescription = banner.title,

@@ -445,6 +445,8 @@
     <string name="home_banner_health_challenge_subtitle">Take measurements for 7 consecutive days to earn exclusive badges</string>
     <string name="home_banner_breathing_training_title">Breathing Training</string>
     <string name="home_banner_breathing_training_subtitle">5 minutes daily to improve heart rate variability</string>
+    <string name="home_banner_plan_subtitle">More Things in RayVita -- VisMind</string>
+    <string name="home_banner_plan_title">Edition 5.0 in RayVita</string>
 
     <!-- Achievement Names -->
     <string name="home_achievement_first_measurement">First Measurement</string>
@@ -607,7 +609,7 @@
 
     <!-- Academic Support -->
     <string name="about_academic_support">Support</string>
-    <string name="about_professor_wang">Professor Wang Baowei; Professor Cheng Xu; Dr. Sun Zhaodong; Professor Li Xiaobai; Dr.Su Rui; Associate Professor Wang Haibin</string>
+    <string name="about_professor_wang">Professor Wang Baowei; Professor Cheng Xu; Dr. Sun Zhaodong; Professor Li Xiaobai; Dr.Su Rui; Associate Professor Wang Haibin Professor Jian Yang</string>
     <string name="about_professor_cheng"> - Thanks for assistance and help</string>
     <string name="about_dr_sun"> - Thanks for research support</string>
     <string name="about_researcher_li">Researcher  - Thanks for technical help</string>

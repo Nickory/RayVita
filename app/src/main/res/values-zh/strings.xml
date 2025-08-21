@@ -410,6 +410,7 @@
     <string name="home_banner_breathing_training_subtitle">每日5分钟，改善心率变异性</string>
 
     <!-- Achievement Names -->
+    <string name="home_banner_plan_title">尽情期待5.0版本</string>
     <string name="home_achievement_first_measurement">初次测量</string>
     <string name="home_achievement_first_measurement_desc">完成第一次健康测量</string>
     <string name="home_achievement_consistent_user">坚持不懈</string>
@@ -569,7 +570,7 @@
 
     <!-- Academic Support -->
     <string name="about_academic_support">感谢支持</string>
-    <string name="about_professor_wang">王保卫教授 程旭教授 孙照东博士 李晓白教授 苏芮博士 王海彬副教授 - 感谢指导和帮助</string>
+    <string name="about_professor_wang">王保卫教授 程旭教授 孙照东博士 李晓白教授 苏芮博士 王海彬副教授 杨健教授- 感谢指导和帮助</string>
     <string name="about_professor_cheng"> - 感谢协助和支持</string>
     <string name="about_dr_sun"> - 感谢研究支持</string>
     <string name="about_researcher_li"> - 感谢技术帮助</string>
@@ -1081,4 +1082,5 @@
     <!-- Banner 5: RayVita-Synapse -->
     <string name="home_banner_rayvita_synapse_title">RayVita-Synapse</string>
     <string name="home_banner_rayvita_synapse_subtitle">跨平台健康数据可视化中枢</string>
+    <string name="home_banner_plan_subtitle">VisMind更多在未来</string>
 </resources>

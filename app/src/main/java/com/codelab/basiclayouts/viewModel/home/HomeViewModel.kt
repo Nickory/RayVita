@@ -185,7 +185,7 @@ class HomeViewModel(private val context: Context) : ViewModel(), IHomeViewModel 
                 subtitle = context.getString(R.string.home_banner_health_challenge_subtitle),
                 actionType = "activity", // 保持不变 - 逻辑标识符
                 actionData = "weekly_challenge",
-                imageUrl ="banner_wellnes s.png"
+                imageUrl ="banner_wellness.png"
 
         ),
             BannerItem(
@@ -195,8 +195,15 @@ class HomeViewModel(private val context: Context) : ViewModel(), IHomeViewModel 
                 actionType = "recommendation", // 保持不变 - 逻辑标识符
                 actionData = "breathing_training",
                 imageUrl = "banner_ai.png"
+        ),
+            BannerItem(
+            id = "banner_6",
+            title = context.getString(R.string.home_banner_plan_title),
+            subtitle = context.getString(R.string.home_banner_plan_subtitle),
+            actionType = "recommendation", // 保持不变 - 逻辑标识符
+            actionData = "breathing_training",
+            imageUrl = "banner_plan.png"
         )
-
 
 
         )
