@@ -6,6 +6,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.codelab.basiclayouts.R
 
 @Composable
 fun DownloadFloatingButton() {
@@ -20,7 +22,7 @@ fun DownloadFloatingButton() {
             context.startActivity(intent)
         }
     ) {
-        Text(text = "下载新版")
+        Text(stringResource(R.string.profile_download))
     }
 }
 

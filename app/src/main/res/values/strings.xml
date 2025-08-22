@@ -887,6 +887,7 @@
     <string name="profile_clear_errors">Clear Errors</string>
     <string name="profile_refresh_users">Refresh Users</string>
     <string name="profile_force_logout">Force Logout</string>
+    <string name="profile_download">Download New Edition</string>
 
     <!-- Login Screen Related Strings -->
     <string name="login_title">Login</string>
@@ -1119,4 +1120,5 @@
     <!-- Banner 5: RayVita-Synapse -->
     <string name="home_banner_rayvita_synapse_title">RayVita-Synapse</string>
     <string name="home_banner_rayvita_synapse_subtitle">Cross-platform health data visualization hub</string>
+
 </resources>
