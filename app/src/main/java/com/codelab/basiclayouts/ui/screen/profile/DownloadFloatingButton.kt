@@ -2,6 +2,7 @@ package com.codelab.basiclayouts.ui.profile
 
 import android.content.Intent
 import android.net.Uri
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -21,17 +22,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.codelab.basiclayouts.R
 
+
 @Composable
 fun DownloadFloatingButton() {
     val context = LocalContext.current
 
+
     ExtendedFloatingActionButton(
+
         onClick = {
             val intent = Intent(
                 Intent.ACTION_VIEW,
                 Uri.parse("http://47.96.237.130/download")
             )
             context.startActivity(intent)
+
         },
         icon = {
             Icon(
@@ -54,5 +59,6 @@ fun DownloadFloatingButton() {
         contentColor = Color.White,
         elevation = FloatingActionButtonDefaults.elevation(6.dp)
     )
+
 }
 
