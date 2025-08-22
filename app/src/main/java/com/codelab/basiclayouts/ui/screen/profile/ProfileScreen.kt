@@ -375,6 +375,7 @@ fun ProfileScreen(
 //                context = LocalContext.current
 //            )
 //        },
+        floatingActionButton = { DownloadFloatingButton() },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
