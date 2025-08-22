@@ -761,6 +761,7 @@
     <string name="profile_default_user_name">用户</string>
     <string name="profile_edit_profile">编辑资料</string>
     <string name="profile_sign_out">退出登录</string>
+    <string name="profile_download_new_version">下载新版</string>
 
     <!-- Settings Section -->
     <string name="profile_settings_and_support">设置与支持</string>
